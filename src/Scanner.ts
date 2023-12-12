@@ -27,9 +27,9 @@ interface EOFToken {
   type: TokenType.EOF;
 }
 
-type Token = GenericToken | BooleanToken | StringToken | EOFToken;
+export type Token = GenericToken | BooleanToken | StringToken | EOFToken;
 
-enum TokenType {
+export enum TokenType {
   LeftParen,
   RightParen,
 
