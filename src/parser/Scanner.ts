@@ -1,52 +1,17 @@
-export interface CharacterStream {
-  next(): string;
-  peek(num?: number): string;
-  extract(): { position: number; lexeme: string };
-}
+import { ErrorReporter } from "./Reporter";
+import { Token, LoxType } from "./Token";
+import { TokenType } from "./TokenType";
 
-export function scan(source: string): CharacterStream {
-  let start = 0;
-  let current = 0;
-
-  const done = (num = 0) => current + num >= source.length;
-
-  return {
-    next() {
-      return done() ? "\0" : source.charAt(current++);
-    },
-    peek(num = 0) {
-      return done(num) ? "\0" : source.charAt(current + num);
-    },
-    extract() {
-      const lexeme = source.slice(start, current);
-      const position = start;
-      start = current;
-      return { position, lexeme };
-    },
-  };
-}
-
-export function match(char: string, ...matches: string[]) {
-  for (let match of matches) {
-    if (match.length === 1) {
-      if (char === match) return true;
-    } else {
-      let [begin, _, end] = match;
-      if (char >= begin && char <= end) return true;
-    }
-  }
-
-  return false;
-}
-
-/*
 export class Scanner {
   private tokens: Token[] = [];
   private start = 0;
   private current = 0;
   private line = 1;
 
-  constructor(private readonly source: string) {}
+  constructor(
+    private readonly source: string,
+    private readonly error: ErrorReporter
+  ) {}
 
   scanTokens() {
     while (!this.isAtEnd()) {
@@ -80,9 +45,6 @@ export class Scanner {
       case ".":
         this.addToken(TokenType.Dot);
         break;
-      case "-":
-        this.addToken(TokenType.Minus);
-        break;
       case "+":
         this.addToken(TokenType.Plus);
         break;
@@ -91,6 +53,9 @@ export class Scanner {
         break;
       case "*":
         this.addToken(TokenType.Star);
+        break;
+      case "/":
+        this.addToken(TokenType.Slash);
         break;
       case "!":
         this.addToken(this.match("=") ? TokenType.BangEqual : TokenType.Bang);
@@ -107,12 +72,12 @@ export class Scanner {
         );
         break;
 
-      case "/":
-        if (this.match("/")) {
-          // A comment goes until the end of the line.
+      case "-":
+        if (this.match("-")) {
+          // Single-line comment
           while (this.peek() != "\n" && !this.isAtEnd()) this.advance();
         } else {
-          this.addToken(TokenType.Slash);
+          this.addToken(TokenType.Minus);
         }
         break;
 
@@ -136,7 +101,7 @@ export class Scanner {
         } else if (this.isAlpha(c)) {
           this.identifier();
         } else {
-          error(this.line, "Unexpected character.");
+          this.error(this.line, "Unexpected character.");
         }
         break;
     }
@@ -177,7 +142,7 @@ export class Scanner {
     }
 
     if (this.isAtEnd()) {
-      error(this.line, "Unterminated string.");
+      this.error(this.line, "Unterminated string.");
       return;
     }
 
@@ -251,4 +216,3 @@ const keywords: { [keyword: string]: TokenType } = {
   var: TokenType.Var,
   while: TokenType.While,
 };
-*/
