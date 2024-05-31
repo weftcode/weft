@@ -3,6 +3,7 @@ import { Token } from "./Token";
 import { TokenType } from "./TokenType";
 
 import { Expr } from "./Expr";
+import { Stmt } from "./Stmt";
 
 export class Parser {
   private current = 0;
@@ -10,19 +11,78 @@ export class Parser {
   constructor(private tokens: Token[]) {}
 
   parse() {
+    const statements: Stmt[] = [];
+
+    while (!this.isAtEnd()) {
+      statements.push(this.declaration());
+    }
+
+    return statements;
+  }
+
+  private declaration() {
     try {
-      return this.expression();
-    } catch (error) {
-      if (error instanceof ParseError) {
-        return null;
-      } else {
-        throw error;
+      if (this.match(TokenType.Var)) {
+        return this.varDeclaration();
       }
+
+      return this.statement();
+    } catch (error) {
+      this.synchronize();
+      return null;
     }
   }
 
+  private varDeclaration() {
+    const name = this.consume(TokenType.Identifier, "Expect variable name.");
+
+    let initializer: Expr = null;
+    if (this.match(TokenType.Equal)) {
+      initializer = this.expression();
+    }
+
+    this.consume(TokenType.Semicolon, "Expect ';' after variable declaration.");
+    return Stmt.Var(name, initializer);
+  }
+
+  private statement() {
+    if (this.match(TokenType.Print)) return this.printStatement();
+
+    return this.expressionStatement();
+  }
+
+  private printStatement() {
+    const expression = this.expression();
+    this.consume(TokenType.Semicolon, "Expect ';' after value.");
+    return Stmt.Print(expression);
+  }
+
+  private expressionStatement() {
+    const expression = this.expression();
+    this.consume(TokenType.Semicolon, "Expect ';' after expression.");
+    return Stmt.Expression(expression);
+  }
+
   private expression() {
-    return this.equality();
+    return this.assignment();
+  }
+
+  private assignment() {
+    const expression = this.equality();
+
+    if (this.match(TokenType.Equal)) {
+      const equals = this.previous();
+      const value = this.assignment();
+
+      if (expression.type === Expr.Type.Variable) {
+        const name = expression.name;
+        return Expr.Assignment(name, value);
+      }
+
+      error(equals, "Invalid assignment target.");
+    }
+
+    return expression;
   }
 
   private equality() {
@@ -97,6 +157,10 @@ export class Parser {
 
     if (this.match(TokenType.Number, TokenType.String)) {
       return Expr.Literal(this.previous().literal);
+    }
+
+    if (this.match(TokenType.Identifier)) {
+      return Expr.Variable(this.previous());
     }
 
     if (this.match(TokenType.LeftParen)) {

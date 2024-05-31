@@ -1,27 +1,53 @@
 import { ErrorReporter } from "./Reporter";
 import { LoxType, Token } from "./Token";
 import { Expr } from "./Expr";
+import { Stmt } from "./Stmt";
 import { TokenType } from "./TokenType";
+import { Environment } from "./Environment";
 
 export class Interpreter {
+  private environment = new Environment();
+
   constructor(private readonly error: ErrorReporter) {}
 
-  interpret(expression: Expr) {
+  interpret(statements: Stmt[]) {
+    let results: string[] = [];
+
     try {
-      const value = this.evaluate(expression);
-      return this.stringify(value);
+      results = statements.flatMap((s) => this.execute(s));
     } catch (error) {
       if (error instanceof RuntimeError) {
-        let { token, message } = error;
-        this.error(token, message);
+        this.error(error.token, error.message);
       }
     }
+
+    return results;
   }
 
   private stringify(object: LoxType) {
     if (object == null) return "nil";
 
     return object.toString();
+  }
+
+  private execute(stmt: Stmt): string[] {
+    switch (stmt.type) {
+      case Stmt.Type.Expression:
+        this.evaluate(stmt.expression);
+        return [];
+      case Stmt.Type.Print:
+        const value = this.evaluate(stmt.expression);
+        return [this.stringify(value)];
+      case Stmt.Type.Var: {
+        let value: LoxType = null;
+        if (stmt.initializer != null) {
+          value = this.evaluate(stmt.initializer);
+        }
+
+        this.environment.define(stmt.name.lexeme, value);
+        return [];
+      }
+    }
   }
 
   private evaluate(expr: Expr): LoxType {
@@ -89,6 +115,13 @@ export class Interpreter {
         }
 
         return null;
+      }
+      case Expr.Type.Variable:
+        return this.environment.get(expr.name);
+      case Expr.Type.Assignment: {
+        const value = this.evaluate(expr.value);
+        this.environment.assign(expr.name, value);
+        return value;
       }
     }
   }
