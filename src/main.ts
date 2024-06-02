@@ -2,6 +2,7 @@ import { EditorView, basicSetup } from "codemirror";
 import { keymap, KeyBinding } from "@codemirror/view";
 import { StateEffect } from "@codemirror/state";
 
+import { AstPrinter } from "./parser/AstPrinter";
 import { Scanner } from "./parser/Scanner";
 import { Parser } from "./parser/Parser";
 import { error, wasError } from "./parser/Reporter";
@@ -32,10 +33,12 @@ const listener = EditorView.updateListener.of((update) => {
           const parser = new Parser(tokens);
           const expression = parser.parse();
 
-          const interpreter = new Interpreter(error);
-          document.getElementById("output").innerText = interpreter
-            .interpret(expression)
-            .join("\n");
+          // const interpreter = new Interpreter(error);
+
+          const printer = new AstPrinter();
+
+          document.getElementById("output").innerText =
+            printer.printStmts(expression);
 
           // Stop if there was a syntax error.
           if (wasError) return;
