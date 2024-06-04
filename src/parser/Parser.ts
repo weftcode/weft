@@ -59,12 +59,18 @@ export class Parser {
 
   private expressionStatement() {
     const expression = this.expression();
-    this.consume(TokenType.Semicolon, "Expect ';' after expression.");
+    this.consume(TokenType.LineBreak, "Expect new line after expression.");
     return Stmt.Expression(expression);
   }
 
   private expression() {
-    return this.assignment();
+    return this.application();
+  }
+
+  private application() {
+    const left = this.unary();
+    const right = this.unary();
+    return Expr.Application(left, right);
   }
 
   private assignment() {
@@ -116,7 +122,7 @@ export class Parser {
     return expr;
   }
 
-  private term() {
+  private termOld() {
     let expr = this.factor();
 
     while (this.match(TokenType.Minus, TokenType.Plus)) {
@@ -129,15 +135,22 @@ export class Parser {
   }
 
   private factor() {
-    let expr = this.unary();
+    let expr = this.exp();
 
     while (this.match(TokenType.Slash, TokenType.Star)) {
       let operator = this.previous();
-      let right = this.unary();
+      let right = this.exp();
       expr = Expr.Binary(expr, operator, right);
     }
 
     return expr;
+  }
+
+  private exp(): Expr {
+    let left = this.unary();
+    let right = this.unary();
+
+    return Expr.Application(left, right);
   }
 
   private unary(): Expr {
@@ -164,7 +177,9 @@ export class Parser {
     }
 
     if (this.match(TokenType.LeftParen)) {
+      console.log("match left paren");
       let expr = this.expression();
+      console.log(expr);
       this.consume(TokenType.RightParen, "Expect ')' after expression.");
       return Expr.Grouping(expr);
     }

@@ -8,6 +8,16 @@ import { Parser } from "./parser/Parser";
 import { error, wasError } from "./parser/Reporter";
 import { Interpreter } from "./parser/Interpreter";
 
+import { parser } from "./language.grammar";
+
+import { LRLanguage, LanguageSupport } from "@codemirror/language";
+
+const language = LRLanguage.define({ parser });
+
+export function example() {
+  return new LanguageSupport(language, []);
+}
+
 const EvalEffect = StateEffect.define<void>();
 
 const evalKeymap: KeyBinding[] = [

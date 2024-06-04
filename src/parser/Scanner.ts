@@ -89,6 +89,7 @@ export class Scanner {
 
       case "\n":
         this.line++;
+        this.addToken(TokenType.LineBreak);
         break;
 
       case '"':

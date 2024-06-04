@@ -11,6 +11,6 @@ export class Token {
   ) {}
 
   toString() {
-    return `${this.type} ${this.lexeme} ${this.literal}`;
+    return `${this.type} ${this.lexeme.replace("\n", "\\n")} ${this.literal}`;
   }
 }

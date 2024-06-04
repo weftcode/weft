@@ -11,16 +11,22 @@ export type Expr =
   | { type: Expr.Type.Grouping; expression: Expr }
   | { type: Expr.Type.Literal; value: LoxType }
   | { type: Expr.Type.Unary; operator: Token; right: Expr }
-  | { type: Expr.Type.Variable; name: Token };
+  | { type: Expr.Type.Variable; name: Token }
+  | { type: Expr.Type.Application; left: Expr; right: Expr };
 
 export namespace Expr {
   export enum Type {
+    Application,
     Assignment,
     Binary,
     Grouping,
     Literal,
     Unary,
     Variable,
+  }
+
+  export function Application(left: Expr, right: Expr): Expr {
+    return { type: Expr.Type.Application, left, right };
   }
 
   export function Assignment(name: Token, value: Expr): Expr {

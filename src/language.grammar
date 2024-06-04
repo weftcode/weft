@@ -1,0 +1,31 @@
+@top Program { statement* }
+
+statement {
+  expression newline
+}
+
+expression {
+  FunctionTerm ArgumentTerm
+}
+
+ArgumentTerm {
+  expression
+}
+
+FunctionTerm {
+  Identifier | Grouping
+}
+
+Grouping { "(" expression ")" }
+
+@tokens {
+  Identifier { $[a-zA-Z_]+ }
+  String { '"' (!["\\] | "\\" _)* '"' }
+  Boolean { "true" | "false" }
+  LineComment { "--" ![\n]* }
+  space { $[ \t]+ }
+  "(" ")"
+  newline { "\n" }
+}
+
+@skip { space }

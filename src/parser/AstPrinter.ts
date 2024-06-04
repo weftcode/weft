@@ -32,6 +32,8 @@ export class AstPrinter {
         return this.parenthesize("assignment " + expr.name.lexeme, expr.value);
       case Expr.Type.Variable:
         return expr.name.lexeme;
+      case Expr.Type.Application:
+        return this.parenthesize("application", expr.left, expr.right);
       default:
         return expr satisfies never;
     }

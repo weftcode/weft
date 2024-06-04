@@ -1,4 +1,7 @@
 export enum TokenType {
+  // Formatting
+  LineBreak = "LINE_BREAK",
+
   // Single-character tokens.
   LeftParen = "LEFT_PAREN",
   RightParen = "RIGHT_PAREN",
