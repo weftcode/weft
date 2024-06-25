@@ -1,5 +1,5 @@
 import { ErrorReporter } from "./Reporter";
-import { Token, LoxType } from "./Token";
+import { Token, Primitive } from "./Token";
 import { TokenType } from "./TokenType";
 
 export class Scanner {
@@ -45,39 +45,88 @@ export class Scanner {
       case ".":
         this.addToken(TokenType.Dot);
         break;
-      case "+":
-        this.addToken(TokenType.Plus);
-        break;
       case ";":
         this.addToken(TokenType.Semicolon);
         break;
-      case "*":
-        this.addToken(TokenType.Star);
-        break;
-      case "/":
-        this.addToken(TokenType.Slash);
-        break;
-      case "!":
-        this.addToken(this.match("=") ? TokenType.BangEqual : TokenType.Bang);
-        break;
-      case "=":
-        this.addToken(this.match("=") ? TokenType.EqualEqual : TokenType.Equal);
-        break;
-      case "<":
-        this.addToken(this.match("=") ? TokenType.LessEqual : TokenType.Less);
-        break;
-      case ">":
-        this.addToken(
-          this.match("=") ? TokenType.GreaterEqual : TokenType.Greater
-        );
+
+      // Operators
+      case "$":
+        this.addToken(TokenType.Dollar);
         break;
 
+      case "+":
+        this.addToken(this.match("|") ? TokenType.PlusSR : TokenType.Plus);
+        break;
       case "-":
         if (this.match("-")) {
           // Single-line comment
           while (this.peek() != "\n" && !this.isAtEnd()) this.advance();
         } else {
-          this.addToken(TokenType.Minus);
+          this.addToken(this.match("|") ? TokenType.MinusSR : TokenType.Minus);
+        }
+        break;
+      case "*":
+        this.addToken(this.match("|") ? TokenType.StarSR : TokenType.Star);
+        break;
+      case "/":
+        this.addToken(this.match("|") ? TokenType.SlashSR : TokenType.Slash);
+        break;
+
+      case "=":
+        this.addToken(this.match("=") ? TokenType.EqualEqual : TokenType.Equal);
+        break;
+
+      case "<":
+        if (this.match("|")) {
+          this.addToken(TokenType.LeftSR);
+        } else {
+          this.addToken(this.match("=") ? TokenType.LessEqual : TokenType.Less);
+        }
+        break;
+      case ">":
+        if (this.match("|")) {
+          this.addToken(TokenType.RightSR);
+        } else {
+          this.addToken(
+            this.match("=") ? TokenType.GreaterEqual : TokenType.Greater
+          );
+        }
+        break;
+
+      case "#":
+        this.addToken(TokenType.RightSL);
+        break;
+
+      case "|":
+        if (this.match("+")) {
+          this.addToken(this.match("|") ? TokenType.PlusSB : TokenType.PlusSL);
+        } else if (this.match("-")) {
+          if (this.peek() == "-") {
+            if (this.peekNext() == "-") {
+              this.error(this.line, "Unexpected character.");
+
+              // Consume single-line comment
+              this.advance();
+              this.advance();
+              while (this.peek() != "\n" && !this.isAtEnd()) this.advance();
+            } else {
+              this.addToken(
+                this.match("|") ? TokenType.MinusSB : TokenType.MinusSL
+              );
+            }
+          }
+        } else if (this.match("*")) {
+          this.addToken(this.match("|") ? TokenType.StarSB : TokenType.StarSL);
+        } else if (this.match("/")) {
+          this.addToken(
+            this.match("|") ? TokenType.SlashSB : TokenType.SlashSL
+          );
+        } else if (this.match("<")) {
+          this.addToken(this.match("|") ? TokenType.LeftSB : TokenType.LeftSL);
+        } else if (this.match(">")) {
+          this.addToken(
+            this.match("|") ? TokenType.RightSB : TokenType.RightSL
+          );
         }
         break;
 
@@ -193,7 +242,7 @@ export class Scanner {
     return this.source.charAt(this.current++);
   }
 
-  private addToken(type: TokenType, literal: LoxType = null) {
+  private addToken(type: TokenType, literal: Primitive = null) {
     const text = this.source.substring(this.start, this.current);
     this.tokens.push(new Token(type, text, literal, this.line));
   }

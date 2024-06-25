@@ -1,4 +1,4 @@
-import { Token, LoxType } from "./Token";
+import { Token, Primitive } from "./Token";
 
 export type Expr =
   | { type: Expr.Type.Assignment; name: Token; value: Expr }
@@ -9,7 +9,7 @@ export type Expr =
       right: Expr;
     }
   | { type: Expr.Type.Grouping; expression: Expr }
-  | { type: Expr.Type.Literal; value: LoxType }
+  | { type: Expr.Type.Literal; value: Primitive }
   | { type: Expr.Type.Unary; operator: Token; right: Expr }
   | { type: Expr.Type.Variable; name: Token }
   | { type: Expr.Type.Application; left: Expr; right: Expr };
@@ -41,7 +41,7 @@ export namespace Expr {
     return { type: Expr.Type.Grouping, expression };
   }
 
-  export function Literal(value: LoxType): Expr {
+  export function Literal(value: Primitive): Expr {
     return { type: Expr.Type.Literal, value };
   }
 

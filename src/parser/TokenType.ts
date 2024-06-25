@@ -9,14 +9,36 @@ export enum TokenType {
   RightBrace = "RIGHT_BRACE",
   Comma = "COMMA",
   Dot = "DOT",
+  Semicolon = "SEMICOLON",
+  Dollar = "DOLLAR",
+
+  // Arithmetic
   Minus = "MINUS",
   Plus = "PLUS",
-  Semicolon = "SEMICOLON",
   Slash = "SLASH",
   Star = "STAR",
 
+  // Pattern operators
+  MinusSB = "MINUS_SB", // |-|
+  MinusSL = "MINUS_SL", // |-
+  MinusSR = "MINUS_SR", //  -|
+  PlusSB = "PLUS_SB", //   |+|
+  PlusSL = "PLUS_SL", //   |+
+  PlusSR = "PLUS_SR", //    +|
+  SlashSB = "SLASH_SB", // |/|
+  SlashSL = "SLASH_SL", // |/
+  SlashSR = "SLASH_SR", //  /|
+  StarSB = "STAR_SB", //   |*|
+  StarSL = "STAR_SL", //   |*
+  StarSR = "STAR_SR", //    *|
+  RightSB = "RIGHT_SB", // |>|
+  RightSL = "RIGHT_SL", // |>  (also #)
+  RightSR = "RIGHT_SR", //  >|
+  LeftSB = "LEFT_SB", //   |<|
+  LeftSL = "LEFT_SL", //   |<
+  LeftSR = "LEFT_SR", //    <|
+
   // One or two character tokens.
-  Bang = "BANG",
   BangEqual = "BANG_EQUAL",
   Equal = "EQUAL",
   EqualEqual = "EQUAL_EQUAL",

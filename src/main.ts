@@ -41,14 +41,14 @@ const listener = EditorView.updateListener.of((update) => {
             .map((t) => t.toString())
             .join("\n");
           const parser = new Parser(tokens);
-          const expression = parser.parse();
+          const stmts = parser.parse();
 
           // const interpreter = new Interpreter(error);
 
           const printer = new AstPrinter();
 
           document.getElementById("output").innerText =
-            printer.printStmts(expression);
+            printer.printStmts(stmts);
 
           // Stop if there was a syntax error.
           if (wasError) return;

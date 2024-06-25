@@ -25,6 +25,7 @@ export class AstPrinter {
         return this.parenthesize("group", expr.expression);
       case Expr.Type.Literal:
         if (expr.value == null) return "nil";
+        if (typeof expr.value === "string") return `"${expr.value}"`;
         return expr.value.toString();
       case Expr.Type.Unary:
         return this.parenthesize(expr.operator.lexeme, expr.right);
@@ -39,7 +40,15 @@ export class AstPrinter {
     }
   }
 
-  private parenthesize(name: string, ...exprs: Expr[]): string {
-    return `(${name} ${exprs.map((e) => this.print(e)).join(" ")})`;
+  private parenthesize(name: string, ...exprs: (Expr | Expr[])[]): string {
+    const print = (e: Expr | Expr[]) => {
+      if (Array.isArray(e)) {
+        return `[${e.map(print).join(", ")}]`;
+      } else {
+        return this.print(e);
+      }
+    };
+
+    return `(${name} ${exprs.map(print).join(" ")})`;
   }
 }

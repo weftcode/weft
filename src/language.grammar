@@ -5,14 +5,10 @@ statement {
 }
 
 expression {
-  FunctionTerm ArgumentTerm
+  Term Term*
 }
 
-ArgumentTerm {
-  expression
-}
-
-FunctionTerm {
+Term {
   Identifier | Grouping
 }
 
