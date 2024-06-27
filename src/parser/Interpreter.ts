@@ -1,14 +1,17 @@
 import { ErrorReporter } from "./Reporter";
-import { LoxType, Token } from "./Token";
+import { Primitive, Token } from "./Token";
 import { Expr } from "./Expr";
 import { Stmt } from "./Stmt";
-import { TokenType } from "./TokenType";
 import { Environment } from "./Environment";
 
 export class Interpreter {
   private environment = new Environment();
 
-  constructor(private readonly error: ErrorReporter) {}
+  constructor(
+    private readonly error: ErrorReporter,
+    private bindings,
+    private operators
+  ) {}
 
   interpret(statements: Stmt[]) {
     let results: string[] = [];
@@ -24,7 +27,7 @@ export class Interpreter {
     return results;
   }
 
-  private stringify(object: LoxType) {
+  private stringify(object: Primitive) {
     if (object == null) return "nil";
 
     return object.toString();
@@ -33,114 +36,63 @@ export class Interpreter {
   private execute(stmt: Stmt): string[] {
     switch (stmt.type) {
       case Stmt.Type.Expression:
-        this.evaluate(stmt.expression);
-        return [];
+        let result = this.evaluate(stmt.expression);
+        return result ? [this.stringify(result)] : [];
       case Stmt.Type.Print:
-        const value = this.evaluate(stmt.expression);
-        return [this.stringify(value)];
+        //const value = this.evaluate(stmt.expression);
+        //return [this.stringify(value)];
+        return [];
       case Stmt.Type.Var: {
-        let value: LoxType = null;
-        if (stmt.initializer != null) {
-          value = this.evaluate(stmt.initializer);
-        }
+        // let value: LoxType = null;
+        // if (stmt.initializer != null) {
+        //   value = this.evaluate(stmt.initializer);
+        // }
 
-        this.environment.define(stmt.name.lexeme, value);
+        // this.environment.define(stmt.name.lexeme, value);
         return [];
       }
     }
   }
 
-  private evaluate(expr: Expr): LoxType {
+  private evaluate(expr: Expr): Primitive | null {
     switch (expr.type) {
       case Expr.Type.Literal:
         return expr.value;
       case Expr.Type.Grouping:
         return this.evaluate(expr.expression);
-      case Expr.Type.Unary: {
-        const right = this.evaluate(expr.right);
-
-        switch (expr.operator.type) {
-          case TokenType.Bang:
-            return !this.isTruthy(right);
-          case TokenType.Minus:
-            this.checkNumberOperand(expr.operator, right);
-            return -(right as number);
-        }
-
-        return null;
-      }
       case Expr.Type.Binary: {
         const left = this.evaluate(expr.left);
         const right = this.evaluate(expr.right);
 
-        switch (expr.operator.type) {
-          case TokenType.Greater:
-            this.checkNumberOperands(expr.operator, left, right);
-            return (left as number) > (right as number);
-          case TokenType.GreaterEqual:
-            this.checkNumberOperands(expr.operator, left, right);
-            return (left as number) >= (right as number);
-          case TokenType.Less:
-            this.checkNumberOperands(expr.operator, left, right);
-            return (left as number) < (right as number);
-          case TokenType.LessEqual:
-            this.checkNumberOperands(expr.operator, left, right);
-            return (left as number) <= (right as number);
-          case TokenType.BangEqual:
-            return left !== right;
-          case TokenType.EqualEqual:
-            return left === right;
-          case TokenType.Minus:
-            this.checkNumberOperands(expr.operator, left, right);
-            return (left as number) - (right as number);
-          case TokenType.Plus:
-            if (typeof left === "number" && typeof right === "number") {
-              return left + right;
-            }
-
-            if (typeof left === "string" && typeof right === "string") {
-              return left + right;
-            }
-
-            throw new RuntimeError(
-              expr.operator,
-              "Operands must be two numbers or two strings."
-            );
-          case TokenType.Slash:
-            this.checkNumberOperands(expr.operator, left, right);
-            return (left as number) / (right as number);
-          case TokenType.Star:
-            this.checkNumberOperands(expr.operator, left, right);
-            return (left as number) * (right as number);
+        if (expr.operator.type in this.operators) {
+          return this.operators[expr.operator.type](left, right);
         }
 
-        return null;
+        throw new RuntimeError(expr.operator, "Operator isn't implemented");
       }
       case Expr.Type.Variable:
         return this.environment.get(expr.name);
-      case Expr.Type.Assignment: {
-        const value = this.evaluate(expr.value);
-        this.environment.assign(expr.name, value);
-        return value;
+      case Expr.Type.Application: {
+        const left = this.curry(expr.left);
+        const right = this.evaluate(expr.right);
+        return left(right);
       }
     }
   }
 
-  private isTruthy(object: LoxType) {
-    if (object === null) return false;
-    if (typeof object === "boolean") return object;
-    return true;
-  }
+  private curry(func: Expr): Function {
+    if (func.type === Expr.Type.Variable) {
+      if (func.name.lexeme in this.bindings) {
+        return this.bindings[func.name.lexeme];
+      }
+    } else if (func.type === Expr.Type.Grouping) {
+      return this.curry(func.expression);
+    } else if (func.type === Expr.Type.Application) {
+      const arg = this.evaluate(func.right);
+      return (...args: any[]) => this.curry(func.left)(arg, ...args);
+    }
 
-  private checkNumberOperand(operator: Token, operand: LoxType) {
-    if (typeof operand === "number") return;
-    throw new RuntimeError(operator, "Operand must be a number.");
-  }
-
-  private checkNumberOperands(operator: Token, left: LoxType, right: LoxType) {
-    if (typeof left === "number" && typeof right === "number") return;
-
-    throw new RuntimeError(operator, "Operands must be numbers.");
+    throw new Error("Unexpected function");
   }
 }
 

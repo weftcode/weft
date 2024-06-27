@@ -8,6 +8,8 @@ import { Parser } from "./parser/Parser";
 import { error, wasError } from "./parser/Reporter";
 import { Interpreter } from "./parser/Interpreter";
 
+import { bindings, operators } from "./strudel";
+
 import { parser } from "./language.grammar";
 
 import { LRLanguage, LanguageSupport } from "@codemirror/language";
@@ -43,12 +45,13 @@ const listener = EditorView.updateListener.of((update) => {
           const parser = new Parser(tokens);
           const stmts = parser.parse();
 
-          // const interpreter = new Interpreter(error);
+          const interpreter = new Interpreter(error, bindings, operators);
 
           const printer = new AstPrinter();
 
-          document.getElementById("output").innerText =
-            printer.printStmts(stmts);
+          document.getElementById("output").innerText = interpreter
+            .interpret(stmts)
+            .join("\n");
 
           // Stop if there was a syntax error.
           if (wasError) return;
