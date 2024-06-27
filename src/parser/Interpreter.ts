@@ -21,6 +21,8 @@ export class Interpreter {
     } catch (error) {
       if (error instanceof RuntimeError) {
         this.error(error.token, error.message);
+      } else {
+        throw error;
       }
     }
 
