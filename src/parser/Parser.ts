@@ -10,7 +10,12 @@ export class Parser extends BaseParser<Stmt[]> {
     const statements: Stmt[] = [];
 
     while (!this.isAtEnd()) {
-      statements.push(this.expressionStatement());
+      if (this.check(TokenType.LineBreak)) {
+        // Ignore empty lines
+        this.advance();
+      } else {
+        statements.push(this.expressionStatement());
+      }
     }
 
     return statements;
@@ -142,6 +147,6 @@ export class Parser extends BaseParser<Stmt[]> {
       return Expr.Grouping(expr);
     }
 
-    throw this.error(this.peek(), "Expect expression.");
+    throw this.reporter.error(this.peek(), "Expect expression.");
   }
 }

@@ -7,7 +7,8 @@ export class Token {
     readonly type: TokenType,
     readonly lexeme: string,
     readonly literal: Primitive,
-    readonly line: number
+    readonly line: number,
+    readonly column: number
   ) {}
 
   toString() {

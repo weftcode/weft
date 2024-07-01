@@ -5,7 +5,7 @@ import { StateEffect } from "@codemirror/state";
 import { AstPrinter } from "./parser/AstPrinter";
 import { Scanner } from "./parser/Scanner";
 import { Parser } from "./parser/Parser";
-import { error, wasError } from "./parser/Reporter";
+import { ErrorReporter } from "./parser/Reporter";
 import { Interpreter } from "./parser/Interpreter";
 
 import { bindings, operators } from "./strudel";
@@ -36,25 +36,31 @@ const listener = EditorView.updateListener.of((update) => {
   for (let tr of update.transactions) {
     for (let effect of tr.effects) {
       if (effect.is(EvalEffect)) {
+        let reporter = new ErrorReporter();
+
         try {
-          const scanner = new Scanner(update.state.doc.toString(), error);
+          const scanner = new Scanner(update.state.doc.toString(), reporter);
           const tokens = scanner.scanTokens();
           document.getElementById("output").innerText = tokens
             .map((t) => t.toString())
             .join("\n");
-          const parser = new Parser(tokens);
+          const parser = new Parser(tokens, reporter);
           const stmts = parser.parse();
 
-          const interpreter = new Interpreter(error, bindings, operators);
+          // TODO: Error Handling
 
           const printer = new AstPrinter();
 
-          document.getElementById("output").innerText = interpreter
-            .interpret(stmts)
-            .join("\n");
+          if (reporter.hasError) {
+            document.getElementById("output").innerText =
+              reporter.errors.join("\n");
+          } else {
+            const interpreter = new Interpreter(reporter, bindings, operators);
 
-          // Stop if there was a syntax error.
-          if (wasError) return;
+            document.getElementById("output").innerText = interpreter
+              .interpret(stmts)
+              .join("\n");
+          }
         } catch (error) {
           console.log(error);
         }

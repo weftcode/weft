@@ -1,11 +1,11 @@
-import { error } from "./Reporter";
+import { ErrorReporter } from "./Reporter";
 import { Token } from "./Token";
 import { TokenType } from "./TokenType";
 
 export abstract class BaseParser<T> {
   private current = 0;
 
-  constructor(private tokens: Token[]) {}
+  constructor(private tokens: Token[], protected reporter: ErrorReporter) {}
 
   abstract parse(): T;
 
@@ -23,7 +23,7 @@ export abstract class BaseParser<T> {
   protected consume(type: TokenType, message: string) {
     if (this.check(type)) return this.advance();
 
-    throw this.error(this.peek(), message);
+    throw this.reporter.error(this.peek(), message);
   }
 
   protected check(type: TokenType) {
@@ -31,7 +31,7 @@ export abstract class BaseParser<T> {
     return this.peek().type == type;
   }
 
-  private advance() {
+  protected advance() {
     if (!this.isAtEnd()) this.current++;
     return this.previous();
   }
@@ -46,11 +46,6 @@ export abstract class BaseParser<T> {
 
   protected previous() {
     return this.tokens[this.current - 1];
-  }
-
-  protected error(token: Token, message: string) {
-    error(token, message);
-    return new ParseError();
   }
 
   protected synchronize() {
@@ -75,5 +70,3 @@ export abstract class BaseParser<T> {
     }
   }
 }
-
-class ParseError extends Error {}

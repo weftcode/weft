@@ -1,37 +1,45 @@
 import { Token } from "./Token";
 import { TokenType } from "./TokenType";
 
-export type ErrorReporter = ((line: number, message: string) => void) &
-  ((token: Token, message: string) => void);
+interface ErrorInfo {
+  line: number;
+  column: number;
+  message: string;
+}
 
-let hadError = false;
+export class ErrorReporter {
+  private errorInfo: ErrorInfo[] = [];
 
-export function error(line: number, message: string): void;
-export function error(token: Token, message: string): void;
-export function error(lineOrToken: number | Token, message: string) {
-  if (typeof lineOrToken === "number") {
-    const line = lineOrToken;
-    report(line, "", message);
-  } else {
-    const { type, line, lexeme } = lineOrToken;
-    if (type == TokenType.EOF) {
-      report(line, " at end", message);
-    } else {
-      report(line, ` at '${lexeme}'`, message);
-    }
+  get errors() {
+    return this.errorInfo.map(({ message }) => message);
   }
-}
 
-// export function runtimeError(error: RuntimeError) {
-//   console.error(`${error.message}\n[line ${error.token.line}]`);
-//   hadRuntimeError = true;
-// }
+  get hasError() {
+    return this.errorInfo.length > 0;
+  }
 
-function report(line: number, where: string, message: string) {
-  console.error(`[line ${line}] Error${where}: ${message}`);
-  hadError = true;
-}
+  error(token: Token, message: string);
+  error(line: number, column: number, message: string);
+  error(...args: [Token, string] | [number, number, string]) {
+    let line: number, column: number, message: string, where: string;
 
-export function wasError() {
-  return hadError;
+    if (args[0] instanceof Token && typeof args[1] === "string") {
+      let type: TokenType, lexeme: string;
+      [{ type, line, column, lexeme }, message] = args;
+      where = type === TokenType.EOF ? " at end" : ` at '${lexeme}'`;
+    } else if (
+      typeof args[0] === "number" &&
+      typeof args[1] === "number" &&
+      typeof args[2] === "string"
+    ) {
+      [line, column, message] = args;
+      where = "";
+    } else {
+      throw Error("Invalid error report");
+    }
+
+    message = `[${line}, ${column}] Error${where}: ${message}`;
+
+    this.errorInfo.push({ line, column, message });
+  }
 }

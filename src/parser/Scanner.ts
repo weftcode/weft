@@ -7,10 +7,15 @@ export class Scanner {
   private start = 0;
   private current = 0;
   private line = 1;
+  private lineStart = 0;
+
+  get column() {
+    return this.current - this.lineStart + 1;
+  }
 
   constructor(
     private readonly source: string,
-    private readonly error: ErrorReporter
+    private readonly reporter: ErrorReporter
   ) {}
 
   scanTokens() {
@@ -20,7 +25,9 @@ export class Scanner {
       this.scanToken();
     }
 
-    this.tokens.push(new Token(TokenType.EOF, "", null, this.line));
+    this.tokens.push(
+      new Token(TokenType.EOF, "", null, this.line, this.column)
+    );
     return this.tokens;
   }
 
@@ -103,7 +110,11 @@ export class Scanner {
         } else if (this.match("-")) {
           if (this.peek() == "-") {
             if (this.peekNext() == "-") {
-              this.error(this.line, "Unexpected character.");
+              this.reporter.error(
+                this.line,
+                this.column,
+                "Unexpected character."
+              );
 
               // Consume single-line comment
               this.advance();
@@ -137,8 +148,10 @@ export class Scanner {
         break;
 
       case "\n":
-        this.line++;
-        this.addToken(TokenType.LineBreak);
+        if (!this.peek().match(/[ \r\t]/)) {
+          this.addToken(TokenType.LineBreak);
+        }
+        this.advanceLine();
         break;
 
       case '"':
@@ -151,7 +164,11 @@ export class Scanner {
         } else if (this.isAlpha(c)) {
           this.identifier();
         } else {
-          this.error(this.line, "Unexpected character.");
+          this.reporter.error(
+            this.line,
+            this.column - 1,
+            `Unexpected character "${c}".`
+          );
         }
         break;
     }
@@ -160,12 +177,8 @@ export class Scanner {
   private identifier() {
     while (this.isAlphaNumeric(this.peek())) this.advance();
 
-    const text = this.source.substring(this.start, this.current);
-    if (text in keywords) {
-      this.addToken(keywords[text]);
-    } else {
-      this.addToken(TokenType.Identifier);
-    }
+    // TODO: Handle any potential keywords
+    this.addToken(TokenType.Identifier);
   }
 
   private number() {
@@ -187,12 +200,12 @@ export class Scanner {
 
   private string() {
     while (this.peek() != '"' && !this.isAtEnd()) {
-      if (this.peek() == "\n") this.line++;
-      this.advance();
+      let c = this.advance();
+      if (c === "\n") this.advanceLine();
     }
 
     if (this.isAtEnd()) {
-      this.error(this.line, "Unterminated string.");
+      this.reporter.error(this.line, this.column, "Unterminated string.");
       return;
     }
 
@@ -242,27 +255,13 @@ export class Scanner {
     return this.source.charAt(this.current++);
   }
 
+  private advanceLine() {
+    this.line += 1;
+    this.lineStart = this.current;
+  }
+
   private addToken(type: TokenType, literal: Primitive = null) {
     const text = this.source.substring(this.start, this.current);
-    this.tokens.push(new Token(type, text, literal, this.line));
+    this.tokens.push(new Token(type, text, literal, this.line, this.column));
   }
 }
-
-const keywords: { [keyword: string]: TokenType } = {
-  and: TokenType.And,
-  class: TokenType.Class,
-  else: TokenType.Else,
-  false: TokenType.False,
-  for: TokenType.For,
-  fun: TokenType.Fun,
-  if: TokenType.If,
-  nil: TokenType.Nil,
-  or: TokenType.Or,
-  print: TokenType.Print,
-  return: TokenType.Return,
-  super: TokenType.Super,
-  this: TokenType.This,
-  true: TokenType.True,
-  var: TokenType.Var,
-  while: TokenType.While,
-};

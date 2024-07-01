@@ -2,13 +2,10 @@ import { ErrorReporter } from "./Reporter";
 import { Primitive, Token } from "./Token";
 import { Expr } from "./Expr";
 import { Stmt } from "./Stmt";
-import { Environment } from "./Environment";
 
 export class Interpreter {
-  private environment = new Environment();
-
   constructor(
-    private readonly error: ErrorReporter,
+    private readonly reporter: ErrorReporter,
     private bindings,
     private operators
   ) {}
@@ -17,10 +14,27 @@ export class Interpreter {
     let results: string[] = [];
 
     try {
-      results = statements.flatMap((s) => this.execute(s));
+      for (let statement of statements) {
+        let result = this.execute(statement);
+
+        if (
+          typeof result === "object" &&
+          result !== null &&
+          "runIO" in result &&
+          typeof result.runIO === "function"
+        ) {
+          result.runIO();
+        } else if (result !== undefined) {
+          results.push(this.stringify(result));
+        }
+      }
     } catch (error) {
       if (error instanceof RuntimeError) {
-        this.error(error.token, error.message);
+        this.reporter.error(
+          error.token.line,
+          error.token.column,
+          error.message
+        );
       } else {
         throw error;
       }
@@ -35,15 +49,14 @@ export class Interpreter {
     return object.toString();
   }
 
-  private execute(stmt: Stmt): string[] {
+  private execute(stmt: Stmt) {
     switch (stmt.type) {
       case Stmt.Type.Expression:
-        let result = this.evaluate(stmt.expression);
-        return result ? [this.stringify(result)] : [];
+        return this.evaluate(stmt.expression) as any;
       case Stmt.Type.Print:
         //const value = this.evaluate(stmt.expression);
         //return [this.stringify(value)];
-        return [];
+        return;
       case Stmt.Type.Var: {
         // let value: LoxType = null;
         // if (stmt.initializer != null) {
@@ -51,7 +64,7 @@ export class Interpreter {
         // }
 
         // this.environment.define(stmt.name.lexeme, value);
-        return [];
+        return;
       }
     }
   }
@@ -73,7 +86,14 @@ export class Interpreter {
         throw new RuntimeError(expr.operator, "Operator isn't implemented");
       }
       case Expr.Type.Variable:
-        return this.environment.get(expr.name);
+        if (expr.name.lexeme in this.bindings) {
+          return this.bindings[expr.name.lexeme];
+        } else {
+          throw new RuntimeError(
+            expr.name,
+            `Variable "${expr.name.lexeme}" is undefined`
+          );
+        }
       case Expr.Type.Application: {
         const left = this.curry(expr.left);
         const right = this.evaluate(expr.right);
@@ -84,9 +104,7 @@ export class Interpreter {
 
   private curry(func: Expr): Function {
     if (func.type === Expr.Type.Variable) {
-      if (func.name.lexeme in this.bindings) {
-        return this.bindings[func.name.lexeme];
-      }
+      return this.evaluate(func) as any;
     } else if (func.type === Expr.Type.Grouping) {
       return this.curry(func.expression);
     } else if (func.type === Expr.Type.Application) {
