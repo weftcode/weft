@@ -1,12 +1,12 @@
-import { Token, LoxType } from "./Token";
+import { Token } from "./Token";
 import { RuntimeError } from "./Interpreter";
 
-export class Environment {
-  private values = new Map<string, LoxType>();
+export class Environment<V> {
+  private values = new Map<string, V>();
 
-  constructor(private enclosing: Environment | null = null) {}
+  constructor(private enclosing: Environment<V> | null = null) {}
 
-  define(name: string, value: LoxType) {
+  define(name: string, value: V) {
     this.values.set(name, value);
   }
 
@@ -22,7 +22,7 @@ export class Environment {
     throw new RuntimeError(name, "Undefined variable '" + name.lexeme + "'.");
   }
 
-  assign(name: Token, value: LoxType) {
+  assign(name: Token, value: V) {
     if (this.values.has(name.lexeme)) {
       this.values.set(name.lexeme, value);
       return;
