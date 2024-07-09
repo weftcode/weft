@@ -89,6 +89,7 @@ export const bindings = {
   fast,
   when,
   silence,
+  stack: (items) => stack(...items),
   hush: {
     runIO: hush,
   },

@@ -127,6 +127,7 @@ export class Parser extends BaseParser<Stmt[]> {
     return (
       nextType === TokenType.Identifier ||
       nextType === TokenType.LeftParen ||
+      nextType === TokenType.LeftBracket ||
       nextType === TokenType.Number ||
       nextType === TokenType.String
     );
@@ -145,6 +146,24 @@ export class Parser extends BaseParser<Stmt[]> {
       let expr = this.expression();
       this.consume(TokenType.RightParen, "Expect ')' after expression.");
       return Expr.Grouping(expr);
+    }
+
+    if (this.match(TokenType.LeftBracket)) {
+      let items: Expr[] = [];
+
+      while (!this.match(TokenType.RightBracket)) {
+        if (this.isAtEnd()) {
+          throw this.reporter.error(this.peek(), "Unterminated list literal");
+        }
+
+        if (items.length > 0) {
+          this.consume(TokenType.Comma, "Expect ',' after list items");
+        }
+
+        items.push(this.expression());
+      }
+
+      return Expr.List(items);
     }
 
     throw this.reporter.error(this.peek(), "Expect expression.");

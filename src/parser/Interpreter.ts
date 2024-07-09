@@ -3,6 +3,8 @@ import { Primitive, Token } from "./Token";
 import { Expr } from "./Expr";
 import { Stmt } from "./Stmt";
 
+type Value = Primitive | Value[];
+
 export class Interpreter {
   constructor(
     private readonly reporter: ErrorReporter,
@@ -69,10 +71,12 @@ export class Interpreter {
     }
   }
 
-  private evaluate(expr: Expr): Primitive | null {
+  private evaluate(expr: Expr): Value | null {
     switch (expr.type) {
       case Expr.Type.Literal:
         return expr.value;
+      case Expr.Type.List:
+        return expr.items.map((e) => this.evaluate(e));
       case Expr.Type.Grouping:
         return this.evaluate(expr.expression);
       case Expr.Type.Binary: {
