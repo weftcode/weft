@@ -9,6 +9,7 @@ export type Expr =
       right: Expr;
     }
   | { type: Expr.Type.Grouping; expression: Expr }
+  | { type: Expr.Type.List; items: Expr[] }
   | { type: Expr.Type.Literal; value: Primitive }
   | { type: Expr.Type.Unary; operator: Token; right: Expr }
   | { type: Expr.Type.Variable; name: Token }
@@ -20,6 +21,7 @@ export namespace Expr {
     Assignment,
     Binary,
     Grouping,
+    List,
     Literal,
     Unary,
     Variable,
@@ -39,6 +41,10 @@ export namespace Expr {
 
   export function Grouping(expression: Expr): Expr {
     return { type: Expr.Type.Grouping, expression };
+  }
+
+  export function List(items: Expr[]): Expr {
+    return { type: Expr.Type.List, items };
   }
 
   export function Literal(value: Primitive): Expr {

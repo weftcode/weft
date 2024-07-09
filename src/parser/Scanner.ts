@@ -40,6 +40,12 @@ export class Scanner {
       case ")":
         this.addToken(TokenType.RightParen);
         break;
+      case "[":
+        this.addToken(TokenType.LeftBracket);
+        break;
+      case "]":
+        this.addToken(TokenType.RightBracket);
+        break;
       case "{":
         this.addToken(TokenType.LeftBrace);
         break;
