@@ -2,11 +2,12 @@ import {
   reify,
   Cyclist,
   silence,
-  controls,
+  controls as strudelControls,
   fast,
   stack,
   when,
 } from "@strudel/core";
+import * as strudelCore from "@strudel/core";
 import { miniAllStrings } from "@strudel/mini";
 import {
   initAudioOnFirstClick,
@@ -69,8 +70,6 @@ function p(id: string | number) {
 }
 
 export const bindings = {
-  addOne: (x: any) => x + 1,
-  addAny: (...xs) => xs.reduce((x, y) => x + y, 0),
   p: (id: string | number, pattern) => p(id)(pattern),
   // TODO: Set orbits?
   d1: p(1),
@@ -85,11 +84,12 @@ export const bindings = {
   d10: p(10),
   d11: p(11),
   d12: p(12),
-  ...controls,
+  ...strudelCore,
+  ...strudelControls,
   fast,
   when,
   silence,
-  stack: (items) => stack(...items),
+  stack: (items) => strudelCore.stack(...items),
   hush: {
     runIO: hush,
   },
