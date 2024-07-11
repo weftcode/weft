@@ -105,7 +105,6 @@ export const bindings = {
   fast,
   when,
   silence,
-  superimpose: (func) => strudelCore.superimpose([func]),
   stack: (items) => strudelCore.stack(...items),
   hush: {
     runIO: hush,
