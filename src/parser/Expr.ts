@@ -8,6 +8,12 @@ export type Expr =
       operator: Token;
       right: Expr;
     }
+  | {
+      type: Expr.Type.Section;
+      operator: Token;
+      expression: Expr;
+      side: "left" | "right";
+    }
   | { type: Expr.Type.Grouping; expression: Expr }
   | { type: Expr.Type.List; items: Expr[] }
   | { type: Expr.Type.Literal; value: Primitive }
@@ -20,6 +26,7 @@ export namespace Expr {
     Application,
     Assignment,
     Binary,
+    Section,
     Grouping,
     List,
     Literal,
@@ -37,6 +44,14 @@ export namespace Expr {
 
   export function Binary(left: Expr, operator: Token, right: Expr): Expr {
     return { type: Expr.Type.Binary, left, operator, right };
+  }
+
+  export function Section(
+    operator: Token,
+    expression: Expr,
+    side: "left" | "right"
+  ) {
+    return { type: Expr.Type.Section, operator, expression, side };
   }
 
   export function Grouping(expression: Expr): Expr {
