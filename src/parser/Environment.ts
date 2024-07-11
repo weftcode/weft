@@ -10,7 +10,7 @@ export class Environment<V> {
     this.values.set(name, value);
   }
 
-  get(name: Token) {
+  get(name: Token): V {
     if (this.values.has(name.lexeme)) {
       return this.values.get(name.lexeme);
     }
