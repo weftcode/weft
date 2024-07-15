@@ -48,7 +48,7 @@ const scheduler = new Cyclist({
 scheduler.setPattern(silence);
 scheduler.start();
 
-function hush() {
+export function hush() {
   scheduler.setPattern(silence);
 }
 
