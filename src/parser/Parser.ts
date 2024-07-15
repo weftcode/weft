@@ -161,6 +161,12 @@ export class Parser extends BaseParser<Stmt[]> {
       return Expr.Variable(this.previous());
     }
 
+    if (this.match(TokenType.LeftParen)) {
+      let expr = this.expression(0);
+      this.consume(TokenType.RightParen, "Expect ')' after expression.");
+      return Expr.Grouping(expr);
+    }
+
     if (this.match(TokenType.LeftBracket)) {
       let items: Expr[] = [];
 
