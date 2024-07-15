@@ -1,11 +1,25 @@
 import { BaseParser } from "./BaseParser";
 
+import { Token } from "./Token";
 import { TokenType } from "./TokenType";
 
 import { Expr } from "./Expr";
 import { Stmt } from "./Stmt";
+import { ErrorReporter } from "./Reporter";
+
+// Tuple of precedence and associativity
+export type Precedence = [number, "left" | "right"];
+export type Operators = Map<TokenType, Precedence>;
 
 export class Parser extends BaseParser<Stmt[]> {
+  constructor(
+    tokens: Token[],
+    private operators: Operators,
+    reporter: ErrorReporter
+  ) {
+    super(tokens, reporter);
+  }
+
   parse() {
     const statements: Stmt[] = [];
 
@@ -22,7 +36,7 @@ export class Parser extends BaseParser<Stmt[]> {
   }
 
   private expressionStatement() {
-    const expression = this.expression();
+    const expression = this.expression(0);
 
     if (!this.isAtEnd()) {
       this.consume(TokenType.LineBreak, "Expect new line after expression.");
@@ -31,83 +45,28 @@ export class Parser extends BaseParser<Stmt[]> {
     return Stmt.Expression(expression);
   }
 
-  private expression() {
-    return this.dollarApplication();
-  }
+  private expression(precedence: number) {
+    let left = this.application();
 
-  private dollarApplication() {
-    const expr = this.join();
+    while (this.operators.has(this.peek().type)) {
+      let [opPrecedence, opAssociativity] = this.operators.get(
+        this.peek().type
+      );
 
-    if (this.match(TokenType.Dollar)) {
-      const right = this.dollarApplication();
-      return Expr.Application(expr, right);
+      // If we encounter a lower-precedence operator, stop consuming tokens
+      if (opPrecedence < precedence) break;
+
+      // Consume operator
+      let operator = this.advance();
+      let right = this.expression(
+        opAssociativity === "left" ? opPrecedence + 1 : opPrecedence
+      );
+
+      // Associate operator
+      left = Expr.Binary(left, operator, right);
     }
 
-    return expr;
-  }
-
-  private join() {
-    let expr = this.term();
-
-    while (
-      this.match(
-        TokenType.LeftSL,
-        TokenType.LeftSB,
-        TokenType.LeftSR,
-        TokenType.RightSL,
-        TokenType.RightSB,
-        TokenType.RightSR
-      )
-    ) {
-      const operator = this.previous();
-      const right = this.term();
-      expr = Expr.Binary(expr, operator, right);
-    }
-    return expr;
-  }
-
-  private term() {
-    let expr = this.factor();
-
-    while (
-      this.match(
-        TokenType.Plus,
-        TokenType.PlusSL,
-        TokenType.PlusSB,
-        TokenType.PlusSR,
-        TokenType.Minus,
-        TokenType.MinusSL,
-        TokenType.MinusSB,
-        TokenType.MinusSR
-      )
-    ) {
-      const operator = this.previous();
-      const right = this.factor();
-      expr = Expr.Binary(expr, operator, right);
-    }
-    return expr;
-  }
-
-  private factor() {
-    let expr = this.application();
-
-    while (
-      this.match(
-        TokenType.Star,
-        TokenType.StarSL,
-        TokenType.StarSB,
-        TokenType.StarSR,
-        TokenType.Slash,
-        TokenType.SlashSL,
-        TokenType.SlashSB,
-        TokenType.SlashSR
-      )
-    ) {
-      const operator = this.previous();
-      const right = this.application();
-      expr = Expr.Binary(expr, operator, right);
-    }
-    return expr;
+    return left;
   }
 
   private application() {
@@ -143,7 +102,7 @@ export class Parser extends BaseParser<Stmt[]> {
     }
 
     if (this.match(TokenType.LeftParen)) {
-      let expr = this.expression();
+      let expr = this.expression(0);
       this.consume(TokenType.RightParen, "Expect ')' after expression.");
       return Expr.Grouping(expr);
     }
@@ -160,7 +119,7 @@ export class Parser extends BaseParser<Stmt[]> {
           this.consume(TokenType.Comma, "Expect ',' after list items");
         }
 
-        items.push(this.expression());
+        items.push(this.expression(0));
       }
 
       return Expr.List(items);
