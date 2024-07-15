@@ -9,6 +9,7 @@ import { ErrorReporter } from "./parser/Reporter";
 import { Interpreter } from "./parser/Interpreter";
 
 import { bindings, operators } from "./strudel";
+import { operators as opPrecedence } from "./strudel/operators";
 
 import { parser } from "./language.grammar";
 
@@ -44,12 +45,14 @@ const listener = EditorView.updateListener.of((update) => {
           document.getElementById("output").innerText = tokens
             .map((t) => t.toString())
             .join("\n");
-          const parser = new Parser(tokens, reporter);
+          const parser = new Parser(tokens, opPrecedence, reporter);
           const stmts = parser.parse();
 
           // TODO: Error Handling
 
           const printer = new AstPrinter();
+          document.getElementById("output").innerText =
+            printer.printStmts(stmts);
 
           if (reporter.hasError) {
             document.getElementById("output").innerText =
