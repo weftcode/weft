@@ -8,7 +8,7 @@ import { Parser } from "./parser/Parser";
 import { ErrorReporter } from "./parser/Reporter";
 import { Interpreter } from "./parser/Interpreter";
 
-import { bindings, operators } from "./strudel";
+import { bindings, operators, hush } from "./strudel";
 
 import { parser } from "./language.grammar";
 
@@ -27,6 +27,13 @@ const evalKeymap: KeyBinding[] = [
     key: "Mod-Enter",
     run: (view) => {
       view.dispatch({ effects: EvalEffect.of() });
+      return true;
+    },
+  },
+  {
+    key: "Mod-.",
+    run: () => {
+      hush();
       return true;
     },
   },
