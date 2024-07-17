@@ -60,9 +60,12 @@ const listener = EditorView.updateListener.of((update) => {
           } else {
             const interpreter = new Interpreter(reporter, bindings, operators);
 
-            document.getElementById("output").innerText = interpreter
-              .interpret(stmts)
-              .join("\n");
+            let results = interpreter.interpret(stmts);
+
+            document.getElementById("output").innerText = [
+              ...results,
+              ...reporter.errors,
+            ].join("\n");
           }
         } catch (error) {
           console.log(error);
