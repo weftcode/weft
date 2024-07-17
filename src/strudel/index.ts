@@ -96,6 +96,7 @@ export const bindings = {
 };
 
 export const operators = {
+  [TokenType.Dollar]: (a, b) => a(b),
   [TokenType.Plus]: (a, b) => reify(a).add.mix(reify(b)),
   [TokenType.Minus]: (a, b) => reify(a).sub.mix(reify(b)),
   [TokenType.Star]: (a, b) => reify(a).mul.mix(reify(b)),

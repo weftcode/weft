@@ -3,7 +3,7 @@ import { Primitive, Token } from "./Token";
 import { Expr } from "./Expr";
 import { Stmt } from "./Stmt";
 
-type Value = Primitive | Value[];
+type Value = Primitive | Value[] | ((input: Value) => Value);
 
 export class Interpreter {
   constructor(
@@ -89,6 +89,16 @@ export class Interpreter {
 
         throw new RuntimeError(expr.operator, "Operator isn't implemented");
       }
+      case Expr.Type.Section: {
+        return (input: Value) => {
+          const opFunc = this.operators[expr.operator.type];
+          const operand = this.evaluate(expr.expression);
+
+          return expr.side === "left"
+            ? opFunc(input, operand)
+            : opFunc(operand, input);
+        };
+      }
       case Expr.Type.Variable:
         if (expr.name.lexeme in this.bindings) {
           return this.bindings[expr.name.lexeme];
@@ -107,7 +117,7 @@ export class Interpreter {
   }
 
   private curry(func: Expr): Function {
-    if (func.type === Expr.Type.Variable) {
+    if (func.type === Expr.Type.Variable || func.type === Expr.Type.Section) {
       return this.evaluate(func) as any;
     } else if (func.type === Expr.Type.Grouping) {
       return this.curry(func.expression);
