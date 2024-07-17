@@ -28,7 +28,16 @@ export class Parser extends BaseParser<Stmt[]> {
         // Ignore empty lines
         this.advance();
       } else {
-        statements.push(this.expressionStatement());
+        try {
+          statements.push(this.expressionStatement());
+        } catch (error) {
+          if (error instanceof ParseError) {
+            // TODO: Synchronization
+            throw this.reporter.error(error.token, error.message);
+          } else {
+            throw error;
+          }
+        }
       }
     }
 
@@ -56,6 +65,9 @@ export class Parser extends BaseParser<Stmt[]> {
       // If we encounter a lower-precedence operator, stop consuming tokens
       if (opPrecedence < precedence) break;
 
+      // Check for a paren after operator, which may indicate a section
+      if (this.peekNext().type === TokenType.RightParen) break;
+
       // Consume operator
       let operator = this.advance();
       let right = this.expression(
@@ -63,17 +75,17 @@ export class Parser extends BaseParser<Stmt[]> {
       );
 
       // Associate operator
-      left = Expr.Binary(left, operator, right);
+      left = Expr.Binary(left, operator, right, opPrecedence);
     }
 
     return left;
   }
 
   private application() {
-    let expr = this.functionTerm();
+    let expr = this.grouping();
 
     while (this.peekFunctionTerm()) {
-      let right = this.functionTerm();
+      let right = this.grouping();
       expr = Expr.Application(expr, right);
     }
 
@@ -92,6 +104,54 @@ export class Parser extends BaseParser<Stmt[]> {
     );
   }
 
+  private grouping() {
+    if (this.match(TokenType.LeftParen)) {
+      let leftOp: Token | null = null;
+      let rightOp: Token | null = null;
+
+      // Check for an initial operator
+      if (this.operators.has(this.peek().type)) {
+        leftOp = this.advance();
+      }
+
+      let expr = this.expression(0);
+
+      // Check for a trailing operator
+      if (this.operators.has(this.peek().type)) {
+        rightOp = this.advance();
+      }
+
+      let rightParen = this.consume(
+        TokenType.RightParen,
+        "Expect ')' after expression."
+      );
+
+      if (leftOp || rightOp) {
+        if (leftOp && rightOp) {
+          console.log("Illegal section");
+          throw new ParseError(rightParen, "Expect expression.");
+        }
+
+        let operator = leftOp ?? rightOp;
+        let side: "left" | "right" = leftOp ? "left" : "right";
+
+        let [precedence] = this.operators.get(operator.type);
+        if (expr.type === Expr.Type.Binary && expr.precedence < precedence) {
+          throw new ParseError(
+            operator,
+            "Section operator must have lower precedence than expression"
+          );
+        }
+
+        expr = Expr.Section(operator, expr, side);
+      }
+
+      return Expr.Grouping(expr);
+    } else {
+      return this.functionTerm();
+    }
+  }
+
   private functionTerm() {
     if (this.match(TokenType.Number, TokenType.String)) {
       return Expr.Literal(this.previous().literal);
@@ -99,12 +159,6 @@ export class Parser extends BaseParser<Stmt[]> {
 
     if (this.match(TokenType.Identifier)) {
       return Expr.Variable(this.previous());
-    }
-
-    if (this.match(TokenType.LeftParen)) {
-      let expr = this.expression(0);
-      this.consume(TokenType.RightParen, "Expect ')' after expression.");
-      return Expr.Grouping(expr);
     }
 
     if (this.match(TokenType.LeftBracket)) {
@@ -125,6 +179,18 @@ export class Parser extends BaseParser<Stmt[]> {
       return Expr.List(items);
     }
 
-    throw this.reporter.error(this.peek(), "Expect expression.");
+    throw new EmptyExpressionError(this.peek());
+  }
+}
+
+class ParseError extends Error {
+  constructor(readonly token: Token, message: string = "Parse error.") {
+    super(message);
+  }
+}
+
+class EmptyExpressionError extends ParseError {
+  constructor(token: Token) {
+    super(token, "Expected expression.");
   }
 }

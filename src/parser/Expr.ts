@@ -7,6 +7,7 @@ export type Expr =
       left: Expr;
       operator: Token;
       right: Expr;
+      precedence: number;
     }
   | {
       type: Expr.Type.Section;
@@ -23,15 +24,15 @@ export type Expr =
 
 export namespace Expr {
   export enum Type {
-    Application,
-    Assignment,
-    Binary,
-    Section,
-    Grouping,
-    List,
-    Literal,
-    Unary,
-    Variable,
+    Application = "Application",
+    Assignment = "Assignment",
+    Binary = "Binary",
+    Section = "Section",
+    Grouping = "Grouping",
+    List = "List",
+    Literal = "Literal",
+    Unary = "Unary",
+    Variable = "Variable",
   }
 
   export function Application(left: Expr, right: Expr): Expr {
@@ -42,8 +43,13 @@ export namespace Expr {
     return { type: Expr.Type.Assignment, name, value };
   }
 
-  export function Binary(left: Expr, operator: Token, right: Expr): Expr {
-    return { type: Expr.Type.Binary, left, operator, right };
+  export function Binary(
+    left: Expr,
+    operator: Token,
+    right: Expr,
+    precedence: number
+  ): Expr {
+    return { type: Expr.Type.Binary, left, operator, right, precedence };
   }
 
   export function Section(

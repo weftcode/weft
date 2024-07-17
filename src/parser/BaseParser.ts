@@ -37,11 +37,17 @@ export abstract class BaseParser<T> {
   }
 
   protected isAtEnd() {
-    return this.peek().type == TokenType.EOF;
+    return this.peek().type === TokenType.EOF;
   }
 
   protected peek() {
     return this.tokens[this.current];
+  }
+
+  protected peekNext() {
+    return this.isAtEnd()
+      ? this.tokens[this.current]
+      : this.tokens[this.current + 1];
   }
 
   protected previous() {
