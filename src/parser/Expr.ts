@@ -15,12 +15,6 @@ export type Expr =
       expression: Expr;
       side: "left" | "right";
     }
-  | {
-      type: Expr.Type.Section;
-      operator: Token;
-      expression: Expr;
-      side: "left" | "right";
-    }
   | { type: Expr.Type.Grouping; expression: Expr }
   | { type: Expr.Type.List; items: Expr[] }
   | { type: Expr.Type.Literal; value: Primitive }
