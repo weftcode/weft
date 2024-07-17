@@ -6,8 +6,6 @@ import { Bindings } from "./API";
 
 type Value = Primitive | Value[] | ((input: Value) => Value);
 
-type Value = Primitive | Value[];
-
 export class Interpreter {
   constructor(
     private readonly reporter: ErrorReporter,
