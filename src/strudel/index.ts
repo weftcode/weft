@@ -14,13 +14,22 @@ import {
   getAudioContext,
   webaudioOutput,
   registerSynthSounds,
+  samples,
 } from "@strudel/webaudio";
 
 initAudioOnFirstClick();
 const ctx = getAudioContext();
 registerSynthSounds();
 
+samples(
+  "https://raw.githubusercontent.com/felixroos/dough-samples/main/Dirt-Samples.json"
+);
+
 miniAllStrings();
+
+// for (let func in strudelCore) {
+//   console.log(func);
+// }
 
 function getTime() {
   return ctx.currentTime;
