@@ -33,7 +33,8 @@ export class Parser extends BaseParser<Stmt[]> {
         } catch (error) {
           if (error instanceof ParseError) {
             // TODO: Synchronization
-            throw this.reporter.error(error.token, error.message);
+            this.reporter.error(error.token, error.message);
+            break;
           } else {
             throw error;
           }
