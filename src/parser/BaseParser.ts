@@ -29,7 +29,7 @@ export abstract class BaseParser<T> {
   protected consume(type: TokenType, message: string) {
     if (this.check(type)) return this.advance();
 
-    throw this.reporter.error(this.peek(), message);
+    throw new ParseError(this.peek(), message);
   }
 
   protected check(type: TokenType) {
