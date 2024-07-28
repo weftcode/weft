@@ -128,7 +128,6 @@ export class Parser extends BaseParser<Stmt[]> {
 
       if (leftOp || rightOp) {
         if (leftOp && rightOp) {
-          console.log("Illegal section");
           throw new ParseError(rightParen, "Expect expression.");
         }
 
@@ -166,7 +165,7 @@ export class Parser extends BaseParser<Stmt[]> {
 
       while (!this.match(TokenType.RightBracket)) {
         if (this.isAtEnd()) {
-          throw this.reporter.error(this.peek(), "Unterminated list literal");
+          throw new ParseError(this.peek(), "Unterminated list literal");
         }
 
         if (items.length > 0) {
@@ -183,11 +182,7 @@ export class Parser extends BaseParser<Stmt[]> {
   }
 }
 
-class ParseError extends Error {
-  constructor(readonly token: Token, message: string = "Parse error.") {
-    super(message);
-  }
-}
+import { ParseError } from "./BaseParser";
 
 class EmptyExpressionError extends ParseError {
   constructor(token: Token) {
