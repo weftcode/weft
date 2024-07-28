@@ -2,6 +2,12 @@ import { ErrorReporter } from "./Reporter";
 import { Token } from "./Token";
 import { TokenType } from "./TokenType";
 
+export class ParseError extends Error {
+  constructor(readonly token: Token, message: string = "Parse error.") {
+    super(message);
+  }
+}
+
 export abstract class BaseParser<T> {
   private current = 0;
 

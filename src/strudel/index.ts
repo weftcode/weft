@@ -8,6 +8,7 @@ import {
   when,
 } from "@strudel/core";
 import * as strudelCore from "@strudel/core";
+import * as strudelTonal from "@strudel/tonal";
 import { miniAllStrings } from "@strudel/mini";
 import {
   initAudioOnFirstClick,
@@ -21,10 +22,13 @@ initAudioOnFirstClick();
 const ctx = getAudioContext();
 registerSynthSounds();
 
-samples(
-  "https://raw.githubusercontent.com/felixroos/dough-samples/main/Dirt-Samples.json"
-);
-
+// Default Strudel samples
+const ds = "https://raw.githubusercontent.com/felixroos/dough-samples/main";
+samples(`${ds}/tidal-drum-machines.json`);
+samples(`${ds}/piano.json`);
+samples(`${ds}/Dirt-Samples.json`);
+samples(`${ds}/EmuSP12.json`);
+samples(`${ds}/vcsl.json`);
 miniAllStrings();
 
 // for (let func in strudelCore) {
@@ -68,14 +72,16 @@ let patMap = new Map();
 
 // Curried form
 function p(id: string | number) {
-  return (pattern) => {
-    let pat = reify(pattern);
-    patMap.set(id, pat);
+  return (pattern) => ({
+    runIO: () => {
+      let pat = reify(pattern);
+      patMap.set(id, pat);
 
-    scheduler.setPattern(stack(...patMap.values()));
+      scheduler.setPattern(stack(...patMap.values()));
 
-    return pat;
-  };
+      return pat;
+    },
+  });
 }
 
 export const bindings = {
@@ -94,6 +100,7 @@ export const bindings = {
   d11: p(11),
   d12: p(12),
   ...strudelCore,
+  ...strudelTonal,
   ...strudelControls,
   fast,
   when,
