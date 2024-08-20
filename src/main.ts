@@ -2,6 +2,9 @@ import { EditorView, basicSetup } from "codemirror";
 import { keymap, KeyBinding } from "@codemirror/view";
 import { StateEffect } from "@codemirror/state";
 
+import { StreamLanguage } from "@codemirror/language";
+import { haskell } from "@codemirror/legacy-modes/mode/haskell";
+
 import { AstPrinter } from "./parser/AstPrinter";
 import { Scanner } from "./parser/Scanner";
 import { Parser } from "./parser/Parser";
@@ -11,18 +14,7 @@ import { Interpreter } from "./parser/Interpreter";
 import { bindings, operators, hush, typeBindings } from "./strudel";
 import { operators as opPrecedence } from "./strudel/operators";
 
-import { parser } from "./language.grammar";
-
-import { LRLanguage, LanguageSupport } from "@codemirror/language";
-
-import { Environment } from "./parser/Environment";
 import { TypeChecker } from "./parser/typechecker/Typechecker";
-
-const language = LRLanguage.define({ parser });
-
-export function example() {
-  return new LanguageSupport(language, []);
-}
 
 const EvalEffect = StateEffect.define<void>();
 
@@ -92,7 +84,12 @@ const listener = EditorView.updateListener.of((update) => {
 
 window.addEventListener("load", () => {
   new EditorView({
-    extensions: [keymap.of(evalKeymap), basicSetup, listener],
+    extensions: [
+      keymap.of(evalKeymap),
+      basicSetup,
+      listener,
+      StreamLanguage.define(haskell),
+    ],
     parent: document.getElementById("editor"),
   });
 });
