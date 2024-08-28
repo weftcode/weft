@@ -1,6 +1,7 @@
 import { EditorView, basicSetup } from "codemirror";
 import { keymap, KeyBinding } from "@codemirror/view";
 import { StateEffect } from "@codemirror/state";
+import { linter } from "@codemirror/lint";
 
 import { StreamLanguage } from "@codemirror/language";
 import { haskell } from "@codemirror/legacy-modes/mode/haskell";
@@ -36,9 +37,12 @@ const evalKeymap: KeyBinding[] = [
 ];
 
 const listener = EditorView.updateListener.of((update) => {
+  let evaluated = false;
+
   for (let tr of update.transactions) {
     for (let effect of tr.effects) {
       if (effect.is(EvalEffect)) {
+        evaluated = true;
         let reporter = new ErrorReporter();
 
         try {
@@ -79,6 +83,36 @@ const listener = EditorView.updateListener.of((update) => {
         }
       }
     }
+  }
+});
+
+const parseLinter = linter((view) => {
+  try {
+    let reporter = new ErrorReporter();
+
+    const scanner = new Scanner(view.state.doc.toString(), reporter);
+    const tokens = scanner.scanTokens();
+    document.getElementById("output").innerText = tokens
+      .map((t) => t.toString())
+      .join("\n");
+    const parser = new Parser(tokens, opPrecedence, reporter);
+    const stmts = parser.parse();
+
+    // TODO: Error Handling
+
+    const printer = new AstPrinter();
+
+    if (reporter.hasError) {
+      document.getElementById("output").innerText = reporter.errors.join("\n");
+
+      return [];
+    } else {
+      document.getElementById("output").innerText = printer.printStmts(stmts);
+
+      return [];
+    }
+  } catch (error) {
+    console.log(error);
   }
 });
 
