@@ -45,9 +45,12 @@ const autosave = EditorView.updateListener.of((update) => {
 });
 
 const listener = EditorView.updateListener.of((update) => {
+  let evaluated = false;
+
   for (let tr of update.transactions) {
     for (let effect of tr.effects) {
       if (effect.is(EvalEffect)) {
+        evaluated = true;
         let reporter = new ErrorReporter();
 
         try {
