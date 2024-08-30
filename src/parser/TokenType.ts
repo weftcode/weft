@@ -1,4 +1,7 @@
 export enum TokenType {
+  // Error type
+  Error = "ERROR",
+
   // Formatting
   LineBreak = "LINE_BREAK",
 

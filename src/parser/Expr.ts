@@ -1,6 +1,7 @@
 import { Token, Primitive } from "./Token";
 
 export type Expr =
+  | { type: Expr.Type.Empty }
   | { type: Expr.Type.Assignment; name: Token; value: Expr }
   | {
       type: Expr.Type.Binary;
@@ -33,6 +34,7 @@ export namespace Expr {
     Literal = "Literal",
     Unary = "Unary",
     Variable = "Variable",
+    Empty = "Empty",
   }
 
   export function Application(left: Expr, right: Expr): Expr {
@@ -78,5 +80,9 @@ export namespace Expr {
 
   export function Variable(name: Token): Expr {
     return { type: Expr.Type.Variable, name };
+  }
+
+  export function Empty(): Expr {
+    return { type: Expr.Type.Empty };
   }
 }

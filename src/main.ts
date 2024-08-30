@@ -36,17 +36,20 @@ const evalKeymap: KeyBinding[] = [
   },
 ];
 
-const listener = EditorView.updateListener.of((update) => {
-  let evaluated = false;
+const autosave = EditorView.updateListener.of((update) => {
+  if (update.docChanged) {
+    localStorage.setItem("document", update.state.doc.toString());
+  }
+});
 
+const listener = EditorView.updateListener.of((update) => {
   for (let tr of update.transactions) {
     for (let effect of tr.effects) {
       if (effect.is(EvalEffect)) {
-        evaluated = true;
         let reporter = new ErrorReporter();
 
         try {
-          const scanner = new Scanner(update.state.doc.toString(), reporter);
+          const scanner = new Scanner(update.state.doc.toString());
           const tokens = scanner.scanTokens();
           document.getElementById("output").innerText = tokens
             .map((t) => t.toString())
@@ -90,22 +93,20 @@ const parseLinter = linter((view) => {
   try {
     let reporter = new ErrorReporter();
 
-    const scanner = new Scanner(view.state.doc.toString(), reporter);
+    const scanner = new Scanner(view.state.doc.toString());
     const tokens = scanner.scanTokens();
-    document.getElementById("output").innerText = tokens
-      .map((t) => t.toString())
-      .join("\n");
     const parser = new Parser(tokens, opPrecedence, reporter);
     const stmts = parser.parse();
-
-    // TODO: Error Handling
 
     const printer = new AstPrinter();
 
     if (reporter.hasError) {
-      document.getElementById("output").innerText = reporter.errors.join("\n");
-
-      return [];
+      return reporter.errors.map(({ from, to, message }) => ({
+        from,
+        to,
+        message,
+        severity: "error",
+      }));
     } else {
       document.getElementById("output").innerText = printer.printStmts(stmts);
 
@@ -118,11 +119,14 @@ const parseLinter = linter((view) => {
 
 window.addEventListener("load", () => {
   new EditorView({
+    doc: localStorage.getItem("document") ?? "",
     extensions: [
       keymap.of(evalKeymap),
       basicSetup,
       listener,
       StreamLanguage.define(haskell),
+      parseLinter,
+      autosave,
     ],
     parent: document.getElementById("editor"),
   });

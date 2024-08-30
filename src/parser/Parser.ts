@@ -75,6 +75,20 @@ export class Parser extends BaseParser<Stmt[]> {
         opAssociativity === "left" ? opPrecedence + 1 : opPrecedence
       );
 
+      // Check for empty expressions
+      let lNull = left.type === Expr.Type.Empty;
+      let rNull = right.type === Expr.Type.Empty;
+      if (lNull || rNull) {
+        console.log("Parse Error");
+        console.log(JSON.stringify(operator));
+        throw new ParseError(
+          operator,
+          `Missing expression ${lNull ? "before" : ""}${
+            lNull && rNull ? " and " : ""
+          }${rNull ? "after" : ""} the "${operator.lexeme}" operator`
+        );
+      }
+
       // Associate operator
       left = Expr.Binary(left, operator, right, opPrecedence);
     }
@@ -179,14 +193,8 @@ export class Parser extends BaseParser<Stmt[]> {
       return Expr.List(items);
     }
 
-    throw new EmptyExpressionError(this.peek());
+    return Expr.Empty();
   }
 }
 
 import { ParseError } from "./BaseParser";
-
-class EmptyExpressionError extends ParseError {
-  constructor(token: Token) {
-    super(token, "Expected expression.");
-  }
-}

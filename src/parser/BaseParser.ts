@@ -1,5 +1,5 @@
 import { ErrorReporter } from "./Reporter";
-import { Token } from "./Token";
+import { ErrorToken, Token } from "./Token";
 import { TokenType } from "./TokenType";
 
 export class ParseError extends Error {
@@ -39,7 +39,14 @@ export abstract class BaseParser<T> {
 
   protected advance() {
     if (!this.isAtEnd()) this.current++;
-    return this.previous();
+
+    let token = this.previous();
+
+    if (token instanceof ErrorToken) {
+      throw new ParseError(token, token.message);
+    }
+
+    return token;
   }
 
   protected isAtEnd() {
