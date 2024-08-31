@@ -31,9 +31,9 @@ samples(`${ds}/EmuSP12.json`);
 samples(`${ds}/vcsl.json`);
 miniAllStrings();
 
-// for (let func in strudelCore) {
-//   console.log(func);
-// }
+for (let func in strudelCore) {
+  console.log(func);
+}
 
 function getTime() {
   return ctx.currentTime;
@@ -105,6 +105,7 @@ export const bindings = {
   fast,
   when,
   silence,
+  superimpose: (func) => strudelCore.superimpose([func]),
   stack: (items) => strudelCore.stack(...items),
   hush: {
     runIO: hush,
@@ -112,7 +113,8 @@ export const bindings = {
 };
 
 export const operators = {
-  [TokenType.Dollar]: (a, b) => a(b),
+  [TokenType.Dollar]: (a, b) => a(b), // Function application
+  [TokenType.Dot]: (a, b) => (c) => a(b(c)), // Function composition
   [TokenType.Plus]: (a, b) => reify(a).add.mix(reify(b)),
   [TokenType.Minus]: (a, b) => reify(a).sub.mix(reify(b)),
   [TokenType.Star]: (a, b) => reify(a).mul.mix(reify(b)),
