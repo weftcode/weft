@@ -8,11 +8,14 @@ import { Parser } from "./parser/Parser";
 import { ErrorReporter } from "./parser/Reporter";
 import { Interpreter } from "./parser/Interpreter";
 
-import { bindings, operators } from "./strudel";
+import { bindings, operators, typeBindings } from "./strudel";
 
 import { parser } from "./language.grammar";
 
 import { LRLanguage, LanguageSupport } from "@codemirror/language";
+
+import { Environment } from "./parser/Environment";
+import { TypeChecker } from "./parser/typechecker/Typechecker";
 
 const language = LRLanguage.define({ parser });
 
@@ -50,6 +53,11 @@ const listener = EditorView.updateListener.of((update) => {
           // TODO: Error Handling
 
           const printer = new AstPrinter();
+
+          if (!reporter.hasError) {
+            let typechecker = new TypeChecker(reporter, typeBindings);
+            typechecker.check(stmts);
+          }
 
           if (reporter.hasError) {
             document.getElementById("output").innerText =
