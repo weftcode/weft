@@ -2,8 +2,9 @@ import { TokenType } from "../parser/TokenType";
 import { Operators } from "../parser/Parser";
 
 export const operators: Operators = new Map([
-  // Function Application
+  // Haskell Operators
   [TokenType.Dollar, [0, "right"]],
+  [TokenType.Dot, [9, "right"]],
 
   // Addition/subtration (and pattern variants)
   [TokenType.Plus, [6, "left"]],
