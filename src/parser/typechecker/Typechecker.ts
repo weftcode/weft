@@ -7,6 +7,7 @@ import { Scanner } from "../Scanner";
 import { TypeParser } from "./TypeParser";
 
 import { Type } from "./Utilities";
+import { ParseError } from "../BaseParser";
 
 export class TypeChecker {
   private environment = new Environment<Type>();
@@ -16,15 +17,20 @@ export class TypeChecker {
     bindings: { [name: string]: string }
   ) {
     for (let [name, typeString] of Object.entries(bindings)) {
-      let type = new TypeParser(
-        new Scanner(typeString, reporter).scanTokens(),
-        reporter
-      ).parse();
+      let tokens = new Scanner(typeString, reporter).scanTokens();
 
-      console.log(`\n${name}:`);
-      console.log(JSON.stringify(type, undefined, 2));
+      try {
+        let type = new TypeParser(tokens, reporter).parse();
 
-      this.environment.define(name, type);
+        this.environment.define(name, type);
+      } catch (e) {
+        if (e instanceof ParseError) {
+          console.log(e.token.toString());
+          console.log(e.message);
+        } else {
+          throw e;
+        }
+      }
     }
   }
 
@@ -93,10 +99,14 @@ export class TypeChecker {
         }
 
         return operatorType.return.return;
+      case Expr.Type.Section:
+        throw Error("Section not implemented");
       case Expr.Type.Unary:
         throw Error("Unary not implemented");
       case Expr.Type.Grouping:
         return this.checkExpression(expression.expression);
+      case Expr.Type.List:
+        throw Error("List not implemented");
       case Expr.Type.Literal:
         switch (typeof expression.value) {
           case "string":

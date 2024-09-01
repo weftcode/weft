@@ -12,12 +12,11 @@ export class TypeParser extends BaseParser<Type> {
   private functionType(): Type {
     let paramType = this.typeConstructor();
 
-    if (this.isAtEnd()) {
-      return paramType;
-    } else {
-      this.consume(TokenType.Arrow, "Unexpected symbol in type signature.");
+    if (this.match(TokenType.Arrow)) {
       let returnType = this.functionType();
       return { type: "Function", arg: paramType, return: returnType };
+    } else {
+      return paramType;
     }
   }
 
@@ -45,7 +44,7 @@ export class TypeParser extends BaseParser<Type> {
   }
 
   private typeTerm(): Type | null {
-    if (this.match(TokenType.LeftParen)) {
+    if (this.match(TokenType.LeftBrace)) {
       let listParam = this.functionType();
       this.consume(
         TokenType.RightBrace,
