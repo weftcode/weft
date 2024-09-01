@@ -52,7 +52,6 @@ function hush() {
 }
 
 import { TokenType } from "../parser/TokenType";
-import { Types } from "../parser/typechecker/Utilities";
 
 // Pattern Map
 let patMap = new Map();
@@ -96,8 +95,9 @@ export const bindings = {
 };
 
 export const typeBindings = {
-  addOne: Types.Function(Types.Number, Types.Number),
-  "+": Types.Operator(Types.Number, Types.Number, Types.Number),
+  addOne: "Number -> Number",
+  "+": "Number -> Number -> Number",
+  d1: "Pattern (Map String Value) -> IO ()",
 };
 
 export const operators = {

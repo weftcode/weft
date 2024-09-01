@@ -68,6 +68,8 @@ export class Scanner {
         if (this.match("-")) {
           // Single-line comment
           while (this.peek() != "\n" && !this.isAtEnd()) this.advance();
+        } else if (this.match(">")) {
+          this.addToken(TokenType.Arrow);
         } else {
           this.addToken(this.match("|") ? TokenType.MinusSR : TokenType.Minus);
         }

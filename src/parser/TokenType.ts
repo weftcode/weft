@@ -46,6 +46,7 @@ export enum TokenType {
   GreaterEqual = "GREATER_EQUAL",
   Less = "LESS",
   LessEqual = "LESS_EQUAL",
+  Arrow = "ARROW",
 
   // Literals.
   Identifier = "IDENTIFIER",

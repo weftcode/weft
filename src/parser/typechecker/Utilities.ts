@@ -1,20 +1,14 @@
 export type Type = MonoType;
 
 export type MonoType =
-  | { type: "Number" }
-  | { type: "String" }
-  | { type: "Boolean" }
-  | {
-      type: "Pattern";
-      data: MonoType;
-    }
-  | { type: "List"; data: MonoType }
+  | { type: "Unit" }
   | {
       type: "Function";
       arg: MonoType;
       return: MonoType;
     }
-  | { type: "TypeVar"; name: string };
+  | { type: "TypeVar"; name: string }
+  | { type: "TypeCon"; name: string; params: MonoType[] };
 
 export namespace Types {
   export const Number = { type: "Number" } as const;

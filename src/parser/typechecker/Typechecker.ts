@@ -3,6 +3,9 @@ import { Stmt } from "../Stmt";
 import { Environment } from "../Environment";
 import { ErrorReporter } from "../Reporter";
 
+import { Scanner } from "../Scanner";
+import { TypeParser } from "./TypeParser";
+
 import { Type } from "./Utilities";
 
 export class TypeChecker {
@@ -10,9 +13,17 @@ export class TypeChecker {
 
   constructor(
     private readonly reporter: ErrorReporter,
-    bindings: { [name: string]: Type }
+    bindings: { [name: string]: string }
   ) {
-    for (let [name, type] of Object.entries(bindings)) {
+    for (let [name, typeString] of Object.entries(bindings)) {
+      let type = new TypeParser(
+        new Scanner(typeString, reporter).scanTokens(),
+        reporter
+      ).parse();
+
+      console.log(`\n${name}:`);
+      console.log(JSON.stringify(type, undefined, 2));
+
       this.environment.define(name, type);
     }
   }
@@ -89,11 +100,11 @@ export class TypeChecker {
       case Expr.Type.Literal:
         switch (typeof expression.value) {
           case "string":
-            return { type: "String" };
+            return { type: "TypeCon", name: "String", params: [] };
           case "number":
-            return { type: "Number" };
+            return { type: "TypeCon", name: "Number", params: [] };
           case "boolean":
-            return { type: "Boolean" };
+            return { type: "TypeCon", name: "Boolean", params: [] };
         }
       case Expr.Type.Variable:
         return this.environment.get(expression.name);
@@ -110,6 +121,14 @@ function isEqualType(t1: Type, t2: Type) {
 
   if (t1.type === "Function" && t2.type === "Function") {
     return isEqualType(t1.arg, t2.arg) && isEqualType(t1.return, t2.return);
+  }
+
+  if (t1.type === "TypeCon" && t2.type === "TypeCon") {
+    if (t1.name !== t2.name) return false;
+
+    if (t1.params.length !== t2.params.length) return false;
+
+    return t1.params.every((v1, index) => isEqualType(v1, t2.params[index]));
   }
 
   return true;
