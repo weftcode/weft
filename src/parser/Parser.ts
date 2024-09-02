@@ -121,6 +121,7 @@ export class Parser extends BaseParser<Stmt[]> {
 
   private grouping() {
     if (this.match(TokenType.LeftParen)) {
+      let leftParen = this.previous();
       let leftOp: Token | null = null;
       let rightOp: Token | null = null;
 
@@ -160,7 +161,7 @@ export class Parser extends BaseParser<Stmt[]> {
         expr = Expr.Section(operator, expr, side);
       }
 
-      return Expr.Grouping(expr);
+      return Expr.Grouping(leftParen, expr, rightParen);
     } else {
       return this.functionTerm();
     }
@@ -168,7 +169,7 @@ export class Parser extends BaseParser<Stmt[]> {
 
   private functionTerm() {
     if (this.match(TokenType.Number, TokenType.String)) {
-      return Expr.Literal(this.previous().literal);
+      return Expr.Literal(this.previous().literal, this.previous());
     }
 
     if (this.match(TokenType.Identifier)) {
