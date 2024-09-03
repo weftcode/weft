@@ -114,7 +114,8 @@ export const bindings = {
 export const typeBindings = {
   addOne: "Number -> Number",
   "+": "Number -> Number -> Number",
-  d1: "Pattern (Map String Value) -> IO ()",
+  fast: "Pattern Number -> Pattern a -> Pattern a",
+  // d1: "Pattern (Map String Value) -> IO ()",
 };
 
 export const operators = {

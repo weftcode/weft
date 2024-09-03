@@ -1,37 +1,38 @@
 import { TokenType } from "../TokenType";
 import { BaseParser } from "../BaseParser";
 
-import { Type } from "./Utilities";
+import { MonoType, PolyType, TypeFunction, makeContext } from "./Types";
+import { generalise } from "./Utilities";
 
-export class TypeParser extends BaseParser<Type> {
+export class TypeParser extends BaseParser<PolyType> {
   parse() {
     // TODO: Check if we've reached the end
-    return this.functionType();
+    return generalise(makeContext({}), this.functionType());
   }
 
-  private functionType(): Type {
+  private functionType(): MonoType {
     let paramType = this.typeConstructor();
 
     if (this.match(TokenType.Arrow)) {
       let returnType = this.functionType();
-      return { type: "Function", arg: paramType, return: returnType };
+      return { type: "ty-app", C: "->", mus: [paramType, returnType] };
     } else {
       return paramType;
     }
   }
 
-  private typeConstructor(): Type {
+  private typeConstructor(): MonoType {
     // If there's a type constructor
     if (this.match(TokenType.Identifier)) {
       let constructor = this.previous();
-      let params: Type[] = [];
-      let param: Type;
+      let mus: MonoType[] = [];
+      let param: MonoType;
 
       while ((param = this.typeTerm())) {
-        params.push(param);
+        mus.push(param);
       }
 
-      return { type: "TypeCon", name: constructor.lexeme, params };
+      return { type: "ty-app", C: constructor.lexeme as TypeFunction, mus };
     }
 
     // Otherwise, expect a single term
@@ -43,18 +44,19 @@ export class TypeParser extends BaseParser<Type> {
     }
   }
 
-  private typeTerm(): Type | null {
+  private typeTerm(): MonoType | null {
     if (this.match(TokenType.LeftBrace)) {
       let listParam = this.functionType();
       this.consume(
         TokenType.RightBrace,
         "Expected right brace at end of list type."
       );
-      return { type: "TypeCon", name: "List", params: [listParam] };
+      return { type: "ty-app", C: "List", mus: [listParam] };
     } else if (this.match(TokenType.LeftParen)) {
-      if (this.match(TokenType.RightParen)) {
-        return { type: "Unit" };
-      }
+      // TODO: Implement
+      // if (this.match(TokenType.RightParen)) {
+      //   return { type: "Unit" };
+      // }
 
       let parenContents = this.functionType();
       this.consume(
@@ -64,7 +66,18 @@ export class TypeParser extends BaseParser<Type> {
       return parenContents;
     } else if (this.match(TokenType.Identifier)) {
       let identifier = this.previous();
-      return { type: "TypeCon", name: identifier.lexeme, params: [] };
+      if (identifier.lexeme[0] >= "A" && identifier.lexeme[0] <= "Z") {
+        return {
+          type: "ty-app",
+          C: identifier.lexeme as TypeFunction,
+          mus: [],
+        };
+      } else {
+        return {
+          type: "ty-var",
+          a: identifier.lexeme,
+        };
+      }
     }
   }
 }

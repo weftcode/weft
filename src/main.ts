@@ -15,6 +15,7 @@ import { Interpreter } from "./parser/Interpreter";
 import { bindings, operators, hush, typeBindings } from "./strudel";
 import { operators as opPrecedence } from "./strudel/operators";
 
+import { printType } from "./parser/typechecker/Printer";
 import { TypeChecker } from "./parser/typechecker/Typechecker";
 
 const EvalEffect = StateEffect.define<void>();
@@ -65,7 +66,8 @@ const listener = EditorView.updateListener.of((update) => {
 
           if (!reporter.hasError) {
             let typechecker = new TypeChecker(reporter, typeBindings);
-            typechecker.check(stmts);
+            let [_, type] = typechecker.check(stmts);
+            console.log(printType(type));
           }
 
           if (reporter.hasError) {
