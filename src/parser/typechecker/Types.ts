@@ -10,15 +10,6 @@ export type MonoType = TypeVariable | TypeFunctionApplication;
 
 export type PolyType = MonoType | TypeQuantifier;
 
-export type TypeFunction =
-  | "->"
-  | "Boolean"
-  | "Number"
-  | "List"
-  | "String"
-  | "Pattern"
-  | "IO";
-
 export interface TypeVariable {
   type: "ty-var";
   a: string;
@@ -26,7 +17,7 @@ export interface TypeVariable {
 
 export interface TypeFunctionApplication {
   type: "ty-app";
-  C: TypeFunction;
+  C: string;
   mus: MonoType[];
 }
 

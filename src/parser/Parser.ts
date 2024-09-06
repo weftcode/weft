@@ -1,15 +1,13 @@
 import { BaseParser } from "./BaseParser";
 
+import { Operators } from "./API";
+
 import { Token } from "./Token";
 import { TokenType } from "./TokenType";
 
 import { Expr } from "./Expr";
 import { Stmt } from "./Stmt";
 import { ErrorReporter } from "./Reporter";
-
-// Tuple of precedence and associativity
-export type Precedence = [number, "left" | "right"];
-export type Operators = Map<TokenType, Precedence>;
 
 export class Parser extends BaseParser<Stmt[]> {
   constructor(
@@ -128,6 +126,15 @@ export class Parser extends BaseParser<Stmt[]> {
       // Check for an initial operator
       if (this.operators.has(this.peek().type)) {
         leftOp = this.advance();
+      }
+
+      // This is kind of a hacky way to attempt this
+      if (this.match(TokenType.RightParen)) {
+        if (leftOp) {
+          return { type: Expr.Type.Variable, name: leftOp };
+        } else {
+          throw "Encountered unit literal, but unit isn't supported yet";
+        }
       }
 
       let expr = this.expression(0);

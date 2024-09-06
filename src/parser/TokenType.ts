@@ -16,6 +16,7 @@ export enum TokenType {
   Dot = "DOT",
   Semicolon = "SEMICOLON",
   Dollar = "DOLLAR",
+  Colon = "COLON",
 
   // Arithmetic
   Minus = "MINUS",

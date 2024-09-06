@@ -12,8 +12,9 @@ import { Parser } from "./parser/Parser";
 import { ErrorReporter } from "./parser/Reporter";
 import { Interpreter } from "./parser/Interpreter";
 
-import { bindings, operators, hush, typeBindings } from "./strudel";
-import { operators as opPrecedence } from "./strudel/operators";
+import { getOperators } from "./parser/API";
+
+import { bindings, hush, typeBindings } from "./strudel";
 
 import { printType } from "./parser/typechecker/Printer";
 import { TypeChecker } from "./parser/typechecker/Typechecker";
@@ -55,7 +56,7 @@ const listener = EditorView.updateListener.of((update) => {
           document.getElementById("output").innerText = tokens
             .map((t) => t.toString())
             .join("\n");
-          const parser = new Parser(tokens, opPrecedence, reporter);
+          const parser = new Parser(tokens, getOperators(bindings), reporter);
           const stmts = parser.parse();
 
           // TODO: Error Handling
@@ -74,7 +75,7 @@ const listener = EditorView.updateListener.of((update) => {
             document.getElementById("output").innerText =
               reporter.errors.join("\n");
           } else {
-            const interpreter = new Interpreter(reporter, bindings, operators);
+            const interpreter = new Interpreter(reporter, bindings);
 
             let results = interpreter.interpret(stmts);
 
@@ -97,7 +98,7 @@ const parseLinter = linter((view) => {
 
     const scanner = new Scanner(view.state.doc.toString());
     const tokens = scanner.scanTokens();
-    const parser = new Parser(tokens, opPrecedence, reporter);
+    const parser = new Parser(tokens, getOperators(bindings), reporter);
     const stmts = parser.parse();
 
     const printer = new AstPrinter();

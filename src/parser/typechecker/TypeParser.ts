@@ -1,7 +1,7 @@
 import { TokenType } from "../TokenType";
 import { BaseParser } from "../BaseParser";
 
-import { MonoType, PolyType, TypeFunction, makeContext } from "./Types";
+import { MonoType, PolyType, makeContext } from "./Types";
 import { generalise } from "./Utilities";
 
 export class TypeParser extends BaseParser<PolyType> {
@@ -22,17 +22,22 @@ export class TypeParser extends BaseParser<PolyType> {
   }
 
   private typeConstructor(): MonoType {
-    // If there's a type constructor
-    if (this.match(TokenType.Identifier)) {
-      let constructor = this.previous();
-      let mus: MonoType[] = [];
-      let param: MonoType;
+    // If there's a type function identifier
+    let constructor = this.typeIdentifier();
 
-      while ((param = this.typeTerm())) {
-        mus.push(param);
+    if (constructor !== null) {
+      if (constructor.type === "ty-app") {
+        let mus: MonoType[] = [];
+        let param: MonoType;
+
+        while ((param = this.typeTerm())) {
+          mus.push(param);
+        }
+
+        return { ...constructor, mus };
+      } else {
+        return constructor;
       }
-
-      return { type: "ty-app", C: constructor.lexeme as TypeFunction, mus };
     }
 
     // Otherwise, expect a single term
@@ -45,11 +50,11 @@ export class TypeParser extends BaseParser<PolyType> {
   }
 
   private typeTerm(): MonoType | null {
-    if (this.match(TokenType.LeftBrace)) {
+    if (this.match(TokenType.LeftBracket)) {
       let listParam = this.functionType();
       this.consume(
-        TokenType.RightBrace,
-        "Expected right brace at end of list type."
+        TokenType.RightBracket,
+        "Expected right bracket at end of list type."
       );
       return { type: "ty-app", C: "List", mus: [listParam] };
     } else if (this.match(TokenType.LeftParen)) {
@@ -64,12 +69,18 @@ export class TypeParser extends BaseParser<PolyType> {
         "Expected right paren at end of parenthesized expression."
       );
       return parenContents;
-    } else if (this.match(TokenType.Identifier)) {
+    } else {
+      return this.typeIdentifier();
+    }
+  }
+
+  private typeIdentifier(): MonoType | null {
+    if (this.match(TokenType.Identifier)) {
       let identifier = this.previous();
       if (identifier.lexeme[0] >= "A" && identifier.lexeme[0] <= "Z") {
         return {
           type: "ty-app",
-          C: identifier.lexeme as TypeFunction,
+          C: identifier.lexeme,
           mus: [],
         };
       } else {
@@ -79,5 +90,7 @@ export class TypeParser extends BaseParser<PolyType> {
         };
       }
     }
+
+    return null;
   }
 }

@@ -9,7 +9,10 @@ export function printType(type: PolyType, parenthesize = false) {
         return type.C;
       } else if (type.C === "->") {
         return parens(
-          `${printType(type.mus[0], true)} -> ${printType(type.mus[1])}`,
+          `${printType(
+            type.mus[0],
+            type.mus[0].type === "ty-app" && type.mus[0].C === "->"
+          )} -> ${printType(type.mus[1])}`,
           parenthesize
         );
       } else {
