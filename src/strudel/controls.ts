@@ -1,52 +1,54 @@
 import { controls as strudelControls } from "@strudel/core";
+import { Bindings } from "../parser/API";
 
-export const controls = {
+export const controls: Bindings = {
   createParam: {
-    type: "Pattern String -> Pattern Controls",
+    type: "String -> (Pattern a -> Pattern Controls)",
     value: strudelControls.createParam,
   },
-  s: { type: "Pattern String -> Pattern Controls", value: strudelControls.s },
-  sound: {
+
+  s: {
     type: "Pattern String -> Pattern Controls",
-    value: strudelControls.sound,
+    value: strudelControls.s,
+    synonyms: ["sound"],
   },
+
+  // TODO: Input type here is maybe a Web Audio Node?
   source: {
     type: "Pattern String -> Pattern Controls",
     value: strudelControls.source,
+    synonyms: ["src"],
   },
-  src: {
-    type: "Pattern String -> Pattern Controls",
-    value: strudelControls.src,
-  },
-  n: { type: "Pattern String -> Pattern Controls", value: strudelControls.n },
+
+  n: { type: "Pattern Number -> Pattern Controls", value: strudelControls.n },
+
   note: {
-    type: "Pattern String -> Pattern Controls",
+    type: "Pattern Note -> Pattern Controls",
     value: strudelControls.note,
   },
+
   accelerate: {
-    type: "Pattern String -> Pattern Controls",
+    type: "Pattern Number -> Pattern Controls",
     value: strudelControls.accelerate,
   },
   gain: {
-    type: "Pattern String -> Pattern Controls",
+    type: "Pattern Number -> Pattern Controls",
     value: strudelControls.gain,
   },
   postgain: {
-    type: "Pattern String -> Pattern Controls",
+    type: "Pattern Number -> Pattern Controls",
     value: strudelControls.postgain,
   },
   amp: {
-    type: "Pattern String -> Pattern Controls",
+    type: "Pattern Number -> Pattern Controls",
     value: strudelControls.amp,
   },
   attack: {
-    type: "Pattern String -> Pattern Controls",
+    type: "Pattern Number -> Pattern Controls",
     value: strudelControls.attack,
+    synonyms: ["att"],
   },
-  att: {
-    type: "Pattern String -> Pattern Controls",
-    value: strudelControls.att,
-  },
+
   fmh: {
     type: "Pattern String -> Pattern Controls",
     value: strudelControls.fmh,
@@ -656,7 +658,7 @@ export const controls = {
     value: strudelControls.mode,
   },
   room: {
-    type: "Pattern String -> Pattern Controls",
+    type: "Pattern Number -> Pattern Controls",
     value: strudelControls.room,
   },
   roomlp: {

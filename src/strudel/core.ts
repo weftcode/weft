@@ -151,7 +151,10 @@ export const core = {
   lt: { type: "", value: strudelCore.lt },
   lte: { type: "", value: strudelCore.lte },
   mapArgs: { type: "", value: strudelCore.mapArgs },
-  mask: { type: "", value: strudelCore.mask },
+  mask: {
+    type: "Pattern Bool -> Pattern a -> Pattern a",
+    value: strudelCore.mask,
+  },
   midi2note: { type: "", value: strudelCore.midi2note },
   midiToFreq: { type: "", value: strudelCore.midiToFreq },
   mod: { type: "", value: strudelCore.mod },
