@@ -28,6 +28,11 @@ export const operators: Bindings = {
     token: TokenType.Colon,
     prec: [5, "right"],
   },
+  "[]": {
+    // Empty list constructor
+    type: "[a]",
+    value: [],
+  },
 
   // Addition/subtration (and pattern variants)
   "+": {
