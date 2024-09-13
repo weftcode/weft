@@ -1,27 +1,48 @@
-// import { Token, Primitive } from "./Token";
+/**
+ * Expression definitions for a "core" language. Right now, it contains literal
+ * values, variables and lambda calculus function application and abstraction.
+ */
 
-export type CoreExpr = CoreVarExpr | CoreLitExpr | CoreAppExpr | CoreAbsExpr;
+import { Token } from "../../Token";
+import { Expr } from "../../Expr";
 
-export interface CoreExprCommon {}
+export type CoreExpr =
+  | CoreExpr.Var
+  | CoreExpr.Lit
+  | CoreExpr.App
+  | CoreExpr.Abs;
 
-export interface CoreVarExpr extends CoreExprCommon {
-  type: "Core_Var";
-  x: string;
-}
+export namespace CoreExpr {
+  export enum Type {
+    Var = "CORE_EXPR_VAR",
+    Lit = "CORE_EXPR_LIT",
+    App = "CORE_EXPR_APP",
+    Abs = "CORE_EXPR_ABS",
+  }
 
-export interface CoreLitExpr extends CoreExprCommon {
-  type: "Core_Lit";
-  value: string | number | boolean;
-}
+  export interface Common {
+    source: Expr | Token | null;
+  }
 
-export interface CoreAppExpr extends CoreExprCommon {
-  type: "Core_App";
-  e1: CoreExpr;
-  e2: CoreExpr;
-}
+  export interface Var extends Common {
+    type: Type.Var;
+    x: string;
+  }
 
-export interface CoreAbsExpr extends CoreExprCommon {
-  type: "Core_Abs";
-  x: string;
-  e: CoreExpr;
+  export interface Lit extends Common {
+    type: Type.Lit;
+    value: string | number | boolean;
+  }
+
+  export interface App extends Common {
+    type: Type.App;
+    e1: CoreExpr;
+    e2: CoreExpr;
+  }
+
+  export interface Abs extends Common {
+    type: Type.Abs;
+    x: string;
+    e: CoreExpr;
+  }
 }

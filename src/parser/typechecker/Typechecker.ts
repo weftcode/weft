@@ -1,4 +1,4 @@
-import { Expr } from "../Expr";
+import { Expr, expressionBounds } from "../Expr";
 import { Stmt } from "../Stmt";
 import { Environment } from "../Environment";
 import { ErrorReporter } from "../Reporter";
@@ -10,6 +10,7 @@ import { toCore } from "./core/toCore";
 import { makeContext, PolyType } from "./Types";
 import { ParseError } from "../BaseParser";
 import { W } from "./Inference";
+import { UnificationError } from "./Utilities";
 
 export class TypeChecker {
   private environment: { [name: string]: PolyType } = {};
@@ -39,11 +40,26 @@ export class TypeChecker {
 
   check(statements: Stmt[]) {
     for (let statement of statements) {
-      switch (statement.type) {
-        case Stmt.Type.Expression:
-          return W(makeContext(this.environment), toCore(statement.expression));
-        default:
-          return statement.type satisfies never;
+      try {
+        switch (statement.type) {
+          case Stmt.Type.Expression:
+            return W(
+              makeContext(this.environment),
+              toCore(statement.expression)
+            );
+          default:
+            return statement.type satisfies never;
+        }
+      } catch (e) {
+        if (e instanceof UnificationError && e.type2.source) {
+          const { from, to } =
+            "from" in e.type2.source
+              ? e.type2.source
+              : expressionBounds(e.type2.source);
+          this.reporter.error(from, to, e.message);
+        }
+
+        return [];
       }
     }
   }

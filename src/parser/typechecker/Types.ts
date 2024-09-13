@@ -1,5 +1,8 @@
 // Types
 
+import { Expr } from "../Expr";
+import { Token } from "../Token";
+
 // mu ::= a
 //      | C mu_0 ... mu_n
 
@@ -10,18 +13,22 @@ export type MonoType = TypeVariable | TypeFunctionApplication;
 
 export type PolyType = MonoType | TypeQuantifier;
 
-export interface TypeVariable {
+export interface TypeCommon {
+  source: Expr | Token | null;
+}
+
+export interface TypeVariable extends TypeCommon {
   type: "ty-var";
   a: string;
 }
 
-export interface TypeFunctionApplication {
+export interface TypeFunctionApplication extends TypeCommon {
   type: "ty-app";
   C: string;
   mus: MonoType[];
 }
 
-export interface TypeQuantifier {
+export interface TypeQuantifier extends TypeCommon {
   type: "ty-quantifier";
   a: string;
   sigma: PolyType;

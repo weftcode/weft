@@ -103,6 +103,9 @@ const parseLinter = linter((view) => {
 
     const printer = new AstPrinter();
 
+    const typechecker = new TypeChecker(reporter, typeBindings);
+    let [_, type] = typechecker.check(stmts);
+
     if (reporter.hasError) {
       return reporter.errors.map(({ from, to, message }) => ({
         from,

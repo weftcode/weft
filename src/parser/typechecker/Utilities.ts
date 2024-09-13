@@ -1,3 +1,4 @@
+import { printType } from "./Printer";
 import {
   Context,
   isContext,
@@ -45,7 +46,7 @@ function apply(
   }
 
   if (value.type === "ty-var") {
-    if (s.raw[value.a]) return s.raw[value.a];
+    if (s.raw[value.a]) return { ...s.raw[value.a], source: value.source };
     return value;
   }
 
@@ -80,6 +81,7 @@ let currentTypeVar = 0;
 export const newTypeVar = (): TypeVariable => ({
   type: "ty-var",
   a: `t${currentTypeVar++}`,
+  source: null,
 });
 
 // instantiate
@@ -91,7 +93,7 @@ export const instantiate = (
   mappings: Map<string, TypeVariable> = new Map()
 ): MonoType => {
   if (type.type === "ty-var") {
-    return mappings.get(type.a) ?? type;
+    return { ...(mappings.get(type.a) ?? type), source: type.source };
   }
 
   if (type.type === "ty-app") {
@@ -111,7 +113,7 @@ export const generalise = (ctx: Context, type: MonoType): PolyType => {
   const quantifiers = diff(freeVars(type), freeVars(ctx));
   let t: PolyType = type;
   quantifiers.forEach((q) => {
-    t = { type: "ty-quantifier", a: q, sigma: t };
+    t = { type: "ty-quantifier", a: q, sigma: t, source: null };
   });
   return t;
 };
@@ -143,7 +145,32 @@ const freeVars = (value: PolyType | Context): string[] => {
 
 // unify
 
+export class UnificationError extends Error {
+  constructor(
+    public type1: PolyType,
+    public type2: PolyType,
+    message?: string
+  ) {
+    super();
+
+    // Set unification error message
+    this.message =
+      message ??
+      `Types don't match: expected ${this.type1String}, got ${this.type2String}`;
+  }
+
+  get type1String() {
+    return printType(this.type1);
+  }
+
+  get type2String() {
+    return printType(this.type2);
+  }
+}
+
 export const unify = (type1: MonoType, type2: MonoType): Substitution => {
+  console.log(type1);
+  console.log(type2);
   if (
     type1.type === "ty-var" &&
     type2.type === "ty-var" &&
@@ -156,7 +183,7 @@ export const unify = (type1: MonoType, type2: MonoType): Substitution => {
     if (contains(type2, type1)) throw new Error("Infinite type detected");
 
     return makeSubstitution({
-      [type1.a]: type2,
+      [type1.a]: { ...type2, source: type1.source ?? type2.source },
     });
   }
 
@@ -165,20 +192,33 @@ export const unify = (type1: MonoType, type2: MonoType): Substitution => {
   }
 
   if (type1.C !== type2.C) {
-    throw new Error(
+    throw new UnificationError(
+      type1,
+      type2,
       `Could not unify types (different type functions): ${type1.C} and ${type2.C}`
     );
   }
 
   if (type1.mus.length !== type2.mus.length) {
-    throw new Error(
+    throw new UnificationError(
+      type1,
+      type2,
       `Could not unify types (different argument lengths): ${type1} and ${type2}`
     );
   }
 
   let s: Substitution = makeSubstitution({});
   for (let i = 0; i < type1.mus.length; i++) {
-    s = s(unify(s(type1.mus[i]), s(type2.mus[i])));
+    try {
+      s = s(unify(s(type1.mus[i]), s(type2.mus[i])));
+    } catch (e) {
+      if (e instanceof UnificationError) {
+        e.type1 = type1;
+        e.type2 = type2;
+      }
+
+      throw e;
+    }
   }
   return s;
 };

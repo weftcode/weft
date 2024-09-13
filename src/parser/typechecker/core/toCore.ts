@@ -1,41 +1,47 @@
 import { Expr } from "../../Expr";
 import { CoreExpr } from "./CoreExpr";
 
-export function toCore(expression: Expr): CoreExpr {
-  switch (expression.type) {
+export function toCore(source: Expr): CoreExpr {
+  switch (source.type) {
     case Expr.Type.Application:
       return {
-        type: "Core_App",
-        e1: toCore(expression.left),
-        e2: toCore(expression.right),
+        type: CoreExpr.Type.App,
+        e1: toCore(source.left),
+        e2: toCore(source.right),
+        source,
       };
 
     case Expr.Type.Variable:
       return {
-        type: "Core_Var",
-        x: expression.name.lexeme,
+        type: CoreExpr.Type.Var,
+        x: source.name.lexeme,
+        source,
       };
 
     case Expr.Type.Literal:
       return {
-        type: "Core_Lit",
-        value: expression.value,
+        type: CoreExpr.Type.Lit,
+        value: source.value,
+        source,
       };
 
     case Expr.Type.Binary: {
-      let { left, operator, right } = expression;
+      let { left, operator, right } = source;
 
       return {
-        type: "Core_App",
+        type: CoreExpr.Type.App,
         e1: {
-          type: "Core_App",
+          type: CoreExpr.Type.App,
           e1: {
-            type: "Core_Var",
+            type: CoreExpr.Type.Var,
             x: operator.lexeme,
+            source: source.operator,
           },
           e2: toCore(left),
+          source: null,
         },
         e2: toCore(right),
+        source,
       };
     }
 
@@ -43,26 +49,33 @@ export function toCore(expression: Expr): CoreExpr {
       // A section is just a binary operation wrapped in a function abstraction. One of the
       // sides of the operator is the variable from the abstraction
       let left: CoreExpr =
-        expression.side === "left"
-          ? { type: "Core_Var", x: "x" }
-          : toCore(expression.expression);
+        source.side === "left"
+          ? { type: CoreExpr.Type.Var, x: "x", source: null }
+          : toCore(source.expression);
       let right: CoreExpr =
-        expression.side === "right"
-          ? { type: "Core_Var", x: "x" }
-          : toCore(expression.expression);
+        source.side === "right"
+          ? { type: CoreExpr.Type.Var, x: "x", source: null }
+          : toCore(source.expression);
 
       return {
-        type: "Core_Abs",
+        type: CoreExpr.Type.Abs,
         x: "x", // TODO: This should actually be a unique name outside of the namespace
         e: {
-          type: "Core_App",
+          type: CoreExpr.Type.App,
           e1: {
-            type: "Core_App",
-            e1: { type: "Core_Var", x: expression.operator.lexeme },
+            type: CoreExpr.Type.App,
+            e1: {
+              type: CoreExpr.Type.Var,
+              x: source.operator.lexeme,
+              source: source.operator,
+            },
             e2: left,
+            source: null,
           },
           e2: right,
+          source,
         },
+        source: null,
       };
     }
 
@@ -70,26 +83,29 @@ export function toCore(expression: Expr): CoreExpr {
       throw new Error("Parser doesn't currently support unary operators");
 
     case Expr.Type.Grouping:
-      return toCore(expression.expression);
+      return toCore(source.expression);
 
     case Expr.Type.List: {
       // Desugar to a right-associative set of cons operators
-      const { items } = expression;
+      const { items } = source;
 
       return items.reduceRight(
         (prev: CoreExpr, item) => ({
-          type: "Core_App",
+          type: CoreExpr.Type.App,
           e1: {
-            type: "Core_App",
+            type: CoreExpr.Type.App,
             e1: {
-              type: "Core_Var",
+              type: CoreExpr.Type.Var,
               x: ":",
+              source: null,
             },
             e2: toCore(item),
+            source: null,
           },
-          e2: prev,
+          e2: { ...prev, source: null },
+          source,
         }),
-        { type: "Core_Var", x: "[]" }
+        { type: CoreExpr.Type.Var, x: "[]", source }
       );
     }
 
@@ -102,6 +118,6 @@ export function toCore(expression: Expr): CoreExpr {
       throw new Error("Assignment isn't implemented yet");
 
     default:
-      return expression satisfies never;
+      return source satisfies never;
   }
 }

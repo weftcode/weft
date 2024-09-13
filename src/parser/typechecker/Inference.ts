@@ -16,17 +16,26 @@ export const W = (
 ): [Substitution, MonoType] => {
   try {
     switch (expr.type) {
-      case "Core_Var":
+      case CoreExpr.Type.Var:
         const value = typEnv[expr.x];
         if (value === undefined)
+          // TODO: attach source position to this
           throw new Error(`Undefined variable: ${expr.x}`);
-        return [makeSubstitution({}), instantiate(value)];
-      case "Core_Lit":
+        return [
+          makeSubstitution({}),
+          instantiate({ ...value, source: expr.source }),
+        ];
+      case CoreExpr.Type.Lit:
         switch (typeof expr.value) {
           case "string":
             return [
               makeSubstitution({}),
-              { type: "ty-app", C: "Pattern", mus: [newTypeVar()] },
+              {
+                type: "ty-app",
+                C: "Pattern",
+                mus: [newTypeVar()],
+                source: expr.source,
+              },
             ];
           case "number":
             return [
@@ -34,16 +43,17 @@ export const W = (
               {
                 type: "ty-app",
                 C: "Pattern",
-                mus: [{ type: "ty-app", C: "Number", mus: [] }],
+                mus: [{ type: "ty-app", C: "Number", mus: [], source: null }],
+                source: expr.source,
               },
             ];
           case "boolean":
             return [
               makeSubstitution({}),
-              { type: "ty-app", C: "Boolean", mus: [] },
+              { type: "ty-app", C: "Boolean", mus: [], source: expr.source },
             ];
         }
-      case "Core_Abs": {
+      case CoreExpr.Type.Abs: {
         const beta = newTypeVar();
         const [s1, t1] = W(
           makeContext({
@@ -58,10 +68,11 @@ export const W = (
             type: "ty-app",
             C: "->",
             mus: [beta, t1],
+            source: expr.source,
           }),
         ];
       }
-      case "Core_App": {
+      case CoreExpr.Type.App: {
         const [s1, t1] = W(typEnv, expr.e1);
         const [s2, t2] = W(s1(typEnv), expr.e2);
         const beta = newTypeVar();
@@ -70,6 +81,7 @@ export const W = (
           type: "ty-app",
           C: "->",
           mus: [t2, beta],
+          source: expr.source,
         });
         return [s3(s2(s1)), s3(beta)];
       }
@@ -90,7 +102,6 @@ export const W = (
   } catch (error) {
     console.log("Type Error:");
     console.log(error.message);
-    console.log(JSON.stringify(expr, undefined, 2));
     throw error;
   }
 };
