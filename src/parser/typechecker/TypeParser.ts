@@ -19,7 +19,6 @@ export class TypeParser extends BaseParser<PolyType> {
         type: "ty-app",
         C: "->",
         mus: [paramType, returnType],
-        source: null,
       };
     } else {
       return paramType;
@@ -61,7 +60,7 @@ export class TypeParser extends BaseParser<PolyType> {
         TokenType.RightBracket,
         "Expected right bracket at end of list type."
       );
-      return { type: "ty-app", C: "List", mus: [listParam], source: null };
+      return { type: "ty-app", C: "List", mus: [listParam] };
     } else if (this.match(TokenType.LeftParen)) {
       // TODO: Implement
       // if (this.match(TokenType.RightParen)) {
@@ -87,13 +86,11 @@ export class TypeParser extends BaseParser<PolyType> {
           type: "ty-app",
           C: identifier.lexeme,
           mus: [],
-          source: null,
         };
       } else {
         return {
           type: "ty-var",
           a: identifier.lexeme,
-          source: null,
         };
       }
     }

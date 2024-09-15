@@ -13,9 +13,7 @@ export type MonoType = TypeVariable | TypeFunctionApplication;
 
 export type PolyType = MonoType | TypeQuantifier;
 
-export interface TypeCommon {
-  source: Expr | Token | null;
-}
+export interface TypeCommon {}
 
 export interface TypeVariable extends TypeCommon {
   type: "ty-var";

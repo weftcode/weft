@@ -46,7 +46,7 @@ function apply(
   }
 
   if (value.type === "ty-var") {
-    if (s.raw[value.a]) return { ...s.raw[value.a], source: value.source };
+    if (s.raw[value.a]) return s.raw[value.a];
     return value;
   }
 
@@ -81,7 +81,6 @@ let currentTypeVar = 0;
 export const newTypeVar = (): TypeVariable => ({
   type: "ty-var",
   a: `t${currentTypeVar++}`,
-  source: null,
 });
 
 // instantiate
@@ -93,7 +92,7 @@ export const instantiate = (
   mappings: Map<string, TypeVariable> = new Map()
 ): MonoType => {
   if (type.type === "ty-var") {
-    return { ...(mappings.get(type.a) ?? type), source: type.source };
+    return mappings.get(type.a) ?? type;
   }
 
   if (type.type === "ty-app") {
@@ -113,7 +112,7 @@ export const generalise = (ctx: Context, type: MonoType): PolyType => {
   const quantifiers = diff(freeVars(type), freeVars(ctx));
   let t: PolyType = type;
   quantifiers.forEach((q) => {
-    t = { type: "ty-quantifier", a: q, sigma: t, source: null };
+    t = { type: "ty-quantifier", a: q, sigma: t };
   });
   return t;
 };
@@ -183,7 +182,7 @@ export const unify = (type1: MonoType, type2: MonoType): Substitution => {
     if (contains(type2, type1)) throw new Error("Infinite type detected");
 
     return makeSubstitution({
-      [type1.a]: { ...type2, source: type1.source ?? type2.source },
+      [type1.a]: type2,
     });
   }
 

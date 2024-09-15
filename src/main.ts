@@ -1,7 +1,7 @@
 import { EditorView, basicSetup } from "codemirror";
 import { keymap, KeyBinding } from "@codemirror/view";
 import { StateEffect } from "@codemirror/state";
-import { linter } from "@codemirror/lint";
+import { Diagnostic, linter } from "@codemirror/lint";
 
 import { StreamLanguage } from "@codemirror/language";
 import { haskell } from "@codemirror/legacy-modes/mode/haskell";
@@ -103,8 +103,17 @@ const parseLinter = linter((view) => {
 
     const printer = new AstPrinter();
 
+    let diagnostics: Diagnostic[] = [];
+
     const typechecker = new TypeChecker(reporter, typeBindings);
-    let [_, type] = typechecker.check(stmts);
+    try {
+      let [_s, _t, annotations] = typechecker.check(stmts);
+
+      let annotationMap = new WeakMap(annotations);
+      diagnostics = diagnostics.concat(
+        generateTypeDiagnostics(stmts[0].expression, annotationMap)
+      );
+    } catch (e) {}
 
     if (reporter.hasError) {
       return reporter.errors.map(({ from, to, message }) => ({
@@ -116,12 +125,53 @@ const parseLinter = linter((view) => {
     } else {
       document.getElementById("output").innerText = printer.printStmts(stmts);
 
-      return [];
+      return diagnostics;
     }
   } catch (error) {
     console.log(error);
+    return [];
   }
 });
+
+import { Expr, expressionBounds } from "./parser/Expr";
+import { MonoType } from "./parser/typechecker/Types";
+
+type TypeAnnotationMap = WeakMap<Expr, MonoType>;
+
+function generateTypeDiagnostics(
+  expr: Expr,
+  annotations: TypeAnnotationMap
+): Diagnostic[] {
+  switch (expr.type) {
+    case Expr.Type.Variable:
+    case Expr.Type.Literal:
+    case Expr.Type.Empty:
+    case Expr.Type.Assignment:
+      return annotations.has(expr)
+        ? [
+            {
+              ...expressionBounds(expr),
+              severity: "info",
+              message: printType(annotations.get(expr)),
+            },
+          ]
+        : [];
+    case Expr.Type.Application:
+    case Expr.Type.Binary:
+      return generateTypeDiagnostics(expr.left, annotations).concat(
+        generateTypeDiagnostics(expr.right, annotations)
+      );
+    case Expr.Type.Grouping:
+    case Expr.Type.Section:
+      return generateTypeDiagnostics(expr.expression, annotations);
+    case Expr.Type.Unary:
+      return generateTypeDiagnostics(expr.right, annotations);
+    case Expr.Type.List:
+      return expr.items.flatMap((e) => generateTypeDiagnostics(e, annotations));
+    default:
+      return expr satisfies never;
+  }
+}
 
 window.addEventListener("load", () => {
   new EditorView({
