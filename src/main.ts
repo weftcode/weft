@@ -45,9 +45,6 @@ const autosave = EditorView.updateListener.of((update) => {
 });
 
 const listener = EditorView.updateListener.of((update) => {
-  let evaluated = false;
-
-const listener = EditorView.updateListener.of((update) => {
   for (let tr of update.transactions) {
     for (let effect of tr.effects) {
       if (effect.is(EvalEffect)) {
@@ -112,7 +109,7 @@ const parseLinter = linter((view) => {
     try {
       let [_s, _t, annotations] = typechecker.check(stmts);
 
-      let annotationMap = new WeakMap(annotations);
+      let annotationMap = new WeakMap(annotations.map((a) => [a.expr, a]));
       diagnostics = diagnostics.concat(
         generateTypeDiagnostics(stmts[0].expression, annotationMap)
       );
@@ -137,9 +134,9 @@ const parseLinter = linter((view) => {
 });
 
 import { Expr, expressionBounds } from "./parser/Expr";
-import { MonoType } from "./parser/typechecker/Types";
+import { TypeAnnotation } from "./parser/typechecker/Inference";
 
-type TypeAnnotationMap = WeakMap<Expr, MonoType>;
+type TypeAnnotationMap = WeakMap<Expr, TypeAnnotation>;
 
 function generateTypeDiagnostics(
   expr: Expr,
@@ -149,16 +146,28 @@ function generateTypeDiagnostics(
     case Expr.Type.Variable:
     case Expr.Type.Literal:
     case Expr.Type.Empty:
-    case Expr.Type.Assignment:
-      return annotations.has(expr)
-        ? [
+    case Expr.Type.Assignment: {
+      if (!annotations.has(expr)) return [];
+      const annotation = annotations.get(expr);
+      switch (annotation.type) {
+        case "Type":
+          return [
             {
               ...expressionBounds(expr),
               severity: "info",
-              message: printType(annotations.get(expr)),
+              message: printType(annotation.inferredType),
             },
-          ]
-        : [];
+          ];
+        case "Warning":
+          return [
+            {
+              ...expressionBounds(expr),
+              severity: "warning",
+              message: annotation.message,
+            },
+          ];
+      }
+    }
     case Expr.Type.Application:
     case Expr.Type.Binary:
       return generateTypeDiagnostics(expr.left, annotations).concat(

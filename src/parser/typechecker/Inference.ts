@@ -12,7 +12,9 @@ import {
 import { Context, makeContext, MonoType } from "./Types";
 import { TokenType } from "../TokenType";
 
-export type TypeAnnotation = [Expr, MonoType];
+export type TypeAnnotation =
+  | { type: "Type"; expr: Expr; inferredType: MonoType }
+  | { type: "Warning"; expr: Expr; message: string };
 
 export const W = (
   typEnv: Context,
@@ -26,10 +28,25 @@ export const W = (
           // TODO: attach source position to this
           //throw new Error(`Undefined variable: ${expr.name.lexeme}`);
           let newType = newTypeVar();
-          return [makeSubstitution({}), newType, [[expr, newType]]];
+          return [
+            makeSubstitution({}),
+            newType,
+            [
+              { type: "Type", expr, inferredType: newType },
+              {
+                type: "Warning",
+                expr,
+                message: `Missing type annotation for ${expr.name.lexeme}`,
+              },
+            ],
+          ];
         }
         const type = instantiate(value);
-        return [makeSubstitution({}), type, [[expr, type]]];
+        return [
+          makeSubstitution({}),
+          type,
+          [{ type: "Type", expr, inferredType: type }],
+        ];
       }
       case Expr.Type.Literal:
         switch (typeof expr.value) {
@@ -39,7 +56,11 @@ export const W = (
               C: "Pattern",
               mus: [newTypeVar()],
             };
-            return [makeSubstitution({}), type, [[expr, type]]];
+            return [
+              makeSubstitution({}),
+              type,
+              [{ type: "Type", expr, inferredType: type }],
+            ];
           }
           case "number": {
             const type: MonoType = {
@@ -47,11 +68,19 @@ export const W = (
               C: "Pattern",
               mus: [{ type: "ty-app", C: "Number", mus: [] }],
             };
-            return [makeSubstitution({}), type, [[expr, type]]];
+            return [
+              makeSubstitution({}),
+              type,
+              [{ type: "Type", expr, inferredType: type }],
+            ];
           }
           case "boolean": {
             const type: MonoType = { type: "ty-app", C: "Boolean", mus: [] };
-            return [makeSubstitution({}), type, [[expr, type]]];
+            return [
+              makeSubstitution({}),
+              type,
+              [{ type: "Type", expr, inferredType: type }],
+            ];
           }
         }
       case Expr.Type.Grouping:
@@ -63,7 +92,11 @@ export const W = (
           expr.left,
           expr.right
         );
-        return [substitution, type, annotations.concat([[expr, type]])];
+        return [
+          substitution,
+          type,
+          annotations.concat([{ type: "Type", expr, inferredType: type }]),
+        ];
       }
 
       case Expr.Type.Binary: {
@@ -72,7 +105,11 @@ export const W = (
           Expr.Application(Expr.Variable(expr.operator), expr.left),
           expr.right
         );
-        return [substitution, type, annotations.concat([[expr, type]])];
+        return [
+          substitution,
+          type,
+          annotations.concat([{ type: "Type", expr, inferredType: type }]),
+        ];
       }
 
       case Expr.Type.Section: {
@@ -92,7 +129,11 @@ export const W = (
           x,
           Expr.Binary(left, expr.operator, right, 0)
         );
-        return [substitution, type, annotations.concat([[expr, type]])];
+        return [
+          substitution,
+          type,
+          annotations.concat([{ type: "Type", expr, inferredType: type }]),
+        ];
       }
 
       case Expr.Type.List:
@@ -167,7 +208,12 @@ function InferTypeApp(
 
   const a3 = a1
     .concat(a2)
-    .map(([expr, type]): TypeAnnotation => [expr, s3(type)]);
+    .map(
+      (annotation): TypeAnnotation =>
+        annotation.type === "Type"
+          ? { ...annotation, inferredType: s3(annotation.inferredType) }
+          : annotation
+    );
 
   return [s3(s2(s1)), s3(beta), a3];
 }
