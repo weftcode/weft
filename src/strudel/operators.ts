@@ -1,36 +1,175 @@
+import { Bindings } from "../parser/API";
 import { TokenType } from "../parser/TokenType";
-import { Operators } from "../parser/Parser";
 
-export const operators: Operators = new Map([
+import { reify } from "@strudel/core";
+
+export const operators: Bindings = {
   // Haskell Operators
-  [TokenType.Dollar, [0, "right"]],
-  [TokenType.Dot, [9, "right"]],
+  $: {
+    // Function application
+    type: "(a -> b) -> a -> b",
+    value: (a, b) => a(b),
+    token: TokenType.Dollar,
+    prec: [0, "right"],
+  },
+  ".": {
+    // Function composition
+    type: "(b -> c) -> (a -> b) -> a -> c",
+    value: (a, b) => (c) => a(b(c)),
+    token: TokenType.Dot,
+    prec: [9, "right"],
+  },
+  ":": {
+    // Cons operator
+    // TODO: this isn't actually parseable yet, it's only used for
+    // typechecking list literals
+    type: "a -> [a] -> [a]",
+    value: (a, as) => [a, ...as],
+    token: TokenType.Colon,
+    prec: [5, "right"],
+  },
+  "[]": {
+    // Empty list constructor
+    type: "[a]",
+    value: [],
+  },
 
   // Addition/subtration (and pattern variants)
-  [TokenType.Plus, [6, "left"]],
-  [TokenType.PlusSL, [6, "left"]],
-  [TokenType.PlusSB, [6, "left"]],
-  [TokenType.PlusSR, [6, "left"]],
-  [TokenType.Minus, [6, "left"]],
-  [TokenType.MinusSL, [6, "left"]],
-  [TokenType.MinusSB, [6, "left"]],
-  [TokenType.MinusSR, [6, "left"]],
+  "+": {
+    type: "Pattern Number -> Pattern Number -> Pattern Number",
+    value: (a, b) => reify(a).add.mix(reify(b)),
+    token: TokenType.Plus,
+    prec: [6, "left"],
+  },
+  "|+": {
+    type: "Pattern Number -> Pattern Number -> Pattern Number",
+    value: (a, b) => reify(a).add.in(reify(b)),
+    token: TokenType.PlusSL,
+    prec: [6, "left"],
+  },
+  "|+|": {
+    type: "Pattern Number -> Pattern Number -> Pattern Number",
+    value: (a, b) => reify(a).add.mix(reify(b)),
+    token: TokenType.PlusSB,
+    prec: [6, "left"],
+  },
+  "+|": {
+    type: "Pattern Number -> Pattern Number -> Pattern Number",
+    value: (a, b) => reify(a).add.out(reify(b)),
+    token: TokenType.PlusSR,
+    prec: [6, "left"],
+  },
+  "-": {
+    type: "Pattern Number -> Pattern Number -> Pattern Number",
+    value: (a, b) => reify(a).sub.mix(reify(b)),
+    token: TokenType.Minus,
+    prec: [6, "left"],
+  },
+  "|-": {
+    type: "Pattern Number -> Pattern Number -> Pattern Number",
+    value: (a, b) => reify(a).sub.in(reify(b)),
+    token: TokenType.MinusSL,
+    prec: [6, "left"],
+  },
+  "|-|": {
+    type: "Pattern Number -> Pattern Number -> Pattern Number",
+    value: (a, b) => reify(a).sub.mix(reify(b)),
+    token: TokenType.MinusSB,
+    prec: [6, "left"],
+  },
+  "-|": {
+    type: "Pattern Number -> Pattern Number -> Pattern Number",
+    value: (a, b) => reify(a).sub.out(reify(b)),
+    token: TokenType.MinusSR,
+    prec: [6, "left"],
+  },
 
   // Multiplication/division (and pattern variants)
-  [TokenType.Star, [7, "left"]],
-  [TokenType.StarSL, [7, "left"]],
-  [TokenType.StarSB, [7, "left"]],
-  [TokenType.StarSR, [7, "left"]],
-  [TokenType.Slash, [7, "left"]],
-  [TokenType.SlashSL, [7, "left"]],
-  [TokenType.SlashSB, [7, "left"]],
-  [TokenType.SlashSR, [7, "left"]],
+  "*": {
+    type: "Pattern Number -> Pattern Number -> Pattern Number",
+    value: (a, b) => reify(a).mul.mix(reify(b)),
+    token: TokenType.Star,
+    prec: [7, "left"],
+  },
+  "|*": {
+    type: "Pattern Number -> Pattern Number -> Pattern Number",
+    value: (a, b) => reify(a).mul.in(reify(b)),
+    token: TokenType.StarSL,
+    prec: [7, "left"],
+  },
+  "|*|": {
+    type: "Pattern Number -> Pattern Number -> Pattern Number",
+    value: (a, b) => reify(a).mul.mix(reify(b)),
+    token: TokenType.StarSB,
+    prec: [7, "left"],
+  },
+  "*|": {
+    type: "Pattern Number -> Pattern Number -> Pattern Number",
+    value: (a, b) => reify(a).mul.out(reify(b)),
+    token: TokenType.StarSR,
+    prec: [7, "left"],
+  },
+  "/": {
+    type: "Pattern Number -> Pattern Number -> Pattern Number",
+    value: (a, b) => reify(a).div.mix(reify(b)),
+    token: TokenType.Slash,
+    prec: [7, "left"],
+  },
+  "|/": {
+    type: "Pattern Number -> Pattern Number -> Pattern Number",
+    value: (a, b) => reify(a).div.in(reify(b)),
+    token: TokenType.SlashSL,
+    prec: [7, "left"],
+  },
+  "|/|": {
+    type: "Pattern Number -> Pattern Number -> Pattern Number",
+    value: (a, b) => reify(a).div.mix(reify(b)),
+    token: TokenType.SlashSB,
+    prec: [7, "left"],
+  },
+  "/|": {
+    type: "Pattern Number -> Pattern Number -> Pattern Number",
+    value: (a, b) => reify(a).div.out(reify(b)),
+    token: TokenType.SlashSR,
+    prec: [7, "left"],
+  },
 
   // Apply pattern values
-  [TokenType.LeftSL, [8, "left"]],
-  [TokenType.LeftSB, [8, "left"]],
-  [TokenType.LeftSR, [8, "left"]],
-  [TokenType.RightSL, [8, "left"]],
-  [TokenType.RightSB, [8, "left"]],
-  [TokenType.RightSR, [8, "left"]],
-]);
+  "|<": {
+    type: "Pattern a -> Pattern a -> Pattern a",
+    value: (a, b) => reify(b).set.out(reify(a)),
+    token: TokenType.LeftSL,
+    prec: [8, "left"],
+  },
+  "|<|": {
+    type: "Pattern a -> Pattern a -> Pattern a",
+    value: (a, b) => reify(b).set.mix(reify(a)),
+    token: TokenType.LeftSB,
+    prec: [8, "left"],
+  },
+  "<|": {
+    type: "Pattern a -> Pattern a -> Pattern a",
+    value: (a, b) => reify(b).set.in(reify(a)),
+    token: TokenType.LeftSR,
+    prec: [8, "left"],
+  },
+  "|>": {
+    type: "Pattern a -> Pattern a -> Pattern a",
+    value: (a, b) => reify(a).set.in(reify(b)),
+    token: TokenType.RightSL,
+    prec: [8, "left"],
+    synonyms: ["#"],
+  },
+  "|>|": {
+    type: "Pattern a -> Pattern a -> Pattern a",
+    value: (a, b) => reify(a).set.mix(reify(b)),
+    token: TokenType.RightSB,
+    prec: [8, "left"],
+  },
+  ">|": {
+    type: "Pattern a -> Pattern a -> Pattern a",
+    value: (a, b) => reify(a).set.out(reify(b)),
+    token: TokenType.RightSR,
+    prec: [8, "left"],
+  },
+};

@@ -1,15 +1,13 @@
 import { BaseParser } from "./BaseParser";
 
+import { Operators } from "./API";
+
 import { Token } from "./Token";
 import { TokenType } from "./TokenType";
 
 import { Expr } from "./Expr";
 import { Stmt } from "./Stmt";
 import { ErrorReporter } from "./Reporter";
-
-// Tuple of precedence and associativity
-export type Precedence = [number, "left" | "right"];
-export type Operators = Map<TokenType, Precedence>;
 
 export class Parser extends BaseParser<Stmt[]> {
   constructor(
@@ -75,6 +73,20 @@ export class Parser extends BaseParser<Stmt[]> {
         opAssociativity === "left" ? opPrecedence + 1 : opPrecedence
       );
 
+      // Check for empty expressions
+      let lNull = left.type === Expr.Type.Empty;
+      let rNull = right.type === Expr.Type.Empty;
+      if (lNull || rNull) {
+        console.log("Parse Error");
+        console.log(JSON.stringify(operator));
+        throw new ParseError(
+          operator,
+          `Missing expression ${lNull ? "before" : ""}${
+            lNull && rNull ? " and " : ""
+          }${rNull ? "after" : ""} the "${operator.lexeme}" operator`
+        );
+      }
+
       // Associate operator
       left = Expr.Binary(left, operator, right, opPrecedence);
     }
@@ -107,12 +119,22 @@ export class Parser extends BaseParser<Stmt[]> {
 
   private grouping() {
     if (this.match(TokenType.LeftParen)) {
+      let leftParen = this.previous();
       let leftOp: Token | null = null;
       let rightOp: Token | null = null;
 
       // Check for an initial operator
       if (this.operators.has(this.peek().type)) {
         leftOp = this.advance();
+      }
+
+      // This is kind of a hacky way to attempt this
+      if (this.match(TokenType.RightParen)) {
+        if (leftOp) {
+          return { type: Expr.Type.Variable, name: leftOp };
+        } else {
+          throw "Encountered unit literal, but unit isn't supported yet";
+        }
       }
 
       let expr = this.expression(0);
@@ -146,7 +168,7 @@ export class Parser extends BaseParser<Stmt[]> {
         expr = Expr.Section(operator, expr, side);
       }
 
-      return Expr.Grouping(expr);
+      return Expr.Grouping(leftParen, expr, rightParen);
     } else {
       return this.functionTerm();
     }
@@ -154,7 +176,7 @@ export class Parser extends BaseParser<Stmt[]> {
 
   private functionTerm() {
     if (this.match(TokenType.Number, TokenType.String)) {
-      return Expr.Literal(this.previous().literal);
+      return Expr.Literal(this.previous().literal, this.previous());
     }
 
     if (this.match(TokenType.Identifier)) {
@@ -179,14 +201,8 @@ export class Parser extends BaseParser<Stmt[]> {
       return Expr.List(items);
     }
 
-    throw new EmptyExpressionError(this.peek());
+    return Expr.Empty();
   }
 }
 
 import { ParseError } from "./BaseParser";
-
-class EmptyExpressionError extends ParseError {
-  constructor(token: Token) {
-    super(token, "Expected expression.");
-  }
-}

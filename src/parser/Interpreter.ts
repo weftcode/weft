@@ -2,14 +2,14 @@ import { ErrorReporter } from "./Reporter";
 import { Primitive, Token } from "./Token";
 import { Expr } from "./Expr";
 import { Stmt } from "./Stmt";
+import { Bindings } from "./API";
 
 type Value = Primitive | Value[] | ((input: Value) => Value);
 
 export class Interpreter {
   constructor(
     private readonly reporter: ErrorReporter,
-    private bindings,
-    private operators
+    private bindings: Bindings
   ) {}
 
   interpret(statements: Stmt[]) {
@@ -32,11 +32,7 @@ export class Interpreter {
       }
     } catch (error) {
       if (error instanceof RuntimeError) {
-        this.reporter.error(
-          error.token.line,
-          error.token.column,
-          error.message
-        );
+        this.reporter.error(error.token.from, error.token.to, error.message);
       } else {
         throw error;
       }
@@ -55,19 +51,19 @@ export class Interpreter {
     switch (stmt.type) {
       case Stmt.Type.Expression:
         return this.evaluate(stmt.expression) as any;
-      case Stmt.Type.Print:
-        //const value = this.evaluate(stmt.expression);
-        //return [this.stringify(value)];
-        return;
-      case Stmt.Type.Var: {
-        // let value: LoxType = null;
-        // if (stmt.initializer != null) {
-        //   value = this.evaluate(stmt.initializer);
-        // }
+      // case Stmt.Type.Print:
+      //   //const value = this.evaluate(stmt.expression);
+      //   //return [this.stringify(value)];
+      //   return;
+      // case Stmt.Type.Var: {
+      //   // let value: LoxType = null;
+      //   // if (stmt.initializer != null) {
+      //   //   value = this.evaluate(stmt.initializer);
+      //   // }
 
-        // this.environment.define(stmt.name.lexeme, value);
-        return;
-      }
+      //   // this.environment.define(stmt.name.lexeme, value);
+      //   return;
+      // }
     }
   }
 
@@ -83,15 +79,15 @@ export class Interpreter {
         const left = this.evaluate(expr.left);
         const right = this.evaluate(expr.right);
 
-        if (expr.operator.type in this.operators) {
-          return this.operators[expr.operator.type](left, right);
+        if (expr.operator.lexeme in this.bindings) {
+          return this.bindings[expr.operator.lexeme].value(left, right);
         }
 
         throw new RuntimeError(expr.operator, "Operator isn't implemented");
       }
       case Expr.Type.Section: {
         return (input: Value) => {
-          const opFunc = this.operators[expr.operator.type];
+          const opFunc = this.bindings[expr.operator.lexeme].value;
           const operand = this.evaluate(expr.expression);
 
           return expr.side === "left"
@@ -101,7 +97,7 @@ export class Interpreter {
       }
       case Expr.Type.Variable:
         if (expr.name.lexeme in this.bindings) {
-          return this.bindings[expr.name.lexeme];
+          return this.bindings[expr.name.lexeme].value;
         } else {
           throw new RuntimeError(
             expr.name,

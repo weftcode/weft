@@ -1,5 +1,4 @@
-import { ErrorReporter } from "./Reporter";
-import { Token, Primitive } from "./Token";
+import { Token, Primitive, ErrorToken } from "./Token";
 import { TokenType } from "./TokenType";
 
 export class Scanner {
@@ -13,10 +12,7 @@ export class Scanner {
     return this.current - this.lineStart + 1;
   }
 
-  constructor(
-    private readonly source: string,
-    private readonly reporter: ErrorReporter
-  ) {}
+  constructor(private readonly source: string) {}
 
   scanTokens() {
     while (!this.isAtEnd()) {
@@ -25,9 +21,7 @@ export class Scanner {
       this.scanToken();
     }
 
-    this.tokens.push(
-      new Token(TokenType.EOF, "", null, this.line, this.column)
-    );
+    this.tokens.push(new Token(TokenType.EOF, "", null, this.current));
     return this.tokens;
   }
 
@@ -74,6 +68,8 @@ export class Scanner {
         if (this.match("-")) {
           // Single-line comment
           while (this.peek() != "\n" && !this.isAtEnd()) this.advance();
+        } else if (this.match(">")) {
+          this.addToken(TokenType.Arrow);
         } else {
           this.addToken(this.match("|") ? TokenType.MinusSR : TokenType.Minus);
         }
@@ -116,11 +112,7 @@ export class Scanner {
         } else if (this.match("-")) {
           if (this.peek() == "-") {
             if (this.peekNext() == "-") {
-              this.reporter.error(
-                this.line,
-                this.column,
-                "Unexpected character."
-              );
+              this.addErrorToken("Unexpected character.");
 
               // Consume single-line comment
               this.advance();
@@ -170,11 +162,7 @@ export class Scanner {
         } else if (this.isAlpha(c)) {
           this.identifier();
         } else {
-          this.reporter.error(
-            this.line,
-            this.column - 1,
-            `Unexpected character "${c}".`
-          );
+          this.addErrorToken(`Unexpected character "${c}".`);
         }
         break;
     }
@@ -211,7 +199,7 @@ export class Scanner {
     }
 
     if (this.isAtEnd()) {
-      this.reporter.error(this.line, this.column, "Unterminated string.");
+      this.addErrorToken("Unterminated string.");
       return;
     }
 
@@ -268,6 +256,11 @@ export class Scanner {
 
   private addToken(type: TokenType, literal: Primitive = null) {
     const text = this.source.substring(this.start, this.current);
-    this.tokens.push(new Token(type, text, literal, this.line, this.column));
+    this.tokens.push(new Token(type, text, literal, this.start));
+  }
+
+  private addErrorToken(message: string) {
+    const text = this.source.substring(this.start, this.current);
+    this.tokens.push(new ErrorToken(text, this.start, message));
   }
 }

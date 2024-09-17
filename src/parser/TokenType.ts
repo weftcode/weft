@@ -1,4 +1,7 @@
 export enum TokenType {
+  // Error type
+  Error = "ERROR",
+
   // Formatting
   LineBreak = "LINE_BREAK",
 
@@ -13,6 +16,7 @@ export enum TokenType {
   Dot = "DOT",
   Semicolon = "SEMICOLON",
   Dollar = "DOLLAR",
+  Colon = "COLON",
 
   // Arithmetic
   Minus = "MINUS",
@@ -48,6 +52,7 @@ export enum TokenType {
   GreaterEqual = "GREATER_EQUAL",
   Less = "LESS",
   LessEqual = "LESS_EQUAL",
+  Arrow = "ARROW",
 
   // Literals.
   Identifier = "IDENTIFIER",

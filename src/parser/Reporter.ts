@@ -2,8 +2,8 @@ import { Token } from "./Token";
 import { TokenType } from "./TokenType";
 
 interface ErrorInfo {
-  line: number;
-  column: number;
+  from: number;
+  to: number;
   message: string;
 }
 
@@ -11,7 +11,7 @@ export class ErrorReporter {
   private errorInfo: ErrorInfo[] = [];
 
   get errors() {
-    return this.errorInfo.map(({ message }) => message);
+    return this.errorInfo;
   }
 
   get hasError() {
@@ -19,27 +19,22 @@ export class ErrorReporter {
   }
 
   error(token: Token, message: string);
-  error(line: number, column: number, message: string);
+  error(from: number, to: number, message: string);
   error(...args: [Token, string] | [number, number, string]) {
-    let line: number, column: number, message: string, where: string;
+    let from: number, to: number, message: string;
 
     if (args[0] instanceof Token && typeof args[1] === "string") {
-      let type: TokenType, lexeme: string;
-      [{ type, line, column, lexeme }, message] = args;
-      where = type === TokenType.EOF ? " at end" : ` at '${lexeme}'`;
+      [{ from, to }, message] = args;
     } else if (
       typeof args[0] === "number" &&
       typeof args[1] === "number" &&
       typeof args[2] === "string"
     ) {
-      [line, column, message] = args;
-      where = "";
+      [from, to, message] = args;
     } else {
       throw Error("Invalid error report");
     }
 
-    message = `[${line}, ${column}] Error${where}: ${message}`;
-
-    this.errorInfo.push({ line, column, message });
+    this.errorInfo.push({ from, to, message });
   }
 }
