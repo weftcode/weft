@@ -16,7 +16,6 @@ import { getOperators } from "./parser/API";
 
 import { bindings, hush, typeBindings } from "./strudel";
 
-import { printType } from "./parser/typechecker/Printer";
 import { TypeChecker } from "./parser/typechecker/Typechecker";
 
 const EvalEffect = StateEffect.define<void>();
@@ -67,8 +66,10 @@ const listener = EditorView.updateListener.of((update) => {
 
           if (!reporter.hasError) {
             let typechecker = new TypeChecker(reporter, typeBindings);
-            let [_, type] = typechecker.check(stmts);
-            console.log(printType(type));
+
+            for (let stmt of stmts) {
+              typechecker.check(stmt);
+            }
           }
 
           if (reporter.hasError) {
@@ -106,14 +107,15 @@ const parseLinter = linter((view) => {
     let diagnostics: Diagnostic[] = [];
 
     const typechecker = new TypeChecker(reporter, typeBindings);
-    try {
-      let [_s, _t, annotations] = typechecker.check(stmts);
+
+    for (let stmt of stmts) {
+      let [_s, _t, annotations] = typechecker.check(stmt);
 
       let annotationMap = new WeakMap(annotations.map((a) => [a.expr, a]));
       diagnostics = diagnostics.concat(
-        generateTypeDiagnostics(stmts[0].expression, annotationMap)
+        generateTypeDiagnostics(stmt.expression, annotationMap)
       );
-    } catch (e) {}
+    }
 
     if (reporter.hasError) {
       return reporter.errors.map(({ from, to, message }) => ({
@@ -134,7 +136,7 @@ const parseLinter = linter((view) => {
 });
 
 import { Expr, expressionBounds } from "./parser/Expr";
-import { TypeAnnotation } from "./parser/typechecker/Inference";
+import { TypeAnnotation } from "./parser/typechecker/Annotations";
 
 type TypeAnnotationMap = WeakMap<Expr, TypeAnnotation>;
 
@@ -147,29 +149,9 @@ function generateTypeDiagnostics(
     case Expr.Type.Literal:
     case Expr.Type.Empty:
     case Expr.Type.Assignment: {
-      if (!annotations.has(expr)) return [];
-      const annotation = annotations.get(expr);
-      switch (annotation.type) {
-        case "Type":
-          return [
-            {
-              ...expressionBounds(expr),
-              severity: "info",
-              message: printType(annotation.inferredType),
-            },
-          ];
-        case "Warning":
-          return [
-            {
-              ...expressionBounds(expr),
-              severity: "warning",
-              message: annotation.message,
-            },
-          ];
-        default:
-          throw new Error("Unexpected annotation type");
-      }
+      return annotations.has(expr) ? [annotations.get(expr)] : [];
     }
+
     case Expr.Type.Application:
     case Expr.Type.Binary:
       return generateTypeDiagnostics(expr.left, annotations).concat(

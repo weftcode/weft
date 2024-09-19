@@ -6,9 +6,7 @@ import { ErrorReporter } from "../Reporter";
 import { Scanner } from "../Scanner";
 import { TypeParser } from "./TypeParser";
 
-import { toCore } from "./core/toCore";
 import { makeContext, PolyType } from "./Types";
-import { ParseError } from "../BaseParser";
 import { W } from "./Inference";
 import { UnificationError } from "./Utilities";
 
@@ -38,26 +36,24 @@ export class TypeChecker {
     }
   }
 
-  check(statements: Stmt[]) {
-    for (let statement of statements) {
-      try {
-        switch (statement.type) {
-          case Stmt.Type.Expression:
-            return W(makeContext(this.environment), statement.expression);
-          default:
-            return statement.type satisfies never;
-        }
-      } catch (e) {
-        if (e instanceof UnificationError && e.type2) {
-          // const { from, to } =
-          //   "from" in e.type2.source
-          //     ? e.type2.source
-          //     : expressionBounds(e.type2.source);
-          this.reporter.error(0, 0, e.message);
-        }
-
-        throw e;
+  check(statement: Stmt) {
+    try {
+      switch (statement.type) {
+        case Stmt.Type.Expression:
+          return W(makeContext(this.environment), statement.expression);
+        default:
+          return statement.type satisfies never;
       }
+    } catch (e) {
+      if (e instanceof UnificationError && e.type2) {
+        // const { from, to } =
+        //   "from" in e.type2.source
+        //     ? e.type2.source
+        //     : expressionBounds(e.type2.source);
+        this.reporter.error(0, 0, e.message);
+      }
+
+      throw e;
     }
   }
 }
