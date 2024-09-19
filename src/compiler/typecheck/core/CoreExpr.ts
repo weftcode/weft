@@ -3,8 +3,8 @@
  * values, variables and lambda calculus function application and abstraction.
  */
 
-import { Token } from "../../Token";
-import { Expr } from "../../Expr";
+import { Token } from "../../scan/Token";
+import { Expr } from "../../parse/Expr";
 
 export type CoreExpr =
   | CoreExpr.Var

@@ -1,4 +1,4 @@
-import { Expr, expressionBounds } from "../Expr";
+import { Expr, expressionBounds } from "../parse/Expr";
 import { printType } from "./Printer";
 import { MonoType } from "./Types";
 import { Substitution } from "./Utilities";

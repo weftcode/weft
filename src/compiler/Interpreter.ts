@@ -1,8 +1,8 @@
-import { ErrorReporter } from "./Reporter";
-import { Primitive, Token } from "./Token";
-import { Expr } from "./Expr";
-import { Stmt } from "./Stmt";
-import { Bindings } from "./API";
+import { ErrorReporter } from "./parse/Reporter";
+import { Primitive, Token } from "./scan/Token";
+import { Expr } from "./parse/Expr";
+import { Stmt } from "./parse/Stmt";
+import { Bindings } from "./parse/API";
 
 type Value = Primitive | Value[] | ((input: Value) => Value);
 

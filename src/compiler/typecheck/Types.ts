@@ -1,7 +1,7 @@
 // Types
 
-import { Expr } from "../Expr";
-import { Token } from "../Token";
+import { Expr } from "../parse/Expr";
+import { Token } from "../scan/Token";
 
 // mu ::= a
 //      | C mu_0 ... mu_n

@@ -1,4 +1,4 @@
-import { Bindings, expandSynonyms } from "../parser/API";
+import { Bindings, expandSynonyms } from "../compiler/parse/API";
 
 import { operators } from "./operators";
 

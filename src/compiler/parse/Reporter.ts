@@ -1,5 +1,5 @@
-import { Token } from "./Token";
-import { TokenType } from "./TokenType";
+import { Token } from "../scan/Token";
+import { TokenType } from "../scan/TokenType";
 
 interface ErrorInfo {
   from: number;

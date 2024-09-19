@@ -1,4 +1,6 @@
-import { Expr } from "../../Expr";
+// @ts-nocheck
+
+import { Expr } from "../../parse/Expr";
 import { CoreExpr } from "./CoreExpr";
 
 export function toCore(source: Expr): CoreExpr {

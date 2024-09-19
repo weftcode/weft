@@ -2,8 +2,8 @@ import { BaseParser } from "./BaseParser";
 
 import { Operators } from "./API";
 
-import { Token } from "./Token";
-import { TokenType } from "./TokenType";
+import { Token } from "../scan/Token";
+import { TokenType } from "../scan/TokenType";
 
 import { Expr } from "./Expr";
 import { Stmt } from "./Stmt";

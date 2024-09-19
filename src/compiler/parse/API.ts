@@ -1,4 +1,4 @@
-import { TokenType } from "./TokenType";
+import { TokenType } from "../scan/TokenType";
 
 // Tuple of precedence and associativity
 export type Precedence = [number, "left" | "right"];

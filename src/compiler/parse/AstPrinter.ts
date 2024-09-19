@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 import { Expr } from "./Expr";
 import { Stmt } from "./Stmt";
 

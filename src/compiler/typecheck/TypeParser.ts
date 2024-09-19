@@ -1,5 +1,5 @@
-import { TokenType } from "../TokenType";
-import { BaseParser } from "../BaseParser";
+import { TokenType } from "../scan/TokenType";
+import { BaseParser } from "../parse/BaseParser";
 
 import { MonoType, PolyType, makeContext } from "./Types";
 import { generalise } from "./Utilities";

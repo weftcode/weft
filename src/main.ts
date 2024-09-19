@@ -6,17 +6,17 @@ import { Diagnostic, linter } from "@codemirror/lint";
 import { StreamLanguage } from "@codemirror/language";
 import { haskell } from "@codemirror/legacy-modes/mode/haskell";
 
-import { AstPrinter } from "./parser/AstPrinter";
-import { Scanner } from "./parser/Scanner";
-import { Parser } from "./parser/Parser";
-import { ErrorReporter } from "./parser/Reporter";
-import { Interpreter } from "./parser/Interpreter";
+import { AstPrinter } from "./compiler/parse/AstPrinter";
+import { Scanner } from "./compiler/scan/Scanner";
+import { Parser } from "./compiler/parse/Parser";
+import { ErrorReporter } from "./compiler/parse/Reporter";
+import { Interpreter } from "./compiler/Interpreter";
 
-import { getOperators } from "./parser/API";
+import { getOperators } from "./compiler/parse/API";
 
 import { bindings, hush, typeBindings } from "./strudel";
 
-import { TypeChecker } from "./parser/typechecker/Typechecker";
+import { TypeChecker } from "./compiler/typecheck/Typechecker";
 
 const EvalEffect = StateEffect.define<void>();
 
@@ -135,8 +135,8 @@ const parseLinter = linter((view) => {
   }
 });
 
-import { Expr, expressionBounds } from "./parser/Expr";
-import { TypeAnnotation } from "./parser/typechecker/Annotations";
+import { Expr, expressionBounds } from "./compiler/parse/Expr";
+import { TypeAnnotation } from "./compiler/typecheck/Annotations";
 
 type TypeAnnotationMap = WeakMap<Expr, TypeAnnotation>;
 

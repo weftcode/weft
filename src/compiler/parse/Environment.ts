@@ -1,5 +1,5 @@
-import { Token } from "./Token";
-import { RuntimeError } from "./Interpreter";
+import { Token } from "../scan/Token";
+import { RuntimeError } from "../Interpreter";
 
 export class Environment<V> {
   private values = new Map<string, V>();

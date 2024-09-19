@@ -1,5 +1,5 @@
-import { Token } from "../Token";
-import { Expr } from "../Expr";
+import { Token } from "../scan/Token";
+import { Expr } from "../parse/Expr";
 
 import {
   generalise,
@@ -10,7 +10,7 @@ import {
   unify,
 } from "./Utilities";
 import { Context, makeContext, MonoType } from "./Types";
-import { TokenType } from "../TokenType";
+import { TokenType } from "../scan/TokenType";
 import {
   TypeAnnotation,
   TypeInfo,
@@ -199,7 +199,7 @@ function InferTypeApp(
       if (fType.type === "ty-app" && fType.C === "->") {
         a3.push(new UnificationError(expr2, fType.mus[0], t2));
       } else {
-        a3.push(new ApplicationError(expr2, fType, t2));
+        a3.push(new ApplicationError(expr2));
       }
 
       return [s2(s1), null, a3];

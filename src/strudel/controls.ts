@@ -1,5 +1,5 @@
 import { controls as strudelControls } from "@strudel/core";
-import { Bindings } from "../parser/API";
+import { Bindings } from "../compiler/parse/API";
 
 export const controls: Bindings = {
   createParam: {

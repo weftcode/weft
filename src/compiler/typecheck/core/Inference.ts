@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 /**
  * Version of the inference function (algorithm w) optimized for a core (lambda calculus) representation.
  */

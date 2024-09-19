@@ -1,5 +1,5 @@
-import { Bindings } from "../parser/API";
-import { TokenType } from "../parser/TokenType";
+import { Bindings } from "../compiler/parse/API";
+import { TokenType } from "../compiler/scan/TokenType";
 
 import { reify } from "@strudel/core";
 

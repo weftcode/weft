@@ -1,4 +1,4 @@
-import { Token, Primitive } from "./Token";
+import { Token, Primitive } from "../scan/Token";
 
 export type Expr =
   | { type: Expr.Type.Empty }

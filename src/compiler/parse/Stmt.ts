@@ -1,4 +1,4 @@
-import { Token } from "./Token";
+import { Token } from "../scan/Token";
 import { Expr } from "./Expr";
 
 export type Stmt = {

@@ -1,9 +1,9 @@
-import { Expr, expressionBounds } from "../Expr";
-import { Stmt } from "../Stmt";
-import { Environment } from "../Environment";
-import { ErrorReporter } from "../Reporter";
+import { Expr, expressionBounds } from "../parse/Expr";
+import { Stmt } from "../parse/Stmt";
+import { Environment } from "../parse/Environment";
+import { ErrorReporter } from "../parse/Reporter";
 
-import { Scanner } from "../Scanner";
+import { Scanner } from "../scan/Scanner";
 import { TypeParser } from "./TypeParser";
 
 import { makeContext, PolyType } from "./Types";

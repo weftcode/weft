@@ -9,7 +9,7 @@ import {
 } from "@strudel/webaudio";
 
 import { miniAllStrings } from "@strudel/mini";
-import { Bindings } from "../parser/API";
+import { Bindings } from "../compiler/parse/API";
 
 initAudioOnFirstClick();
 const ctx = getAudioContext();
