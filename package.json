@@ -6,6 +6,7 @@
   "type": "module",
   "devDependencies": {
     "@lezer/generator": "^1.7.0",
+    "@parcel/transformer-inline-string": "^2.12.0",
     "parcel": "^2.12.0",
     "parcel-transformer-lezer": "^0.2.1",
     "process": "^0.11.10",
