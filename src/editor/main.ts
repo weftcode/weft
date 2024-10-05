@@ -6,17 +6,17 @@ import { Diagnostic, linter } from "@codemirror/lint";
 import { StreamLanguage } from "@codemirror/language";
 import { haskell } from "@codemirror/legacy-modes/mode/haskell";
 
-import { AstPrinter } from "./compiler/parse/AstPrinter";
-import { Scanner } from "./compiler/scan/Scanner";
-import { Parser } from "./compiler/parse/Parser";
-import { ErrorReporter } from "./compiler/parse/Reporter";
-import { Interpreter } from "./compiler/Interpreter";
+import { AstPrinter } from "../compiler/parse/AstPrinter";
+import { Scanner } from "../compiler/scan/Scanner";
+import { Parser } from "../compiler/parse/Parser";
+import { ErrorReporter } from "../compiler/parse/Reporter";
+import { Interpreter } from "../compiler/Interpreter";
 
-import { getOperators } from "./compiler/parse/API";
+import { getOperators } from "../compiler/parse/API";
 
-import { bindings, hush, typeBindings } from "./strudel";
+import { bindings, hush, typeBindings } from "../strudel";
 
-import { TypeChecker } from "./compiler/typecheck/Typechecker";
+import { TypeChecker } from "../compiler/typecheck/Typechecker";
 
 const EvalEffect = StateEffect.define<void>();
 
@@ -37,9 +37,36 @@ const evalKeymap: KeyBinding[] = [
   },
 ];
 
+async function updateURLField(input: HTMLInputElement, doc: string) {
+  const stream = new ReadableStream({
+    start: (controller) => {
+      controller.enqueue(doc);
+      controller.close();
+    },
+  })
+    .pipeThrough(new TextEncoderStream())
+    .pipeThrough<Uint8Array>(new CompressionStream("deflate-raw"));
+
+  let output = "";
+
+  for await (let chunk of stream) {
+    console.log(chunk);
+    output += Array.from(chunk, (byte) => String.fromCodePoint(byte)).join("");
+  }
+
+  input.value =
+    window.location.origin + window.location.pathname + "#" + btoa(output);
+}
+
 const autosave = EditorView.updateListener.of((update) => {
   if (update.docChanged) {
-    localStorage.setItem("document", update.state.doc.toString());
+    const doc = update.state.doc.toString();
+    localStorage.setItem("document", doc);
+
+    let urlField = document.getElementById("url");
+    if (urlField instanceof HTMLInputElement) {
+      updateURLField(urlField, doc);
+    }
   }
 });
 
@@ -135,8 +162,8 @@ const parseLinter = linter((view) => {
   }
 });
 
-import { Expr, expressionBounds } from "./compiler/parse/Expr";
-import { TypeAnnotation } from "./compiler/typecheck/Annotations";
+import { Expr, expressionBounds } from "../compiler/parse/Expr";
+import { TypeAnnotation } from "../compiler/typecheck/Annotations";
 
 type TypeAnnotationMap = WeakMap<Expr, TypeAnnotation>;
 
