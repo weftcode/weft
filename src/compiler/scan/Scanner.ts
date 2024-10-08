@@ -27,144 +27,62 @@ export class Scanner {
 
   private scanToken() {
     let c = this.advance();
-    switch (c) {
-      case "(":
-        this.addToken(TokenType.LeftParen);
-        break;
-      case ")":
-        this.addToken(TokenType.RightParen);
-        break;
-      case "[":
-        this.addToken(TokenType.LeftBracket);
-        break;
-      case "]":
-        this.addToken(TokenType.RightBracket);
-        break;
-      case "{":
-        this.addToken(TokenType.LeftBrace);
-        break;
-      case "}":
-        this.addToken(TokenType.RightBrace);
-        break;
-      case ",":
-        this.addToken(TokenType.Comma);
-        break;
-      case ".":
-        this.addToken(TokenType.Dot);
-        break;
-      case ";":
-        this.addToken(TokenType.Semicolon);
-        break;
 
-      // Operators
-      case "$":
-        this.addToken(TokenType.Dollar);
-        break;
+    if (c in special) {
+      this.addToken(special[c]);
+    } else if (ascSymbol.has(c)) {
+      // An initial colon means we have a constructor symbol (not used)
+      c !== ":" ? this.symbolOrComment() : this.conSymbol();
+    } else if (c === ":") {
+      // Special constructor symbols not in use here yet
+      this.conSymbol();
+    } else if (c === " " || c === "\r" || c === "\t") {
+      // Ignore whitespace.
+    } else if (c === "\n") {
+      if (!this.peek().match(/[ \r\t]/)) {
+        this.addToken(TokenType.LineBreak);
+      }
+      this.advanceLine();
+    } else if (c === '"') {
+      this.string();
+    } else if (this.isDigit(c)) {
+      this.number();
+    } else if (this.isAlpha(c)) {
+      this.identifier();
+    } else {
+      this.addErrorToken(`Unexpected character "${c}".`);
+    }
+  }
 
-      case "+":
-        this.addToken(this.match("|") ? TokenType.PlusSR : TokenType.Plus);
-        break;
-      case "-":
-        if (this.match("-")) {
-          // Single-line comment
-          while (this.peek() != "\n" && !this.isAtEnd()) this.advance();
-        } else if (this.match(">")) {
-          this.addToken(TokenType.Arrow);
-        } else {
-          this.addToken(this.match("|") ? TokenType.MinusSR : TokenType.Minus);
-        }
-        break;
-      case "*":
-        this.addToken(this.match("|") ? TokenType.StarSR : TokenType.Star);
-        break;
-      case "/":
-        this.addToken(this.match("|") ? TokenType.SlashSR : TokenType.Slash);
-        break;
+  private symbolOrComment() {
+    while (ascSymbol.has(this.peek())) {
+      this.advance();
+    }
 
-      case "=":
-        this.addToken(this.match("=") ? TokenType.EqualEqual : TokenType.Equal);
-        break;
+    // Check for reserved symbols
+    const string = this.source.slice(this.start, this.current);
+    if (/^---*$/.test(string)) {
+      // If the symbol matches the token "dashes",
+      // then consume a single-line comment
+      while (this.peek() != "\n" && !this.isAtEnd()) this.advance();
+    } else if (string in reservedop) {
+      this.addToken(reservedop[string]);
+    } else {
+      this.addToken(TokenType.Operator);
+    }
+  }
 
-      case "<":
-        if (this.match("|")) {
-          this.addToken(TokenType.LeftSR);
-        } else {
-          this.addToken(this.match("=") ? TokenType.LessEqual : TokenType.Less);
-        }
-        break;
-      case ">":
-        if (this.match("|")) {
-          this.addToken(TokenType.RightSR);
-        } else {
-          this.addToken(
-            this.match("=") ? TokenType.GreaterEqual : TokenType.Greater
-          );
-        }
-        break;
+  private conSymbol() {
+    while (ascSymbol.has(this.peek())) {
+      this.advance();
+    }
 
-      case "#":
-        this.addToken(TokenType.RightSL);
-        break;
-
-      case "|":
-        if (this.match("+")) {
-          this.addToken(this.match("|") ? TokenType.PlusSB : TokenType.PlusSL);
-        } else if (this.match("-")) {
-          if (this.peek() == "-") {
-            if (this.peekNext() == "-") {
-              this.addErrorToken("Unexpected character.");
-
-              // Consume single-line comment
-              this.advance();
-              this.advance();
-              while (this.peek() != "\n" && !this.isAtEnd()) this.advance();
-            } else {
-              this.addToken(
-                this.match("|") ? TokenType.MinusSB : TokenType.MinusSL
-              );
-            }
-          }
-        } else if (this.match("*")) {
-          this.addToken(this.match("|") ? TokenType.StarSB : TokenType.StarSL);
-        } else if (this.match("/")) {
-          this.addToken(
-            this.match("|") ? TokenType.SlashSB : TokenType.SlashSL
-          );
-        } else if (this.match("<")) {
-          this.addToken(this.match("|") ? TokenType.LeftSB : TokenType.LeftSL);
-        } else if (this.match(">")) {
-          this.addToken(
-            this.match("|") ? TokenType.RightSB : TokenType.RightSL
-          );
-        }
-        break;
-
-      case " ":
-      case "\r":
-      case "\t":
-        // Ignore whitespace.
-        break;
-
-      case "\n":
-        if (!this.peek().match(/[ \r\t]/)) {
-          this.addToken(TokenType.LineBreak);
-        }
-        this.advanceLine();
-        break;
-
-      case '"':
-        this.string();
-        break;
-
-      default:
-        if (this.isDigit(c)) {
-          this.number();
-        } else if (this.isAlpha(c)) {
-          this.identifier();
-        } else {
-          this.addErrorToken(`Unexpected character "${c}".`);
-        }
-        break;
+    // Check for reserved symbols
+    const string = this.source.slice(this.start, this.current);
+    if (string in reservedop) {
+      this.addToken(reservedop[string]);
+    } else {
+      this.addToken(TokenType.ConSymbol);
     }
   }
 
@@ -269,6 +187,58 @@ export class Scanner {
     this.tokens.push(new ErrorToken(text, this.start, message));
   }
 }
+
+// Symbols that can be used in (`ascSymbol` in the Haskell report)
+const ascSymbol = new Set([
+  "!",
+  "#",
+  "$",
+  "%",
+  "&",
+  "*",
+  "+",
+  ".",
+  "/",
+  "<",
+  "=",
+  ">",
+  "?",
+  "@",
+  "\\",
+  "^",
+  "|",
+  "-",
+  "~",
+  ":",
+]);
+
+const special = {
+  "(": TokenType.LeftParen,
+  ")": TokenType.RightParen,
+  ",": TokenType.Comma,
+  ";": TokenType.Semicolon,
+  "[": TokenType.LeftBracket,
+  "]": TokenType.RightBracket,
+  "`": TokenType.Backtick,
+  "{": TokenType.LeftBrace,
+  "}": TokenType.RightBrace,
+};
+
+// Reserved operators. Unused operators are mapped to an error
+// token.
+const reservedop = {
+  "..": TokenType.DotDot,
+  ":": TokenType.Colon,
+  "::": TokenType.ColonColon,
+  "=": TokenType.Equal,
+  "\\": TokenType.Backslash,
+  "|": TokenType.Pipe,
+  "<-": TokenType.BackArrow,
+  "->": TokenType.Arrow,
+  "@": TokenType.At,
+  "~": TokenType.Tilde,
+  "=>": TokenType.DoubleArrow,
+};
 
 // Reserved identifiers. Currently all unused, so they're mapped
 // to a single error token

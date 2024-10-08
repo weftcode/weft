@@ -5,57 +5,36 @@ export enum TokenType {
   // Formatting
   LineBreak = "LINE_BREAK",
 
-  // Single-character tokens.
+  // Special characters
   LeftParen = "LEFT_PAREN",
   RightParen = "RIGHT_PAREN",
+  Comma = "COMMA",
+  Semicolon = "SEMICOLON",
   LeftBracket = "LEFT_BRACKET",
   RightBracket = "RIGHT_BRACKET",
+  Backtick = "BACKTICK",
   LeftBrace = "LEFT_BRACE",
   RightBrace = "RIGHT_BRACE",
-  Comma = "COMMA",
-  Dot = "DOT",
-  Semicolon = "SEMICOLON",
-  Dollar = "DOLLAR",
+
+  // Reserved operators
+  DotDot = "DOT_DOT",
   Colon = "COLON",
-
-  // Arithmetic
-  Minus = "MINUS",
-  Plus = "PLUS",
-  Slash = "SLASH",
-  Star = "STAR",
-
-  // Pattern operators
-  MinusSB = "MINUS_SB", // |-|
-  MinusSL = "MINUS_SL", // |-
-  MinusSR = "MINUS_SR", //  -|
-  PlusSB = "PLUS_SB", //   |+|
-  PlusSL = "PLUS_SL", //   |+
-  PlusSR = "PLUS_SR", //    +|
-  SlashSB = "SLASH_SB", // |/|
-  SlashSL = "SLASH_SL", // |/
-  SlashSR = "SLASH_SR", //  /|
-  StarSB = "STAR_SB", //   |*|
-  StarSL = "STAR_SL", //   |*
-  StarSR = "STAR_SR", //    *|
-  RightSB = "RIGHT_SB", // |>|
-  RightSL = "RIGHT_SL", // |>  (also #)
-  RightSR = "RIGHT_SR", //  >|
-  LeftSB = "LEFT_SB", //   |<|
-  LeftSL = "LEFT_SL", //   |<
-  LeftSR = "LEFT_SR", //    <|
-
-  // One or two character tokens.
-  BangEqual = "BANG_EQUAL",
+  ColonColon = "COLON_COLON",
   Equal = "EQUAL",
-  EqualEqual = "EQUAL_EQUAL",
-  Greater = "GREATER",
-  GreaterEqual = "GREATER_EQUAL",
-  Less = "LESS",
-  LessEqual = "LESS_EQUAL",
+  Backslash = "BACKSLASH",
+  Pipe = "PIPE",
+  BackArrow = "BACK_ARROW",
   Arrow = "ARROW",
+  At = "AT",
+  Tilde = "TILDE",
+  DoubleArrow = "DOUBLE_ARROW",
 
-  // Literals.
+  // Variables
   Identifier = "IDENTIFIER",
+  Operator = "OPERATOR",
+  ConSymbol = "CON_SYMBOL",
+
+  // Literals
   String = "STRING",
   Number = "NUMBER",
 
