@@ -30,8 +30,8 @@ export class Parser extends BaseParser<Stmt[]> {
           statements.push(this.expressionStatement());
         } catch (error) {
           if (error instanceof ParseError) {
-            // TODO: Synchronization
             this.reporter.error(error.token, error.message);
+            this.synchronize();
             break;
           } else {
             throw error;
@@ -47,6 +47,12 @@ export class Parser extends BaseParser<Stmt[]> {
     const expression = this.expression(0);
 
     if (!this.isAtEnd()) {
+      // This surely means we've encountered an error
+      if (expression.type === Expr.Type.Empty) {
+        let next = this.advance();
+        throw new ParseError(next, `Unexpected token "${next.lexeme}"`);
+      }
+
       this.consume(TokenType.LineBreak, "Expect new line after expression.");
     }
 

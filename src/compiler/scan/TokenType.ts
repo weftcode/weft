@@ -59,23 +59,12 @@ export enum TokenType {
   String = "STRING",
   Number = "NUMBER",
 
-  // Keywords.
-  And = "AND",
-  Class = "CLASS",
-  Else = "ELSE",
-  False = "FALSE",
-  Fun = "FUN",
-  For = "FOR",
-  If = "IF",
-  Nil = "NIL",
-  Or = "OR",
-  Print = "PRINT",
-  Return = "RETURN",
-  Super = "SUPER",
-  This = "THIS",
-  True = "TRUE",
-  Var = "VAR",
-  While = "WHILE",
+  // Keywords
+  // The parser currently doesn't support any syntax that uses
+  // keywords. However, we should flag these as reserved identifiers
+  // and use this catch-all token to throw an error that flags the missing
+  // feature
+  UnusedKeyword = "UNUSED_KEYWORD",
 
   EOF = "EOF",
 }

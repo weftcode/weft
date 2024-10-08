@@ -171,8 +171,13 @@ export class Scanner {
   private identifier() {
     while (this.isAlphaNumeric(this.peek())) this.advance();
 
-    // TODO: Handle any potential keywords
-    this.addToken(TokenType.Identifier);
+    // Check for reserved identifiers
+    const string = this.source.slice(this.start, this.current);
+    if (string in reserved) {
+      this.addToken(reserved[string]);
+    } else {
+      this.addToken(TokenType.Identifier);
+    }
   }
 
   private number() {
@@ -264,3 +269,30 @@ export class Scanner {
     this.tokens.push(new ErrorToken(text, this.start, message));
   }
 }
+
+// Reserved identifiers. Currently all unused, so they're mapped
+// to a single error token
+const reserved = {
+  case: TokenType.UnusedKeyword,
+  class: TokenType.UnusedKeyword,
+  data: TokenType.UnusedKeyword,
+  default: TokenType.UnusedKeyword,
+  deriving: TokenType.UnusedKeyword,
+  do: TokenType.UnusedKeyword,
+  else: TokenType.UnusedKeyword,
+  if: TokenType.UnusedKeyword,
+  import: TokenType.UnusedKeyword,
+  in: TokenType.UnusedKeyword,
+  infix: TokenType.UnusedKeyword,
+  infixl: TokenType.UnusedKeyword,
+  infixr: TokenType.UnusedKeyword,
+  instance: TokenType.UnusedKeyword,
+  let: TokenType.UnusedKeyword,
+  module: TokenType.UnusedKeyword,
+  newtype: TokenType.UnusedKeyword,
+  of: TokenType.UnusedKeyword,
+  then: TokenType.UnusedKeyword,
+  type: TokenType.UnusedKeyword,
+  where: TokenType.UnusedKeyword,
+  _: TokenType.UnusedKeyword,
+};
