@@ -1,9 +1,3 @@
-// import api from "bundle-text:./tidalapi.txt";
-
-// let tidalTypes = new Map(api.split(/\r?\n/).map((b) => b.split("::")));
-
-// console.log(tidalTypes);
-
 import * as strudelCore from "@strudel/core";
 
 export const core = {
