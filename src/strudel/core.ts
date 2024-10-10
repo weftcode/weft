@@ -1,6 +1,7 @@
 import * as strudelCore from "@strudel/core";
+import { Bindings } from "../compiler/parse/API";
 
-export const core = {
+export const core: Bindings = {
   Cyclist: { type: "", value: strudelCore.Cyclist },
   Drawer: { type: "", value: strudelCore.Drawer },
   Fraction: { type: "", value: strudelCore.Fraction },
