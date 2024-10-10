@@ -482,7 +482,7 @@ export const core: Bindings = {
   stutwith: { type: "", value: strudelCore.stutwith },
   sub: { type: "", value: strudelCore.sub },
   superimpose: {
-    type: "(Pattern a -> Pattern a) -> Pattern a -> Pattern a",
+    type: "[Pattern a -> Pattern a] -> Pattern a -> Pattern a",
     value: strudelCore.superimpose,
   },
   Number: { type: "", value: strudelCore.Number },

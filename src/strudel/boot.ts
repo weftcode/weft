@@ -51,6 +51,7 @@ scheduler.setPattern(silence);
 scheduler.start();
 
 export function hush() {
+  patMap.clear();
   scheduler.setPattern(silence);
 }
 

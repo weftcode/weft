@@ -1,7 +1,7 @@
 {
   "scripts": {
-    "dev": "parcel src/index.html",
-    "build": "parcel build src/index.html --public-url /web-tidal --dist-dir dist/web-tidal --no-scope-hoist"
+    "dev": "parcel src/editor/index.html",
+    "build": "parcel build src/editor/index.html --public-url /web-tidal --dist-dir dist/web-tidal --no-scope-hoist"
   },
   "type": "module",
   "devDependencies": {
@@ -17,6 +17,7 @@
     "@codemirror/legacy-modes": "^6.4.0",
     "@lezer/common": "^1.2.1",
     "@lezer/lr": "^1.4.1",
+    "@management/cm-evaluate": "^0.1.0",
     "@strudel/core": "~1.0.1",
     "@strudel/mini": "~1.0.1",
     "@strudel/tonal": "~1.0.1",

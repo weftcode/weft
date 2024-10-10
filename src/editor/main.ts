@@ -6,6 +6,8 @@ import { Diagnostic, linter } from "@codemirror/lint";
 import { StreamLanguage } from "@codemirror/language";
 import { haskell } from "@codemirror/legacy-modes/mode/haskell";
 
+import { evaluation } from "@management/cm-evaluate";
+
 // @ts-ignore
 import { dracula } from "thememirror/dist/index.js";
 
@@ -20,25 +22,6 @@ import { getOperators } from "../compiler/parse/API";
 import { bindings, hush, typeBindings } from "../strudel";
 
 import { TypeChecker } from "../compiler/typecheck/Typechecker";
-
-const EvalEffect = StateEffect.define<void>();
-
-const evalKeymap: KeyBinding[] = [
-  {
-    key: "Mod-Enter",
-    run: (view) => {
-      view.dispatch({ effects: EvalEffect.of() });
-      return true;
-    },
-  },
-  {
-    key: "Mod-.",
-    run: () => {
-      hush();
-      return true;
-    },
-  },
-];
 
 async function updateURLField(input: HTMLInputElement, doc: string) {
   const stream = new ReadableStream({
@@ -73,55 +56,55 @@ const autosave = EditorView.updateListener.of((update) => {
   }
 });
 
-const listener = EditorView.updateListener.of((update) => {
-  for (let tr of update.transactions) {
-    for (let effect of tr.effects) {
-      if (effect.is(EvalEffect)) {
-        let reporter = new ErrorReporter();
+const evalTheme = EditorView.theme({
+  "@keyframes cm-eval-flash": {
+    from: { backgroundColor: "#FFFFFF" },
+    to: { backgroundColor: "#FFFFFF00" },
+  },
+  "& .cm-evaluated": { animation: "cm-eval-flash 0.5s" },
+});
 
-        try {
-          const scanner = new Scanner(update.state.doc.toString());
-          const tokens = scanner.scanTokens();
-          document.getElementById("output").innerText = tokens
-            .map((t) => t.toString())
-            .join("\n");
-          const parser = new Parser(tokens, getOperators(bindings), reporter);
-          const stmts = parser.parse();
+function handleEvaluation(code: string) {
+  let reporter = new ErrorReporter();
 
-          // TODO: Error Handling
+  try {
+    const scanner = new Scanner(code);
+    const tokens = scanner.scanTokens();
+    document.getElementById("output").innerText = tokens
+      .map((t) => t.toString())
+      .join("\n");
+    const parser = new Parser(tokens, getOperators(bindings), reporter);
+    const stmts = parser.parse();
 
-          const printer = new AstPrinter();
-          document.getElementById("output").innerText =
-            printer.printStmts(stmts);
+    // TODO: Error Handling
 
-          if (!reporter.hasError) {
-            let typechecker = new TypeChecker(reporter, typeBindings);
+    const printer = new AstPrinter();
+    document.getElementById("output").innerText = printer.printStmts(stmts);
 
-            for (let stmt of stmts) {
-              typechecker.check(stmt);
-            }
-          }
+    if (!reporter.hasError) {
+      let typechecker = new TypeChecker(reporter, typeBindings);
 
-          if (reporter.hasError) {
-            document.getElementById("output").innerText =
-              reporter.errors.join("\n");
-          } else {
-            const interpreter = new Interpreter(reporter, bindings);
-
-            let results = interpreter.interpret(stmts);
-
-            document.getElementById("output").innerText = [
-              ...results,
-              ...reporter.errors,
-            ].join("\n");
-          }
-        } catch (error) {
-          console.log(error);
-        }
+      for (let stmt of stmts) {
+        typechecker.check(stmt);
       }
     }
+
+    if (reporter.hasError) {
+      document.getElementById("output").innerText = reporter.errors.join("\n");
+    } else {
+      const interpreter = new Interpreter(reporter, bindings);
+
+      let results = interpreter.interpret(stmts);
+
+      document.getElementById("output").innerText = [
+        ...results,
+        ...reporter.errors,
+      ].join("\n");
+    }
+  } catch (error) {
+    console.log(error);
   }
-});
+}
 
 const parseLinter = linter((view) => {
   try {
@@ -200,16 +183,22 @@ function generateTypeDiagnostics(
 }
 
 window.addEventListener("load", () => {
+  window.addEventListener("keydown", (event) => {
+    if (event.ctrlKey && event.key === ".") {
+      hush();
+    }
+  });
+
   new EditorView({
     doc: localStorage.getItem("document") ?? "",
     extensions: [
-      keymap.of(evalKeymap),
+      evaluation(handleEvaluation),
       basicSetup,
-      listener,
       StreamLanguage.define(haskell),
       parseLinter,
       autosave,
       dracula,
+      evalTheme,
     ],
     parent: document.getElementById("editor"),
   });
