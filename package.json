@@ -21,6 +21,7 @@
     "@strudel/tonal": "~1.0.1",
     "@strudel/webaudio": "~1.0.1",
     "codemirror": "^6.0.1",
-    "marked": "^14.1.2"
+    "marked": "^14.1.2",
+    "thememirror": "^2.0.1"
   }
 }

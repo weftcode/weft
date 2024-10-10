@@ -6,6 +6,9 @@ import { Diagnostic, linter } from "@codemirror/lint";
 import { StreamLanguage } from "@codemirror/language";
 import { haskell } from "@codemirror/legacy-modes/mode/haskell";
 
+// @ts-ignore
+import { dracula } from "thememirror/dist/index.js";
+
 import { AstPrinter } from "./compiler/parse/AstPrinter";
 import { Scanner } from "./compiler/scan/Scanner";
 import { Parser } from "./compiler/parse/Parser";
@@ -179,6 +182,7 @@ window.addEventListener("load", () => {
       StreamLanguage.define(haskell),
       parseLinter,
       autosave,
+      dracula,
     ],
     parent: document.getElementById("editor"),
   });
