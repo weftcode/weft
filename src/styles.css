@@ -1,0 +1,8 @@
+.main {
+  display: flex;
+  flex-direction: column;
+}
+
+#url {
+  flex: 1;
+}
