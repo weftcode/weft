@@ -24,6 +24,10 @@
     "@strudel/webaudio": "~1.0.1",
     "codemirror": "^6.0.1",
     "marked": "^14.1.2",
+    "preact": "^10.24.2",
     "thememirror": "^2.0.1"
+  },
+  "alias": {
+    "preact/jsx-dev-runtime": "preact/jsx-runtime"
   }
 }

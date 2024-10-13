@@ -8,6 +8,8 @@ import { haskell } from "@codemirror/legacy-modes/mode/haskell";
 
 import { evaluation } from "@management/cm-evaluate";
 
+import { console as editorConsole } from "./console";
+
 // @ts-ignore
 import { dracula } from "thememirror/dist/index.js";
 
@@ -87,22 +89,24 @@ const evalTheme = EditorView.theme({
   "& .cm-evaluated": { animation: "cm-eval-flash 0.5s" },
 });
 
+const consoleComponent = editorConsole();
+
 function handleEvaluation(code: string) {
   let reporter = new ErrorReporter();
 
   try {
     const scanner = new Scanner(code);
     const tokens = scanner.scanTokens();
-    document.getElementById("output").innerText = tokens
-      .map((t) => t.toString())
-      .join("\n");
+    // document.getElementById("output").innerText = tokens
+    //   .map((t) => t.toString())
+    //   .join("\n");
     const parser = new Parser(tokens, getOperators(bindings), reporter);
     const stmts = parser.parse();
 
     // TODO: Error Handling
 
     const printer = new AstPrinter();
-    document.getElementById("output").innerText = printer.printStmts(stmts);
+    // document.getElementById("output").innerText = printer.printStmts(stmts);
 
     if (!reporter.hasError) {
       let typechecker = new TypeChecker(reporter, typeBindings);
@@ -113,19 +117,33 @@ function handleEvaluation(code: string) {
     }
 
     if (reporter.hasError) {
-      document.getElementById("output").innerText = reporter.errors.join("\n");
+      consoleComponent.update({
+        input: code,
+        level: "info",
+        text: reporter.errors.map((error) => error.message).join("\n"),
+      });
     } else {
       const interpreter = new Interpreter(reporter, bindings);
 
       let results = interpreter.interpret(stmts);
+      let text = [...results, ...reporter.errors].join("\n");
 
-      document.getElementById("output").innerText = [
-        ...results,
-        ...reporter.errors,
-      ].join("\n");
+      if (text === "") {
+        return;
+      }
+
+      consoleComponent.update({
+        input: code,
+        level: "info",
+        text,
+      });
     }
   } catch (error) {
-    console.log(error);
+    consoleComponent.update({
+      input: code,
+      level: "info",
+      text: error.message,
+    });
   }
 }
 
@@ -161,7 +179,7 @@ const parseLinter = linter((view) => {
         severity: "error",
       }));
     } else {
-      document.getElementById("output").innerText = printer.printStmts(stmts);
+      // document.getElementById("output").innerText = printer.printStmts(stmts);
 
       return diagnostics;
     }
@@ -220,6 +238,8 @@ window.addEventListener("load", async () => {
       hush();
     }
   });
+
+  document.getElementById("output").appendChild(consoleComponent.dom);
 
   new EditorView({
     doc,
