@@ -36,18 +36,41 @@ async function updateURLField(input: HTMLInputElement, doc: string) {
   let output = "";
 
   for await (let chunk of stream) {
-    console.log(chunk);
     output += Array.from(chunk, (byte) => String.fromCodePoint(byte)).join("");
   }
 
   input.value =
-    window.location.origin + window.location.pathname + "#" + btoa(output);
+    window.location.origin + window.location.pathname + "?" + btoa(output);
+}
+
+async function decodeDoc(encodedDoc: string) {
+  const stream = new ReadableStream({
+    start: (controller) => {
+      const binString = atob(encodedDoc);
+      controller.enqueue(Uint8Array.from(binString, (m) => m.codePointAt(0)));
+      controller.close();
+    },
+  })
+    .pipeThrough<Uint8Array>(new DecompressionStream("deflate-raw"))
+    .pipeThrough(new TextDecoderStream());
+
+  let doc = "";
+
+  for await (let chunk of stream) {
+    doc += chunk;
+  }
+
+  return doc;
 }
 
 const autosave = EditorView.updateListener.of((update) => {
   if (update.docChanged) {
     const doc = update.state.doc.toString();
     localStorage.setItem("document", doc);
+
+    if (window.location.search) {
+      window.history.pushState(undefined, "", window.location.pathname);
+    }
 
     let urlField = document.getElementById("url");
     if (urlField instanceof HTMLInputElement) {
@@ -182,7 +205,16 @@ function generateTypeDiagnostics(
   }
 }
 
-window.addEventListener("load", () => {
+window.addEventListener("load", async () => {
+  let doc: string;
+  let search = window.location.search;
+  if (search) {
+    console.log(search);
+    doc = await decodeDoc(search.slice(1));
+  } else {
+    doc = localStorage.getItem("document") ?? "";
+  }
+
   window.addEventListener("keydown", (event) => {
     if (event.ctrlKey && event.key === ".") {
       hush();
@@ -190,7 +222,7 @@ window.addEventListener("load", () => {
   });
 
   new EditorView({
-    doc: localStorage.getItem("document") ?? "",
+    doc,
     extensions: [
       evaluation(handleEvaluation),
       basicSetup,

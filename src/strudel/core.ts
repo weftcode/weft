@@ -61,8 +61,8 @@ export const core: Bindings = {
   },
   ceil: { type: "", value: strudelCore.ceil },
   choose: {
-    type: "[a] -> Pattern a",
-    value: strudelCore.choose,
+    type: "[Pattern a] -> Pattern a",
+    value: (choices) => strudelCore.choose(...choices),
   },
   chooseCycles: { type: "", value: strudelCore.chooseCycles },
   chooseInWith: { type: "", value: strudelCore.chooseInWith },
@@ -96,7 +96,10 @@ export const core: Bindings = {
     type: "Fractional a => Pattern a",
     value: strudelCore.cosine2,
   },
-  cpm: { type: "", value: strudelCore.cpm },
+  cpm: {
+    type: "Pattern Number -> Pattern a -> Pattern a",
+    value: strudelCore.cpm,
+  },
   curry: { type: "", value: strudelCore.curry },
   degrade: {
     type: "Pattern a -> Pattern a",
@@ -348,9 +351,12 @@ export const core: Bindings = {
     type: "Pattern Number -> Pattern Number -> Pattern Number -> Pattern Number",
     value: strudelCore.range,
   },
-  range2: { type: "", value: strudelCore.range2 },
+  range2: {
+    type: "Pattern Number -> Pattern Number -> Pattern Number -> Pattern Number",
+    value: strudelCore.range2,
+  },
   rangex: {
-    type: "(Functor f, Floating b) => b -> b -> f b -> f b",
+    type: "Pattern Number -> Pattern Number -> Pattern Number -> Pattern Number",
     value: strudelCore.rangex,
   },
   rarely: {
@@ -435,6 +441,14 @@ export const core: Bindings = {
   someNumbersBy: {
     type: "Pattern Number -> (Pattern a -> Pattern a) -> Pattern a -> Pattern a",
     value: strudelCore.someNumbersBy,
+  },
+  sometimes: {
+    type: "(Pattern a -> Pattern a) -> Pattern a -> Pattern a",
+    value: strudelCore.sometimes,
+  },
+  sometimesBy: {
+    type: "Pattern Number -> (Pattern a -> Pattern a) -> Pattern a -> Pattern a",
+    value: strudelCore.sometimesBy,
   },
   sparsity: {
     type: "Pattern Number -> Pattern a -> Pattern a",

@@ -1,7 +1,8 @@
 import { Bindings, expandSynonyms } from "../compiler/parse/API";
 
-import { operators } from "./operators";
+export { Pattern } from "@strudel/core";
 
+import { operators } from "./operators";
 import { core } from "./core";
 import { controls } from "./controls";
 import { tonal } from "./tonal";

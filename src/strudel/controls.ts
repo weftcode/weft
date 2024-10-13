@@ -163,12 +163,30 @@ export const controls: Bindings = {
     value: strudelControls.lpf,
   },
   lp: { type: "", value: strudelControls.lp },
-  lpenv: { type: "", value: strudelControls.lpenv },
-  lpe: { type: "", value: strudelControls.lpe },
-  hpenv: { type: "", value: strudelControls.hpenv },
-  hpe: { type: "", value: strudelControls.hpe },
-  bpenv: { type: "", value: strudelControls.bpenv },
-  bpe: { type: "", value: strudelControls.bpe },
+  lpenv: {
+    type: "Pattern Number -> Pattern Controls",
+    value: strudelControls.lpenv,
+  },
+  lpe: {
+    type: "Pattern Number -> Pattern Controls",
+    value: strudelControls.lpe,
+  },
+  hpenv: {
+    type: "Pattern Number -> Pattern Controls",
+    value: strudelControls.hpenv,
+  },
+  hpe: {
+    type: "Pattern Number -> Pattern Controls",
+    value: strudelControls.hpe,
+  },
+  bpenv: {
+    type: "Pattern Number -> Pattern Controls",
+    value: strudelControls.bpenv,
+  },
+  bpe: {
+    type: "Pattern Number -> Pattern Controls",
+    value: strudelControls.bpe,
+  },
   lpattack: { type: "", value: strudelControls.lpattack },
   lpa: { type: "", value: strudelControls.lpa },
   hpattack: { type: "", value: strudelControls.hpattack },
@@ -400,7 +418,10 @@ export const controls: Bindings = {
     type: "Pattern Number -> Pattern Controls",
     value: strudelControls.voice,
   },
-  chord: { type: "", value: strudelControls.chord },
+  chord: {
+    type: "Pattern String -> Pattern Controls",
+    value: strudelControls.chord,
+  },
   dictionary: { type: "", value: strudelControls.dictionary },
   dict: { type: "", value: strudelControls.dict },
   anchor: { type: "", value: strudelControls.anchor },

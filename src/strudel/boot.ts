@@ -1,4 +1,6 @@
 import { reify, Cyclist, silence, stack } from "@strudel/core";
+import { registerVoicings } from "@strudel/tonal";
+import { simple } from "@strudel/tonal/ireal.mjs";
 
 import {
   initAudioOnFirstClick,
@@ -14,6 +16,9 @@ import { Bindings } from "../compiler/parse/API";
 initAudioOnFirstClick();
 const ctx = getAudioContext();
 registerSynthSounds();
+
+// Load default voicings
+registerVoicings("default", simple);
 
 // Default Strudel samples
 const ds = "https://raw.githubusercontent.com/felixroos/dough-samples/main";
@@ -88,4 +93,20 @@ export const boot: Bindings = {
   d11: { type: "Pattern Controls -> IO ()", value: p(11) },
   d12: { type: "Pattern Controls -> IO ()", value: p(12) },
   hush: { type: "IO ()", value: { runIO: hush } },
+  // setCps: {
+  //   type: "Number -> IO ()",
+  //   value: (cps) => ({
+  //     runIO: () => {
+  //       scheduler.setCps(cps);
+  //     },
+  //   }),
+  // },
+  // setCpm: {
+  //   type: "Number -> IO ()",
+  //   value: (cpm) => ({
+  //     runIO: () => {
+  //       scheduler.setCps(cpm / 60);
+  //     },
+  //   }),
+  // },
 };
