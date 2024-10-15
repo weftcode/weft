@@ -1,6 +1,6 @@
-.cm-console {
-  margin: 0 var(--s-2);
+.cm-console:not(:empty) {
   max-height: 30vh;
+  margin-bottom: 10px;
 }
 
 .cm-console:focus-visible {
@@ -12,33 +12,12 @@
   margin: 0;
 }
 
-.cm-console-message-source {
-  position: relative;
-  padding: var(--s-0-5);
-  margin-left: var(--s-0-5);
-  font-size: var(--font-small);
-  float: right;
-  z-index: 1;
-  user-select: none;
-  clip-path: inset(0 0 1px 1px);
-  background-color: var(--color-ui-background);
-}
-
-.cm-console-message-error .cm-console-message-source {
-  background-color: var(--color-error-foreground);
-  color: var(--color-foreground-inverted);
-}
-
 .cm-console {
   overflow-y: auto;
 }
 
-.cm-console > div.scrolling {
-  margin-right: 2px;
-}
-
 .cm-console-message:not(:last-child) {
-  margin-bottom: var(--s-1);
+  margin-bottom: 5px;
 }
 
 .cm-console-message-content {
@@ -52,53 +31,17 @@
 
 .cm-console-message-input,
 .cm-console-message-output {
-  margin-left: calc(var(--s-2) + 1px);
-  padding: var(--s-0-5);
-  padding-left: calc(var(--s-0-5) - 1px);
+  padding: 5px;
   position: relative;
   white-space: pre-wrap;
 }
 
 .cm-console-message-input {
-  font-size: var(--font-small);
-  min-height: var(--s-2);
-  background-color: var(--color-ui-background-inactive);
+  background-color: #282a36;
 }
 
 .cm-console-message-output {
-  background-color: var(--color-ui-background);
-}
-
-.cm-console-message-input:has(+ .cm-console-message-output) {
-  clip-path: margin-box inset(0 0 1px 0);
-}
-
-.cm-console-message-input + .cm-console-message-output {
-  clip-path: margin-box inset(1px 0 0 0);
-}
-
-.cm-console-message-input::before,
-.cm-console-message-output::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: calc(var(--s-2) * -1 - 1px);
-  width: calc(var(--s-2) - 1px);
-  height: 100%;
-  background-color: var(--color-ui-background-inactive);
-}
-
-.cm-console-message-icon {
-  width: var(--s-2);
-  height: var(--s-2);
-  position: absolute;
-  top: var(--s-0-5);
-  left: calc(var(--s-2) * -1 - 1px);
-  color: var(--col-text-soft);
-}
-
-.cm-console-message-icon svg {
-  display: block;
+  background-color: #2d2f3f;
 }
 
 .cm-console-message-error .cm-console-message-input,
@@ -109,8 +52,4 @@
 .cm-console-message-error .cm-console-message-input::before,
 .cm-console-message-error .cm-console-message-output::before {
   background-color: var(--color-error-foreground);
-}
-
-.cm-console-message-error .cm-console-message-icon {
-  color: var(--color-foreground-inverted);
 }

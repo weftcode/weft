@@ -59,7 +59,6 @@ function MessageContent({ message }: MessageContentProps) {
 
   return (
     <>
-      <div class="cm-console-message-source">{message.source}</div>
       <div class="cm-console-message-content" ref={ref}>
         {"input" in message && (
           <div class="cm-console-message-input">{message.input}</div>

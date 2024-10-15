@@ -10,6 +10,8 @@ import { evaluation } from "@management/cm-evaluate";
 
 import { console as editorConsole } from "./console";
 
+import { editorTheme } from "./theme";
+
 // @ts-ignore
 import { dracula } from "thememirror/dist/index.js";
 
@@ -119,7 +121,7 @@ function handleEvaluation(code: string) {
     if (reporter.hasError) {
       consoleComponent.update({
         input: code,
-        level: "info",
+        success: false,
         text: reporter.errors.map((error) => error.message).join("\n"),
       });
     } else {
@@ -134,14 +136,14 @@ function handleEvaluation(code: string) {
 
       consoleComponent.update({
         input: code,
-        level: "info",
+        success: true,
         text,
       });
     }
   } catch (error) {
     consoleComponent.update({
       input: code,
-      level: "info",
+      success: false,
       text: error.message,
     });
   }
@@ -250,6 +252,7 @@ window.addEventListener("load", async () => {
       parseLinter,
       autosave,
       dracula,
+      editorTheme,
       evalTheme,
     ],
     parent: document.getElementById("editor"),
