@@ -123,7 +123,7 @@ export const core: Bindings = {
   duration: { type: "", value: strudelCore.duration },
   early: { type: "", value: strudelCore.early },
   echo: {
-    type: "Pattern Numbereger -> Pattern Rational -> Pattern Number -> Pattern Controls -> Pattern Controls",
+    type: "Pattern Number -> Pattern Rational -> Pattern Number -> Pattern Controls -> Pattern Controls",
     value: strudelCore.echo,
   },
   echoWith: {

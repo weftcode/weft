@@ -10,7 +10,6 @@ import {
   samples,
 } from "@strudel/webaudio";
 
-import { miniAllStrings } from "@strudel/mini";
 import { Bindings } from "../compiler/parse/API";
 
 initAudioOnFirstClick();
@@ -27,13 +26,13 @@ samples(`${ds}/piano.json`);
 samples(`${ds}/Dirt-Samples.json`);
 samples(`${ds}/EmuSP12.json`);
 samples(`${ds}/vcsl.json`);
-miniAllStrings();
 
 function getTime() {
   return ctx.currentTime;
 }
 
 async function onTrigger(hap, deadline, duration, cps) {
+  console.log(hap.context);
   try {
     if (!hap.context.onTrigger || !hap.context.dominantTrigger) {
       await webaudioOutput(hap, deadline, duration, cps);

@@ -1,5 +1,6 @@
 import { Bindings, expandSynonyms } from "../compiler/parse/API";
 
+export { m as parseMini } from "@strudel/mini";
 export { Pattern } from "@strudel/core";
 
 import { operators } from "./operators";

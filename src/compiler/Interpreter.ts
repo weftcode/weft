@@ -4,9 +4,11 @@ import { Expr } from "./parse/Expr";
 import { Stmt } from "./parse/Stmt";
 import { Bindings } from "./parse/API";
 
-import { Pattern } from "../strudel";
+import { Pattern, parseMini } from "../strudel";
 
 type Value = Primitive | Value[] | ((input: Value) => Value);
+
+export type Location = [string, { from: number; to: number }];
 
 export class Interpreter {
   constructor(
@@ -14,8 +16,15 @@ export class Interpreter {
     private bindings: Bindings
   ) {}
 
-  interpret(statements: Stmt[]) {
+  private currentID: number = 0;
+
+  private miniNotationLocations: Location[] = [];
+
+  interpret(statements: Stmt[], id: number): [string[], Location[]] {
     let results: string[] = [];
+
+    this.currentID = id;
+    this.miniNotationLocations = [];
 
     try {
       for (let statement of statements) {
@@ -40,7 +49,7 @@ export class Interpreter {
       }
     }
 
-    return results;
+    return [results, this.miniNotationLocations];
   }
 
   private stringify(object: Primitive) {
@@ -77,10 +86,22 @@ export class Interpreter {
     }
   }
 
-  private evaluate(expr: Expr): Value | null {
+  private evaluate(expr: Expr): Value | Pattern | null {
     switch (expr.type) {
       case Expr.Type.Literal:
-        return expr.value;
+        if (typeof expr.value === "string") {
+          // TODO: Only do this for Patterns
+          let id = `${this.currentID}-${this.miniNotationLocations.length}`;
+          let { from, to } = expr.token;
+          this.miniNotationLocations.push([id, { from, to }]);
+
+          return parseMini(expr.value).withContext(({ locations, ...ctx }) => ({
+            locations: locations.map((loc) => ({ ...loc, id })),
+            ...ctx,
+          }));
+        } else {
+          return expr.value;
+        }
       case Expr.Type.List:
         return expr.items.map((e) => this.evaluate(e));
       case Expr.Type.Grouping:

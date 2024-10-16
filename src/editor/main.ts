@@ -1,12 +1,8 @@
 import { EditorView, basicSetup } from "codemirror";
-import { keymap, KeyBinding } from "@codemirror/view";
-import { StateEffect } from "@codemirror/state";
 import { Diagnostic, linter } from "@codemirror/lint";
 
 import { StreamLanguage } from "@codemirror/language";
 import { haskell } from "@codemirror/legacy-modes/mode/haskell";
-
-import { evaluation } from "@management/cm-evaluate";
 
 // @ts-ignore
 import { dracula } from "thememirror/dist/index.js";
@@ -15,9 +11,10 @@ import { AstPrinter } from "../compiler/parse/AstPrinter";
 import { Scanner } from "../compiler/scan/Scanner";
 import { Parser } from "../compiler/parse/Parser";
 import { ErrorReporter } from "../compiler/parse/Reporter";
-import { Interpreter } from "../compiler/Interpreter";
 
 import { getOperators } from "../compiler/parse/API";
+
+import { evaluation } from "./evaluation";
 
 import { bindings, hush, typeBindings } from "../strudel";
 
@@ -78,56 +75,6 @@ const autosave = EditorView.updateListener.of((update) => {
     }
   }
 });
-
-const evalTheme = EditorView.theme({
-  "@keyframes cm-eval-flash": {
-    from: { backgroundColor: "#FFFFFF" },
-    to: { backgroundColor: "#FFFFFF00" },
-  },
-  "& .cm-evaluated": { animation: "cm-eval-flash 0.5s" },
-});
-
-function handleEvaluation(code: string) {
-  let reporter = new ErrorReporter();
-
-  try {
-    const scanner = new Scanner(code);
-    const tokens = scanner.scanTokens();
-    document.getElementById("output").innerText = tokens
-      .map((t) => t.toString())
-      .join("\n");
-    const parser = new Parser(tokens, getOperators(bindings), reporter);
-    const stmts = parser.parse();
-
-    // TODO: Error Handling
-
-    const printer = new AstPrinter();
-    document.getElementById("output").innerText = printer.printStmts(stmts);
-
-    if (!reporter.hasError) {
-      let typechecker = new TypeChecker(reporter, typeBindings);
-
-      for (let stmt of stmts) {
-        typechecker.check(stmt);
-      }
-    }
-
-    if (reporter.hasError) {
-      document.getElementById("output").innerText = reporter.errors.join("\n");
-    } else {
-      const interpreter = new Interpreter(reporter, bindings);
-
-      let results = interpreter.interpret(stmts);
-
-      document.getElementById("output").innerText = [
-        ...results,
-        ...reporter.errors,
-      ].join("\n");
-    }
-  } catch (error) {
-    console.log(error);
-  }
-}
 
 const parseLinter = linter((view) => {
   try {
@@ -224,13 +171,12 @@ window.addEventListener("load", async () => {
   new EditorView({
     doc,
     extensions: [
-      evaluation(handleEvaluation),
+      evaluation(bindings, typeBindings),
       basicSetup,
       StreamLanguage.define(haskell),
       parseLinter,
       autosave,
       dracula,
-      evalTheme,
     ],
     parent: document.getElementById("editor"),
   });
