@@ -1,6 +1,9 @@
 .cm-console:not(:empty) {
   max-height: 30vh;
-  margin-bottom: 10px;
+}
+
+.cm-console:not(:has(> :empty)) {
+  margin-top: 10px;
 }
 
 .cm-console:focus-visible {
@@ -44,12 +47,10 @@
   background-color: #2d2f3f;
 }
 
-.cm-console-message-error .cm-console-message-input,
-.cm-console-message-error .cm-console-message-output {
-  background-color: var(--color-error-background);
+.cm-console-message-error .cm-console-message-input {
+  background-color: #573232;
 }
 
-.cm-console-message-error .cm-console-message-input::before,
-.cm-console-message-error .cm-console-message-output::before {
-  background-color: var(--color-error-foreground);
+.cm-console-message-error .cm-console-message-output {
+  background-color: #853c3c;
 }

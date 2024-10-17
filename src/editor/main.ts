@@ -99,22 +99,22 @@ function handleEvaluation(code: string) {
   try {
     const scanner = new Scanner(code);
     const tokens = scanner.scanTokens();
-    // document.getElementById("output").innerText = tokens
-    //   .map((t) => t.toString())
-    //   .join("\n");
     const parser = new Parser(tokens, getOperators(bindings), reporter);
     const stmts = parser.parse();
 
-    // TODO: Error Handling
-
-    const printer = new AstPrinter();
-    // document.getElementById("output").innerText = printer.printStmts(stmts);
+    renamer(stmts, bindings, reporter);
 
     if (!reporter.hasError) {
       let typechecker = new TypeChecker(reporter, typeBindings);
 
       for (let stmt of stmts) {
-        typechecker.check(stmt);
+        let [sub, type, annotations] = typechecker.check(stmt);
+        annotations.forEach((annotation) => {
+          if (annotation.severity === "error") {
+            annotation.apply(sub);
+            reporter.error(annotation.from, annotation.to, annotation.message);
+          }
+        });
       }
     }
 
@@ -122,7 +122,8 @@ function handleEvaluation(code: string) {
       consoleComponent.update({
         input: code,
         success: false,
-        text: reporter.errors.map((error) => error.message).join("\n"),
+        text:
+          "Error: " + reporter.errors.map((error) => error.message).join("\n"),
       });
     } else {
       const interpreter = new Interpreter(reporter, bindings);
@@ -144,7 +145,7 @@ function handleEvaluation(code: string) {
     consoleComponent.update({
       input: code,
       success: false,
-      text: error.message,
+      text: "Error: " + error.message,
     });
   }
 }
