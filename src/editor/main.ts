@@ -158,9 +158,10 @@ const parseLinter = linter((view) => {
     const parser = new Parser(tokens, getOperators(bindings), reporter);
     const stmts = parser.parse();
 
-    const printer = new AstPrinter();
-
     let diagnostics: Diagnostic[] = [];
+
+    // Run renamer to check for undefined variables
+    renamer(stmts, bindings, reporter);
 
     const typechecker = new TypeChecker(reporter, typeBindings);
 
@@ -181,8 +182,6 @@ const parseLinter = linter((view) => {
         severity: "error",
       }));
     } else {
-      // document.getElementById("output").innerText = printer.printStmts(stmts);
-
       return diagnostics;
     }
   } catch (error) {
@@ -193,6 +192,7 @@ const parseLinter = linter((view) => {
 
 import { Expr, expressionBounds } from "../compiler/parse/Expr";
 import { TypeAnnotation } from "../compiler/typecheck/Annotations";
+import { renamer } from "../compiler/rename/Renamer";
 
 type TypeAnnotationMap = WeakMap<Expr, TypeAnnotation>;
 
