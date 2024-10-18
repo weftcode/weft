@@ -234,6 +234,11 @@ window.addEventListener("load", async () => {
 
   updateURLField(document.getElementById("url") as HTMLInputElement, doc);
 
+  consoleComponent.update({
+    level: "info",
+    text: "Welcome to the very experimental web Tidal editor!\nUse Ctrl+Enter (or Command+Enter on Mac) to evaluate a block of code. Play patterns in normal Tidal style with the functions `d1` to `d2`. To hush all currently-playing patterns, either evaluate the `hush` function or press Ctrl+. (or Command+. on Mac).",
+  });
+
   window.addEventListener("keydown", (event) => {
     if (event.ctrlKey && event.key === ".") {
       hush();
