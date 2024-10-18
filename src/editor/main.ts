@@ -1,6 +1,4 @@
 import { EditorView, basicSetup } from "codemirror";
-import { keymap, KeyBinding } from "@codemirror/view";
-import { StateEffect } from "@codemirror/state";
 import { Diagnostic, linter } from "@codemirror/lint";
 
 import { StreamLanguage } from "@codemirror/language";
@@ -15,7 +13,6 @@ import { editorTheme } from "./theme";
 // @ts-ignore
 import { dracula } from "thememirror/dist/index.js";
 
-import { AstPrinter } from "../compiler/parse/AstPrinter";
 import { Scanner } from "../compiler/scan/Scanner";
 import { Parser } from "../compiler/parse/Parser";
 import { ErrorReporter } from "../compiler/parse/Reporter";
@@ -230,11 +227,12 @@ window.addEventListener("load", async () => {
   let doc: string;
   let search = window.location.search;
   if (search) {
-    console.log(search);
     doc = await decodeDoc(search.slice(1));
   } else {
     doc = localStorage.getItem("document") ?? "";
   }
+
+  updateURLField(document.getElementById("url") as HTMLInputElement, doc);
 
   window.addEventListener("keydown", (event) => {
     if (event.ctrlKey && event.key === ".") {
