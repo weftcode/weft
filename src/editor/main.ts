@@ -4,17 +4,21 @@ import { Diagnostic, linter } from "@codemirror/lint";
 import { StreamLanguage } from "@codemirror/language";
 import { haskell } from "@codemirror/legacy-modes/mode/haskell";
 
+import { evaluation } from "@management/cm-evaluate";
+
+import { console as editorConsole } from "./console";
+
+import { editorTheme } from "./theme";
+
 // @ts-ignore
 import { dracula } from "thememirror/dist/index.js";
 
-import { AstPrinter } from "../compiler/parse/AstPrinter";
 import { Scanner } from "../compiler/scan/Scanner";
 import { Parser } from "../compiler/parse/Parser";
 import { ErrorReporter } from "../compiler/parse/Reporter";
+import { Interpreter } from "../compiler/Interpreter";
 
 import { getOperators } from "../compiler/parse/API";
-
-import { evaluation } from "./evaluation";
 
 import { bindings, hush, typeBindings } from "../strudel";
 
@@ -76,6 +80,73 @@ const autosave = EditorView.updateListener.of((update) => {
   }
 });
 
+const evalTheme = EditorView.theme({
+  "@keyframes cm-eval-flash": {
+    from: { backgroundColor: "#FFFFFF" },
+    to: { backgroundColor: "#FFFFFF00" },
+  },
+  "& .cm-evaluated": { animation: "cm-eval-flash 0.5s" },
+});
+
+const consoleComponent = editorConsole();
+
+function handleEvaluation(code: string) {
+  let reporter = new ErrorReporter();
+
+  try {
+    const scanner = new Scanner(code);
+    const tokens = scanner.scanTokens();
+    const parser = new Parser(tokens, getOperators(bindings), reporter);
+    const stmts = parser.parse();
+
+    renamer(stmts, bindings, reporter);
+
+    if (!reporter.hasError) {
+      let typechecker = new TypeChecker(reporter, typeBindings);
+
+      for (let stmt of stmts) {
+        let [sub, type, annotations] = typechecker.check(stmt);
+        annotations.forEach((annotation) => {
+          if (annotation.severity === "error") {
+            annotation.apply(sub);
+            reporter.error(annotation.from, annotation.to, annotation.message);
+          }
+        });
+      }
+    }
+
+    if (reporter.hasError) {
+      consoleComponent.update({
+        input: code,
+        success: false,
+        text:
+          "Error: " + reporter.errors.map((error) => error.message).join("\n"),
+      });
+    } else {
+      const interpreter = new Interpreter(reporter, bindings);
+
+      let results = interpreter.interpret(stmts, 0);
+      let text = [...results, ...reporter.errors].join("\n");
+
+      if (text === "") {
+        return;
+      }
+
+      consoleComponent.update({
+        input: code,
+        success: true,
+        text,
+      });
+    }
+  } catch (error) {
+    consoleComponent.update({
+      input: code,
+      success: false,
+      text: "Error: " + error.message,
+    });
+  }
+}
+
 const parseLinter = linter((view) => {
   try {
     let reporter = new ErrorReporter();
@@ -85,9 +156,10 @@ const parseLinter = linter((view) => {
     const parser = new Parser(tokens, getOperators(bindings), reporter);
     const stmts = parser.parse();
 
-    const printer = new AstPrinter();
-
     let diagnostics: Diagnostic[] = [];
+
+    // Run renamer to check for undefined variables
+    renamer(stmts, bindings, reporter);
 
     const typechecker = new TypeChecker(reporter, typeBindings);
 
@@ -108,8 +180,6 @@ const parseLinter = linter((view) => {
         severity: "error",
       }));
     } else {
-      document.getElementById("output").innerText = printer.printStmts(stmts);
-
       return diagnostics;
     }
   } catch (error) {
@@ -120,6 +190,7 @@ const parseLinter = linter((view) => {
 
 import { Expr, expressionBounds } from "../compiler/parse/Expr";
 import { TypeAnnotation } from "../compiler/typecheck/Annotations";
+import { renamer } from "../compiler/rename/Renamer";
 
 type TypeAnnotationMap = WeakMap<Expr, TypeAnnotation>;
 
@@ -156,17 +227,25 @@ window.addEventListener("load", async () => {
   let doc: string;
   let search = window.location.search;
   if (search) {
-    console.log(search);
     doc = await decodeDoc(search.slice(1));
   } else {
     doc = localStorage.getItem("document") ?? "";
   }
+
+  updateURLField(document.getElementById("url") as HTMLInputElement, doc);
+
+  consoleComponent.update({
+    level: "info",
+    text: "Welcome to the very experimental web Tidal editor!\nUse Ctrl+Enter (or Command+Enter on Mac) to evaluate a block of code. Play patterns in normal Tidal style with the functions `d1` to `d2`. To hush all currently-playing patterns, either evaluate the `hush` function or press Ctrl+. (or Command+. on Mac).",
+  });
 
   window.addEventListener("keydown", (event) => {
     if (event.ctrlKey && event.key === ".") {
       hush();
     }
   });
+
+  document.getElementById("output").appendChild(consoleComponent.dom);
 
   new EditorView({
     doc,
@@ -177,6 +256,8 @@ window.addEventListener("load", async () => {
       parseLinter,
       autosave,
       dracula,
+      editorTheme,
+      evalTheme,
     ],
     parent: document.getElementById("editor"),
   });
