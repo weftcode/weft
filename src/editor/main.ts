@@ -20,7 +20,10 @@ import { Interpreter } from "../compiler/Interpreter";
 
 import { getOperators } from "../compiler/parse/API";
 
-import { bindings, hush, typeBindings } from "../strudel";
+import { bindings as strudel, hush, typeBindings } from "../strudel";
+import { standardLib } from "../standard-lib";
+
+const bindings = { ...strudel, ...standardLib };
 
 import { TypeChecker } from "../compiler/typecheck/Typechecker";
 

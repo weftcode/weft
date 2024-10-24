@@ -89,11 +89,11 @@ export const core: Bindings = {
   constant: { type: "", value: strudelCore.constant },
   controls: { type: "", value: strudelCore.controls },
   cosine: {
-    type: "Fractional a => Pattern a",
+    type: "Pattern Number",
     value: strudelCore.cosine,
   },
   cosine2: {
-    type: "Fractional a => Pattern a",
+    type: "Pattern Number",
     value: strudelCore.cosine2,
   },
   cpm: {
@@ -123,7 +123,7 @@ export const core: Bindings = {
   duration: { type: "", value: strudelCore.duration },
   early: { type: "", value: strudelCore.early },
   echo: {
-    type: "Pattern Numbereger -> Pattern Rational -> Pattern Number -> Pattern Controls -> Pattern Controls",
+    type: "Pattern Number -> Pattern Number -> Pattern Number -> Pattern Controls -> Pattern Controls",
     value: strudelCore.echo,
   },
   echoWith: {
@@ -182,9 +182,9 @@ export const core: Bindings = {
   getFreq: { type: "", value: strudelCore.getFreq },
   getFrequency: { type: "", value: strudelCore.getFrequency },
   getPlayableNoteValue: { type: "", value: strudelCore.getPlayableNoteValue },
-  getPunchcardPaNumberer: {
+  getPunchcardPainter: {
     type: "",
-    value: strudelCore.getPunchcardPaNumberer,
+    value: strudelCore.getPunchcardPainter,
   },
   getSoundIndex: { type: "", value: strudelCore.getSoundIndex },
   getNumber: { type: "", value: strudelCore.getNumber },
@@ -196,7 +196,7 @@ export const core: Bindings = {
   hsl: { type: "", value: strudelCore.hsl },
   hsla: { type: "", value: strudelCore.hsla },
   hurry: {
-    type: "Pattern Rational -> Pattern Controls -> Pattern Controls",
+    type: "Pattern Number -> Pattern Controls -> Pattern Controls",
     value: strudelCore.hurry,
   },
   id: { type: "", value: strudelCore.id },
@@ -209,7 +209,7 @@ export const core: Bindings = {
     type: "Pattern Number -> (Pattern a1 -> Pattern a) -> Pattern a1 -> Pattern a",
     value: strudelCore.inside,
   },
-  inv: { type: "Functor f => f Bool -> f Bool", value: strudelCore.inv },
+  inv: { type: "Pattern Bool -> Pattern Bool", value: strudelCore.inv },
   invert: { type: "", value: strudelCore.invert },
   irand: {
     type: "Pattern Number -> Pattern Number",
@@ -302,11 +302,11 @@ export const core: Bindings = {
   parseFractional: { type: "", value: strudelCore.parseFractional },
   parseNumeral: { type: "", value: strudelCore.parseNumeral },
   perlin: {
-    type: "Fractional a => Pattern a",
+    type: "Pattern Number",
     value: strudelCore.perlin,
   },
   perlinWith: {
-    type: "Fractional a => Pattern Number -> Pattern a",
+    type: "Pattern Number -> Pattern Number",
     value: strudelCore.perlinWith,
   },
   pianoroll: { type: "", value: strudelCore.pianoroll },
@@ -319,7 +319,7 @@ export const core: Bindings = {
   pickmodF: { type: "", value: strudelCore.pickmodF },
   pipe: { type: "", value: strudelCore.pipe },
   ply: {
-    type: "Pattern Rational -> Pattern a -> Pattern a",
+    type: "Pattern Number -> Pattern a -> Pattern a",
     value: strudelCore.ply,
   },
   pm: { type: "", value: strudelCore.pm },
@@ -339,7 +339,7 @@ export const core: Bindings = {
   pure: { type: "", value: strudelCore.pure },
   r: { type: "", value: strudelCore.r },
   rand: {
-    type: "Fractional a => Pattern a",
+    type: "Pattern Number",
     value: strudelCore.rand,
   },
   rand2: { type: "", value: strudelCore.rand2 },
@@ -404,11 +404,11 @@ export const core: Bindings = {
     value: strudelCore.silence,
   },
   sine: {
-    type: "Fractional a => Pattern a",
+    type: "Pattern Number",
     value: strudelCore.sine,
   },
   sine2: {
-    type: "Fractional a => Pattern a",
+    type: "Pattern Number",
     value: strudelCore.sine2,
   },
   slice: {
@@ -461,11 +461,11 @@ export const core: Bindings = {
   },
   splitAt: { type: "", value: strudelCore.splitAt },
   square: {
-    type: "Fractional a => Pattern a",
+    type: "Pattern Number",
     value: strudelCore.square,
   },
   square2: {
-    type: "Fractional a => Pattern a",
+    type: "Pattern Number",
     value: strudelCore.square2,
   },
   squeeze: {
@@ -486,7 +486,7 @@ export const core: Bindings = {
     value: strudelCore.struct,
   },
   stut: {
-    type: "Pattern Numbereger -> Pattern Number -> Pattern Rational -> Pattern Controls -> Pattern Controls",
+    type: "Pattern Number -> Pattern Number -> Pattern Number -> Pattern Controls -> Pattern Controls",
     value: strudelCore.stut,
   },
   stutWith: {
