@@ -9,11 +9,16 @@ import { Token } from "../scan/Token";
 // sigma ::= mu
 //         | Va. sigma
 
-export type MonoType = TypeVariable | TypeFunctionApplication;
+export type MonoType = LiteralType | TypeVariable | TypeFunctionApplication;
 
 export type PolyType = MonoType | TypeQuantifier;
 
 export interface TypeCommon {}
+
+export interface LiteralType extends TypeCommon {
+  type: "ty-lit";
+  litType: "string" | "number";
+}
 
 export interface TypeVariable extends TypeCommon {
   type: "ty-var";

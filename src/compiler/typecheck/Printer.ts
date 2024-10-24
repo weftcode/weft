@@ -26,6 +26,8 @@ export function printType(type: PolyType, parenthesize = false) {
       }
     case "ty-quantifier":
       return parens(`forall ${type.a}. ${printType(type.sigma)}`, parenthesize);
+    case "ty-lit":
+      return `<${type.litType === "string" ? "String" : "Numeric"} Literal>`;
   }
 }
 

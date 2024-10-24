@@ -93,20 +93,20 @@ export const boot: Bindings = {
   d11: { type: "Pattern Controls -> IO ()", value: p(11) },
   d12: { type: "Pattern Controls -> IO ()", value: p(12) },
   hush: { type: "IO ()", value: { runIO: hush } },
-  // setCps: {
-  //   type: "Number -> IO ()",
-  //   value: (cps) => ({
-  //     runIO: () => {
-  //       scheduler.setCps(cps);
-  //     },
-  //   }),
-  // },
-  // setCpm: {
-  //   type: "Number -> IO ()",
-  //   value: (cpm) => ({
-  //     runIO: () => {
-  //       scheduler.setCps(cpm / 60);
-  //     },
-  //   }),
-  // },
+  setCps: {
+    type: "Number -> IO ()",
+    value: (cps) => ({
+      runIO: () => {
+        scheduler.setCps(cps);
+      },
+    }),
+  },
+  setCpm: {
+    type: "Number -> IO ()",
+    value: (cpm) => ({
+      runIO: () => {
+        scheduler.setCps(cpm / 60);
+      },
+    }),
+  },
 };

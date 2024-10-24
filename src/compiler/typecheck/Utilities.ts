@@ -2,6 +2,7 @@ import { printType } from "./Printer";
 import {
   Context,
   isContext,
+  LiteralType,
   makeContext,
   MonoType,
   PolyType,
@@ -64,6 +65,10 @@ function apply(
       ...value,
       sigma: apply(substitutionWithoutQuantifier, value.sigma),
     };
+  }
+
+  if (value.type === "ty-lit") {
+    return value;
   }
 
   throw new Error("Unknown argument passed to substitution");
@@ -139,6 +144,10 @@ const freeVars = (value: PolyType | Context): string[] => {
     return freeVars(value.sigma).filter((v) => v !== value.a);
   }
 
+  if (value.type === "ty-lit") {
+    return [];
+  }
+
   throw new Error("Unknown argument passed to substitution");
 };
 
@@ -188,6 +197,15 @@ export function unify(type1: MonoType, type2: MonoType): Substitution | null {
     return unify(type2, type1);
   }
 
+  // Special-casing literals
+  if (type1.type === "ty-lit") {
+    return unifyLiteral(type1, type2);
+  }
+
+  if (type2.type === "ty-lit") {
+    return unifyLiteral(type2, type1);
+  }
+
   if (type1.C !== type2.C) {
     return null;
   }
@@ -208,6 +226,38 @@ export function unify(type1: MonoType, type2: MonoType): Substitution | null {
   return s;
 }
 
+let litVar = 0;
+
+function unifyLiteral(type1: LiteralType, type2: MonoType) {
+  if (type1.litType === "string") {
+    return (
+      // String literals unify with a string or with an arbitrary pattern (as mininotation)
+      unify({ type: "ty-app", C: "String", mus: [] }, type2) ??
+      unify(
+        {
+          type: "ty-app",
+          C: "Pattern",
+          mus: [{ type: "ty-var", a: `litvar${litVar++}` }],
+        },
+        type2
+      )
+    );
+  } else {
+    return (
+      // Numeric literals unify with a number or with a pattern of numbers
+      unify({ type: "ty-app", C: "Number", mus: [] }, type2) ??
+      unify(
+        {
+          type: "ty-app",
+          C: "Pattern",
+          mus: [{ type: "ty-app", C: "Number", mus: [] }],
+        },
+        type2
+      )
+    );
+  }
+}
+
 const contains = (value: MonoType, type2: TypeVariable): boolean => {
   if (value.type === "ty-var") {
     return value.a === type2.a;
@@ -215,6 +265,10 @@ const contains = (value: MonoType, type2: TypeVariable): boolean => {
 
   if (value.type === "ty-app") {
     return value.mus.some((t) => contains(t, type2));
+  }
+
+  if (value.type === "ty-lit") {
+    return false;
   }
 
   throw new Error("Unknown argument passed to substitution");

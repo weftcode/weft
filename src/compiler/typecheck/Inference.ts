@@ -40,27 +40,15 @@ export const W = (
       return [makeSubstitution({}), type, [new TypeInfo(expr, type)]];
     }
     case Expr.Type.Literal:
-      switch (typeof expr.value) {
-        case "string": {
-          const type: MonoType = {
-            type: "ty-app",
-            C: "Pattern",
-            mus: [newTypeVar()],
-          };
-          return [makeSubstitution({}), type, [new TypeInfo(expr, type)]];
-        }
-        case "number": {
-          const type: MonoType = {
-            type: "ty-app",
-            C: "Pattern",
-            mus: [{ type: "ty-app", C: "Number", mus: [] }],
-          };
-          return [makeSubstitution({}), type, [new TypeInfo(expr, type)]];
-        }
-        case "boolean": {
-          const type: MonoType = { type: "ty-app", C: "Boolean", mus: [] };
-          return [makeSubstitution({}), type, [new TypeInfo(expr, type)]];
-        }
+      const litType = typeof expr.value;
+      if (litType === "string" || litType === "number") {
+        const type: MonoType = {
+          type: "ty-lit",
+          litType,
+        };
+        return [makeSubstitution({}), type, [new TypeInfo(expr, type)]];
+      } else {
+        throw new Error(`Primitive ${litType} isn't supported`);
       }
     case Expr.Type.Grouping:
       return W(typEnv, expr.expression);
