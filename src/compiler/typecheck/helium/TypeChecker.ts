@@ -5,7 +5,12 @@
 type Constraint = Constraint.Eq; //| Constraint.Dict;
 
 import { Expr } from "../../parse/Expr";
-import { TypeChecker as TC } from "../Types";
+import {
+  MonoType,
+  PolyType,
+  TypeVariable,
+  TypeFunctionApplication,
+} from "../Types";
 
 export namespace Constraint {
   export enum Type {
@@ -17,8 +22,8 @@ export namespace Constraint {
 
   export interface Eq extends Common {
     type: Type.Eq;
-    lhs: TC.MonoType;
-    rhs: TC.MonoType;
+    lhs: MonoType;
+    rhs: MonoType;
   }
 
   // export interface Dict extends Common {
@@ -26,17 +31,17 @@ export namespace Constraint {
   // }
 }
 
-type Assumption = [string, TC.TypeVariable];
+type Assumption = [string, TypeVariable];
 
-type Substitution = { [tyvar: string]: TC.MonoType };
+type Substitution = { [tyvar: string]: MonoType };
 
 // Fresh type variables
 
 let varCounter = 0;
 
-function freshTyVar(): TC.TypeVariable {
+function freshTyVar(): TypeVariable {
   return {
-    type: TC.Type.TyVar,
+    type: "ty-var",
     a: `t${varCounter++}`,
   };
 }
@@ -47,19 +52,19 @@ interface BUJudgement {
   sub: Substitution;
   assump: Assumption[];
   expr: Expr;
-  type: TC.PolyType;
+  type: PolyType;
 }
 
 function BottomUp({ sub, assump, expr, type }: BUJudgement): BUJudgement {
   switch (expr.type) {
     // LIT
     case Expr.Type.Literal:
-      let type: TC.TypeConstructor;
+      let type: TypeFunctionApplication;
 
       switch (typeof expr.value) {
         case "string":
           type = {
-            type: TC.Type.TyCon,
+            type: "ty-app",
             C: "String",
             mus: [],
           };
@@ -69,11 +74,7 @@ function BottomUp({ sub, assump, expr, type }: BUJudgement): BUJudgement {
         sub: {},
         assump: [],
         expr,
-        type: {
-          type: TC.Type.TyQual,
-          preds: [],
-          head: type,
-        },
+        type,
       };
 
     case Expr.Type.Variable:
