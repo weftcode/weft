@@ -55,28 +55,28 @@ interface BUJudgement {
   type: PolyType;
 }
 
-function BottomUp({ sub, assump, expr, type }: BUJudgement): BUJudgement {
-  switch (expr.type) {
-    // LIT
-    case Expr.Type.Literal:
-      let type: TypeFunctionApplication;
+// function BottomUp({ sub, assump, expr, type }: BUJudgement): BUJudgement {
+//   switch (expr.type) {
+//     // LIT
+//     case Expr.Type.Literal:
+//       let type: TypeFunctionApplication;
 
-      switch (typeof expr.value) {
-        case "string":
-          type = {
-            type: "ty-app",
-            C: "String",
-            mus: [],
-          };
-      }
+//       switch (typeof expr.value) {
+//         case "string":
+//           type = {
+//             type: "ty-app",
+//             C: "String",
+//             mus: [],
+//           };
+//       }
 
-      return {
-        sub: {},
-        assump: [],
-        expr,
-        type,
-      };
+//       return {
+//         sub: {},
+//         assump: [],
+//         expr,
+//         type,
+//       };
 
-    case Expr.Type.Variable:
-  }
-}
+//     case Expr.Type.Variable:
+//   }
+// }

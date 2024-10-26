@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 import { Bindings } from "../compiler/parse/API";
 import { TokenType } from "../compiler/scan/TokenType";
 

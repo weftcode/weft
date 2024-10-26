@@ -11,7 +11,7 @@ export function combine(s1: Substitution, s2: Substitution) {
   };
 }
 
-export function applyType(s: Substitution, t: MonoType) {
+export function applyType(s: Substitution, t: MonoType): MonoType {
   switch (t.type) {
     case "ty-var":
       return s[t.a] ?? t;

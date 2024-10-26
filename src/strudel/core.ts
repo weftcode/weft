@@ -1,3 +1,5 @@
+//@ts-nocheck
+
 import * as strudelCore from "@strudel/core";
 import { Bindings } from "../compiler/parse/API";
 

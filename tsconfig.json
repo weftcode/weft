@@ -1,8 +1,10 @@
 {
   "compilerOptions": {
+    "strict": true,
     "target": "ESNext",
     "moduleResolution": "bundler",
     "jsx": "react-jsx",
     "jsxImportSource": "preact"
-  }
+  },
+  "exclude": ["src/strudel/*"]
 }

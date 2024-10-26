@@ -5,7 +5,7 @@
 // List (nub, (\\), intersect, union, partition)
 // Monad (msum)
 
-function eq(a: unknown, b: unknown) {
+function eq(a: unknown, b: unknown): boolean {
   if (a === b) return true;
 
   if (typeof a === "object") {
@@ -75,6 +75,8 @@ namespace Type {
         return t.kind;
       case "tyapp":
         return { kind: "star" };
+      case "tgen":
+        throw new Error("Can't do kind check on TGen");
     }
   }
 }
@@ -433,7 +435,7 @@ function toHnf(ce: ClassEnv, p: Predicate): Predicate[] {
 }
 
 function simplify(ce: ClassEnv, ps: Predicate[]) {
-  let rs = [];
+  let rs: Predicate[] = [];
   let p: Predicate;
 
   while (ps.length > 0) {
