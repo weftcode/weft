@@ -24,14 +24,13 @@ export function expressionRenamer(
   context: Bindings,
   reporter: ErrorReporter
 ): void {
-  switch (expr.type) {
-    case Expr.Type.Literal:
-    case Expr.Type.Empty:
-    case Expr.Type.Assignment: // Unused currently
+  switch (expr.is) {
+    case Expr.Is.Literal:
+    case Expr.Is.Empty:
       return;
 
     // The main case
-    case Expr.Type.Variable:
+    case Expr.Is.Variable:
       if (!(expr.name.lexeme in context)) {
         reporter.error(
           expr.name,
@@ -40,12 +39,12 @@ export function expressionRenamer(
       }
       return;
 
-    case Expr.Type.Application:
+    case Expr.Is.Application:
       expressionRenamer(expr.left, context, reporter);
       expressionRenamer(expr.right, context, reporter);
       return;
 
-    case Expr.Type.Binary:
+    case Expr.Is.Binary:
       // Check operator
       if (!(expr.operator.lexeme in context)) {
         reporter.error(
@@ -57,7 +56,7 @@ export function expressionRenamer(
       expressionRenamer(expr.right, context, reporter);
       return;
 
-    case Expr.Type.Section:
+    case Expr.Is.Section:
       // Check operator
       if (!(expr.operator.lexeme in context)) {
         reporter.error(
@@ -68,22 +67,11 @@ export function expressionRenamer(
       expressionRenamer(expr.expression, context, reporter);
       return;
 
-    case Expr.Type.Unary:
-      // Check operator
-      if (!(expr.operator.lexeme in context)) {
-        reporter.error(
-          expr.operator,
-          `Operator (${expr.operator.lexeme}) is undefined`
-        );
-      }
-      expressionRenamer(expr.right, context, reporter);
-      return;
-
-    case Expr.Type.Grouping:
+    case Expr.Is.Grouping:
       expressionRenamer(expr.expression, context, reporter);
       return;
 
-    case Expr.Type.List:
+    case Expr.Is.List:
       expr.items.forEach((item) => {
         expressionRenamer(item, context, reporter);
       });

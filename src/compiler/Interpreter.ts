@@ -78,14 +78,14 @@ export class Interpreter {
   }
 
   private evaluate(expr: Expr): Value | null {
-    switch (expr.type) {
-      case Expr.Type.Literal:
+    switch (expr.is) {
+      case Expr.Is.Literal:
         return expr.value;
-      case Expr.Type.List:
+      case Expr.Is.List:
         return expr.items.map((e) => this.evaluate(e));
-      case Expr.Type.Grouping:
+      case Expr.Is.Grouping:
         return this.evaluate(expr.expression);
-      case Expr.Type.Binary: {
+      case Expr.Is.Binary: {
         const left = this.evaluate(expr.left);
         const right = this.evaluate(expr.right);
 
@@ -95,7 +95,7 @@ export class Interpreter {
 
         throw new RuntimeError(expr.operator, "Operator isn't implemented");
       }
-      case Expr.Type.Section: {
+      case Expr.Is.Section: {
         return (input: Value) => {
           const opFunc = this.bindings[expr.operator.lexeme].value;
           const operand = this.evaluate(expr.expression);
@@ -105,7 +105,7 @@ export class Interpreter {
             : opFunc(operand, input);
         };
       }
-      case Expr.Type.Variable:
+      case Expr.Is.Variable:
         if (expr.name.lexeme in this.bindings) {
           return this.bindings[expr.name.lexeme].value;
         } else {
@@ -114,7 +114,7 @@ export class Interpreter {
             `Variable "${expr.name.lexeme}" is undefined`
           );
         }
-      case Expr.Type.Application: {
+      case Expr.Is.Application: {
         const left = this.curry(expr.left);
         const right = this.evaluate(expr.right);
         return left(right);
@@ -123,11 +123,11 @@ export class Interpreter {
   }
 
   private curry(func: Expr): Function {
-    if (func.type === Expr.Type.Variable || func.type === Expr.Type.Section) {
+    if (func.is === Expr.Is.Variable || func.is === Expr.Is.Section) {
       return this.evaluate(func) as any;
-    } else if (func.type === Expr.Type.Grouping) {
+    } else if (func.is === Expr.Is.Grouping) {
       return this.curry(func.expression);
-    } else if (func.type === Expr.Type.Application) {
+    } else if (func.is === Expr.Is.Application) {
       const arg = this.evaluate(func.right);
       return (...args: any[]) => this.curry(func.left)(arg, ...args);
     }

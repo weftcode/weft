@@ -48,7 +48,7 @@ export class Parser extends BaseParser<Stmt[]> {
 
     if (!this.isAtEnd()) {
       // This surely means we've encountered an error
-      if (expression.type === Expr.Type.Empty) {
+      if (expression.is === Expr.Is.Empty) {
         let next = this.advance();
         throw new ParseError(next, `Unexpected token "${next.lexeme}"`);
       }
@@ -85,8 +85,8 @@ export class Parser extends BaseParser<Stmt[]> {
       );
 
       // Check for empty expressions
-      let lNull = left.type === Expr.Type.Empty;
-      let rNull = right.type === Expr.Type.Empty;
+      let lNull = left.is === Expr.Is.Empty;
+      let rNull = right.is === Expr.Is.Empty;
       if (lNull || rNull) {
         console.log("Parse Error");
         console.log(JSON.stringify(operator));
@@ -99,7 +99,7 @@ export class Parser extends BaseParser<Stmt[]> {
       }
 
       // Associate operator
-      left = Expr.Binary(left, operator, right, opPrecedence);
+      left = { is: Expr.Is.Binary, left, operator, right, opPrecedence };
     }
 
     return left;
@@ -110,7 +110,7 @@ export class Parser extends BaseParser<Stmt[]> {
 
     while (this.peekFunctionTerm()) {
       let right = this.grouping();
-      expr = Expr.Application(expr, right);
+      expr = { is: Expr.Is.Application, left: expr, right };
     }
 
     return expr;
@@ -142,7 +142,7 @@ export class Parser extends BaseParser<Stmt[]> {
       // This is kind of a hacky way to attempt this
       if (this.match(TokenType.RightParen)) {
         if (leftOp) {
-          return { type: Expr.Type.Variable, name: leftOp };
+          return { type: Expr.Is.Variable, name: leftOp };
         } else {
           throw "Encountered unit literal, but unit isn't supported yet";
         }
@@ -177,17 +177,17 @@ export class Parser extends BaseParser<Stmt[]> {
         }
         let [precedence] = op;
 
-        if (expr.type === Expr.Type.Binary && expr.precedence < precedence) {
+        if (expr.is === Expr.Is.Binary && expr.precedence < precedence) {
           throw new ParseError(
             operator,
             "Section operator must have lower precedence than expression"
           );
         }
 
-        expr = Expr.Section(operator, expr, side);
+        expr = { is: Expr.Is.Section, operator, expr, side };
       }
 
-      return Expr.Grouping(leftParen, expr, rightParen);
+      return { is: Expr.Is.Grouping, leftParen, expr, rightParen };
     } else {
       return this.functionTerm();
     }
@@ -195,11 +195,15 @@ export class Parser extends BaseParser<Stmt[]> {
 
   private functionTerm() {
     if (this.match(TokenType.Number, TokenType.String)) {
-      return Expr.Literal(this.previous().literal, this.previous());
+      return {
+        is: Expr.Is.Literal,
+        value: this.previous().literal,
+        token: this.previous(),
+      };
     }
 
     if (this.match(TokenType.Identifier)) {
-      return Expr.Variable(this.previous());
+      return { is: Expr.Is.Variable, name: this.previous() };
     }
 
     if (this.match(TokenType.LeftBracket)) {
@@ -217,10 +221,10 @@ export class Parser extends BaseParser<Stmt[]> {
         items.push(this.expression(0));
       }
 
-      return Expr.List(items);
+      return { is: Expr.Is.List, items };
     }
 
-    return Expr.Empty();
+    return { is: Expr.Is.Empty };
   }
 }
 
