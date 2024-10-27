@@ -81,9 +81,6 @@ export function toCore(source: Expr): CoreExpr {
       };
     }
 
-    case Expr.Type.Unary:
-      throw new Error("Parser doesn't currently support unary operators");
-
     case Expr.Type.Grouping:
       return toCore(source.expression);
 

@@ -29,8 +29,6 @@ export class AstPrinter {
         if (expr.value == null) return "nil";
         if (typeof expr.value === "string") return `"${expr.value}"`;
         return expr.value.toString();
-      case Expr.Type.Unary:
-        return this.parenthesize(expr.operator.lexeme, expr.right);
       case Expr.Type.Assignment:
         return this.parenthesize("assignment " + expr.name.lexeme, expr.value);
       case Expr.Type.Variable:

@@ -133,7 +133,6 @@ export const W = (
       );
 
     case Expr.Type.Assignment:
-    case Expr.Type.Unary:
     case Expr.Type.Empty:
       throw new Error(`Unhandled expression type: ${expr.type}`);
 

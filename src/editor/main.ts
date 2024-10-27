@@ -214,8 +214,6 @@ function generateTypeDiagnostics(
     case Expr.Type.Grouping:
     case Expr.Type.Section:
       return generateTypeDiagnostics(expr.expression, annotations);
-    case Expr.Type.Unary:
-      return generateTypeDiagnostics(expr.right, annotations);
     case Expr.Type.List:
       return expr.items.flatMap((e) => generateTypeDiagnostics(e, annotations));
     default:

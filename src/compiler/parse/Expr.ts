@@ -24,7 +24,6 @@ export type Expr =
     }
   | { type: Expr.Type.List; items: Expr[] }
   | { type: Expr.Type.Literal; value: Primitive; token: Token }
-  | { type: Expr.Type.Unary; operator: Token; right: Expr }
   | { type: Expr.Type.Variable; name: Token }
   | { type: Expr.Type.Application; left: Expr; right: Expr };
 
@@ -37,7 +36,6 @@ export namespace Expr {
     Grouping = "Grouping",
     List = "List",
     Literal = "Literal",
-    Unary = "Unary",
     Variable = "Variable",
     Empty = "Empty",
   }
@@ -83,10 +81,6 @@ export namespace Expr {
     return { type: Expr.Type.Literal, value, token };
   }
 
-  export function Unary(operator: Token, right: Expr): Expr {
-    return { type: Expr.Type.Unary, operator, right };
-  }
-
   export function Variable(name: Token): Expr {
     return { type: Expr.Type.Variable, name };
   }
@@ -121,8 +115,6 @@ export function expressionBounds(expr: Expr): { to: number; from: number } {
     case Expr.Type.Literal:
       ({ from, to } = expr.token);
       return { from, to };
-    case Expr.Type.Unary:
-      throw new Error();
     case Expr.Type.Variable:
       ({ from, to } = expr.name);
       return { from, to };

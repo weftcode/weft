@@ -68,17 +68,6 @@ export function expressionRenamer(
       expressionRenamer(expr.expression, context, reporter);
       return;
 
-    case Expr.Type.Unary:
-      // Check operator
-      if (!(expr.operator.lexeme in context)) {
-        reporter.error(
-          expr.operator,
-          `Operator (${expr.operator.lexeme}) is undefined`
-        );
-      }
-      expressionRenamer(expr.right, context, reporter);
-      return;
-
     case Expr.Type.Grouping:
       expressionRenamer(expr.expression, context, reporter);
       return;
