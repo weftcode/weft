@@ -23,8 +23,8 @@ export const W = (
   typEnv: Context,
   expr: Expr
 ): [Substitution, MonoType | null, TypeAnnotation[]] => {
-  switch (expr.type) {
-    case Expr.Type.Variable: {
+  switch (expr.is) {
+    case Expr.Is.Variable: {
       const value = typEnv[expr.name.lexeme];
       if (value === undefined) {
         // TODO: attach source position to this
@@ -39,9 +39,9 @@ export const W = (
       const type = instantiate(value);
       return [makeSubstitution({}), type, [new TypeInfo(expr, type)]];
     }
-    case Expr.Type.Literal:
-      switch (typeof expr.value) {
-        case "string": {
+    case Expr.Is.Literal:
+      switch (expr.token.type) {
+        case TokenType.String: {
           const type: MonoType = {
             type: "ty-app",
             C: "Pattern",
@@ -49,7 +49,7 @@ export const W = (
           };
           return [makeSubstitution({}), type, [new TypeInfo(expr, type)]];
         }
-        case "number": {
+        case TokenType.Number: {
           const type: MonoType = {
             type: "ty-app",
             C: "Pattern",
@@ -57,15 +57,11 @@ export const W = (
           };
           return [makeSubstitution({}), type, [new TypeInfo(expr, type)]];
         }
-        case "boolean": {
-          const type: MonoType = { type: "ty-app", C: "Boolean", mus: [] };
-          return [makeSubstitution({}), type, [new TypeInfo(expr, type)]];
-        }
       }
-    case Expr.Type.Grouping:
+    case Expr.Is.Grouping:
       return W(typEnv, expr.expression);
 
-    case Expr.Type.Application: {
+    case Expr.Is.Application: {
       const [substitution, type, annotations] = InferTypeApp(
         typEnv,
         expr.left,
@@ -78,10 +74,14 @@ export const W = (
       ];
     }
 
-    case Expr.Type.Binary: {
+    case Expr.Is.Binary: {
       const [substitution, type, annotations] = InferTypeApp(
         typEnv,
-        Expr.Application(Expr.Variable(expr.operator), expr.left),
+        {
+          is: Expr.Is.Application,
+          left: expr.operator,
+          right: expr.left,
+        },
         expr.right
       );
 
@@ -92,11 +92,14 @@ export const W = (
       ];
     }
 
-    case Expr.Type.Section: {
+    case Expr.Is.Section: {
       // TODO: This is likely, but not necessarily, a unique name. A better
       //       implementation would use a separate renaming step like GHC.
-      const x = (Math.random() + 1).toString(36).substring(7);
-      const xExp = Expr.Variable(new Token(TokenType.Identifier, x, null, 0));
+      const lexeme = (Math.random() + 1).toString(36).substring(7);
+      const xExp: Expr = {
+        is: Expr.Is.Variable,
+        name: { type: TokenType.Identifier, lexeme, from: 0 },
+      };
 
       // A section is just a binary operation wrapped in a function abstraction. One of the
       // sides of the operator is the variable from the abstraction
@@ -104,11 +107,13 @@ export const W = (
       let right = expr.side === "right" ? xExp : expr.expression;
 
       // TODO: Does it matter that this binary expression has a made-up precedence?
-      const [substitution, type, annotations] = InferTypeAbs(
-        typEnv,
-        x,
-        Expr.Binary(left, expr.operator, right, 0)
-      );
+      const [substitution, type, annotations] = InferTypeAbs(typEnv, lexeme, {
+        is: Expr.Is.Binary,
+        left,
+        operator: expr.operator,
+        right,
+        precedence: 0,
+      });
       return [
         substitution,
         type,
@@ -116,25 +121,30 @@ export const W = (
       ];
     }
 
-    case Expr.Type.List:
+    case Expr.Is.List:
       // Desugar to a right-associative set of cons operators
       return W(
         typEnv,
         expr.items.reduceRight(
-          (prev, item) =>
-            Expr.Binary(
-              item,
-              new Token(TokenType.Identifier, ":", null, 0),
-              prev,
-              0
-            ),
-          Expr.Variable(new Token(TokenType.Identifier, "[]", null, 0))
+          (right, left) => ({
+            is: Expr.Is.Binary,
+            left,
+            operator: {
+              is: Expr.Is.Variable,
+              name: { type: TokenType.Identifier, lexeme: ":", from: 0 },
+            },
+            right,
+            precedence: 0,
+          }),
+          {
+            is: Expr.Is.Variable,
+            name: { type: TokenType.Identifier, lexeme: "[]", from: 0 },
+          }
         )
       );
 
-    case Expr.Type.Assignment:
-    case Expr.Type.Empty:
-      throw new Error(`Unhandled expression type: ${expr.type}`);
+    case Expr.Is.Empty:
+      throw new Error(`Unhandled expression type: ${expr.is}`);
 
     default:
       return expr satisfies never;
