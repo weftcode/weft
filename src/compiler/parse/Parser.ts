@@ -80,7 +80,7 @@ export class Parser extends BaseParser<Stmt[]> {
       if (this.peekNext().type === TokenType.RightParen) break;
 
       // Consume operator
-      let operator = this.advance();
+      let operator = { is: Expr.Is.Variable, name: this.advance() } as const;
       let right = this.expression(
         opAssociativity === "left" ? opPrecedence + 1 : opPrecedence
       );
@@ -89,18 +89,16 @@ export class Parser extends BaseParser<Stmt[]> {
       let lNull = left.is === Expr.Is.Empty;
       let rNull = right.is === Expr.Is.Empty;
       if (lNull || rNull) {
-        console.log("Parse Error");
-        console.log(JSON.stringify(operator));
         throw new ParseError(
-          operator,
+          operator.name,
           `Missing expression ${lNull ? "before" : ""}${
             lNull && rNull ? " and " : ""
-          }${rNull ? "after" : ""} the "${operator.lexeme}" operator`
+          }${rNull ? "after" : ""} the "${operator.name.lexeme}" operator`
         );
       }
 
       // Associate operator
-      left = { is: Expr.Is.Binary, left, operator, right, opPrecedence };
+      left = { is: Expr.Is.Binary, left, operator, right, precedence };
     }
 
     return left;
@@ -129,31 +127,31 @@ export class Parser extends BaseParser<Stmt[]> {
     );
   }
 
-  private grouping() {
+  private grouping(): Expr {
     if (this.match(TokenType.LeftParen)) {
       let leftParen = this.previous();
-      let leftOp: Token | null = null;
-      let rightOp: Token | null = null;
+      let leftOp: Expr.Variable | null = null;
+      let rightOp: Expr.Variable | null = null;
 
       // Check for an initial operator
       if (this.peek().type === TokenType.Operator) {
-        leftOp = this.advance();
+        leftOp = { is: Expr.Is.Variable, name: this.advance() };
       }
 
       // This is kind of a hacky way to attempt this
       if (this.match(TokenType.RightParen)) {
         if (leftOp) {
-          return { type: Expr.Is.Variable, name: leftOp };
+          return leftOp;
         } else {
           throw "Encountered unit literal, but unit isn't supported yet";
         }
       }
 
-      let expr = this.expression(0);
+      let expression = this.expression(0);
 
       // Check for a trailing operator
       if (this.peek().type === TokenType.Operator) {
-        rightOp = this.advance();
+        rightOp = { is: Expr.Is.Variable, name: this.advance() };
       }
 
       let rightParen = this.consume(
@@ -169,7 +167,7 @@ export class Parser extends BaseParser<Stmt[]> {
         let operator = leftOp ?? rightOp;
         let side: "left" | "right" = leftOp ? "left" : "right";
 
-        let op = this.operators.get(operator.lexeme);
+        let op = this.operators.get(operator.name.lexeme);
         if (!op) {
           throw new ParseError(
             this.peek(),
@@ -178,28 +176,44 @@ export class Parser extends BaseParser<Stmt[]> {
         }
         let [precedence] = op;
 
-        if (expr.is === Expr.Is.Binary && expr.precedence < precedence) {
+        if (
+          expression.is === Expr.Is.Binary &&
+          expression.precedence < precedence
+        ) {
           throw new ParseError(
-            operator,
+            operator.name,
             "Section operator must have lower precedence than expression"
           );
         }
 
-        expr = { is: Expr.Is.Section, operator, expr, side };
+        expression = { is: Expr.Is.Section, operator, expression, side };
       }
 
-      return { is: Expr.Is.Grouping, leftParen, expr, rightParen };
+      return { is: Expr.Is.Grouping, leftParen, expression, rightParen };
     } else {
       return this.functionTerm();
     }
   }
 
-  private functionTerm() {
+  private functionTerm(): Expr {
     if (this.match(TokenType.Number, TokenType.String)) {
-      return {
-        is: Expr.Is.Literal,
-        token: this.previous(),
-      };
+      let token = this.previous();
+
+      const checkLiteralToken = (
+        t: Token
+      ): t is Token & { type: TokenType.Number | TokenType.String } =>
+        token.type === TokenType.Number || token.type === TokenType.String;
+
+      // This is only necessary because `this.match` doesn't provide enough guarantees
+      // to TS that the token is of the requested type
+      if (checkLiteralToken(token)) {
+        return {
+          is: Expr.Is.Literal,
+          token,
+        };
+      } else {
+        throw new Error(`Matched with incorrect literal token: ${token.type}`);
+      }
     }
 
     if (this.match(TokenType.Identifier)) {

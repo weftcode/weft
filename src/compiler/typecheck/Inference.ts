@@ -79,7 +79,7 @@ export const W = (
         typEnv,
         {
           is: Expr.Is.Application,
-          left: { is: Expr.Is.Variable, name: expr.operator },
+          left: expr.operator,
           right: expr.left,
         },
         expr.right
@@ -129,7 +129,10 @@ export const W = (
           (right, left) => ({
             is: Expr.Is.Binary,
             left,
-            operator: { type: TokenType.Identifier, lexeme: ":", from: 0 },
+            operator: {
+              is: Expr.Is.Variable,
+              name: { type: TokenType.Identifier, lexeme: ":", from: 0 },
+            },
             right,
             precedence: 0,
           }),

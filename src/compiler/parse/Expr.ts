@@ -30,13 +30,13 @@ export namespace Expr {
   export interface Binary {
     is: Expr.Is.Binary;
     left: Expr;
-    operator: Token;
+    operator: Expr.Variable;
     right: Expr;
     precedence: number;
   }
   export interface Section {
     is: Expr.Is.Section;
-    operator: Token;
+    operator: Expr.Variable;
     expression: Expr;
     side: "left" | "right";
   }
@@ -75,10 +75,13 @@ export function expressionBounds(expr: Expr): { to: number; from: number } {
       };
     case Expr.Is.Section:
       return expr.side === "left"
-        ? { from: expr.operator.from, to: expressionBounds(expr.expression).to }
+        ? {
+            from: expressionBounds(expr.operator).from,
+            to: expressionBounds(expr.expression).to,
+          }
         : {
             from: expressionBounds(expr.expression).from,
-            to: tokenBounds(expr.operator).to,
+            to: expressionBounds(expr.operator).to,
           };
     case Expr.Is.Grouping:
       return { from: expr.leftParen.from, to: tokenBounds(expr.rightParen).to };

@@ -76,17 +76,14 @@ export class Interpreter {
         return this.evaluate(expr.expression);
       case Expr.Is.Binary: {
         const left = this.evaluate(expr.left);
+        const opFunc = this.evaluate(expr.operator);
         const right = this.evaluate(expr.right);
 
-        if (expr.operator.lexeme in this.bindings) {
-          return this.bindings[expr.operator.lexeme].value(left, right);
-        }
-
-        throw new RuntimeError(expr.operator, "Operator isn't implemented");
+        return opFunc(left, right);
       }
       case Expr.Is.Section: {
         return (input: Value) => {
-          const opFunc = this.bindings[expr.operator.lexeme].value;
+          const opFunc = this.evaluate(expr.operator);
           const operand = this.evaluate(expr.expression);
 
           return expr.side === "left"
@@ -95,14 +92,7 @@ export class Interpreter {
         };
       }
       case Expr.Is.Variable:
-        if (expr.name.lexeme in this.bindings) {
-          return this.bindings[expr.name.lexeme].value;
-        } else {
-          throw new RuntimeError(
-            expr.name,
-            `Variable "${expr.name.lexeme}" is undefined`
-          );
-        }
+        return this.bindings[expr.name.lexeme].value;
       case Expr.Is.Application: {
         const left = this.curry(expr.left);
         const right = this.evaluate(expr.right);

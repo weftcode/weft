@@ -44,29 +44,13 @@ export function expressionRenamer(
       return;
 
     case Expr.Is.Binary:
-      // Check operator
-      if (!(expr.operator.lexeme in context)) {
-        let { from, to } = tokenBounds(expr.operator);
-        reporter.error(
-          from,
-          to,
-          `Operator (${expr.operator.lexeme}) is undefined`
-        );
-      }
       expressionRenamer(expr.left, context, reporter);
+      expressionRenamer(expr.operator, context, reporter);
       expressionRenamer(expr.right, context, reporter);
       return;
 
     case Expr.Is.Section:
-      // Check operator
-      if (!(expr.operator.lexeme in context)) {
-        let { from, to } = tokenBounds(expr.operator);
-        reporter.error(
-          from,
-          to,
-          `Operator (${expr.operator.lexeme}) is undefined`
-        );
-      }
+      expressionRenamer(expr.operator, context, reporter);
       expressionRenamer(expr.expression, context, reporter);
       return;
 
