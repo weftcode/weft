@@ -1,3 +1,4 @@
+import { tokenBounds } from "../scan/Token";
 import { Expr } from "../parse/Expr";
 import { Stmt } from "../parse/Stmt";
 import { ErrorReporter } from "../parse/Reporter";
@@ -32,10 +33,8 @@ export function expressionRenamer(
     // The main case
     case Expr.Is.Variable:
       if (!(expr.name.lexeme in context)) {
-        reporter.error(
-          expr.name,
-          `Variable "${expr.name.lexeme}" is undefined`
-        );
+        let { from, to } = tokenBounds(expr.name);
+        reporter.error(from, to, `Variable "${expr.name.lexeme}" is undefined`);
       }
       return;
 
@@ -47,8 +46,10 @@ export function expressionRenamer(
     case Expr.Is.Binary:
       // Check operator
       if (!(expr.operator.lexeme in context)) {
+        let { from, to } = tokenBounds(expr.operator);
         reporter.error(
-          expr.operator,
+          from,
+          to,
           `Operator (${expr.operator.lexeme}) is undefined`
         );
       }
@@ -59,8 +60,10 @@ export function expressionRenamer(
     case Expr.Is.Section:
       // Check operator
       if (!(expr.operator.lexeme in context)) {
+        let { from, to } = tokenBounds(expr.operator);
         reporter.error(
-          expr.operator,
+          from,
+          to,
           `Operator (${expr.operator.lexeme}) is undefined`
         );
       }

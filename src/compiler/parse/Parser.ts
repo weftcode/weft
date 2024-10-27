@@ -2,7 +2,7 @@ import { BaseParser } from "./BaseParser";
 
 import { Operators } from "./API";
 
-import { Token } from "../scan/Token";
+import { Token, tokenBounds } from "../scan/Token";
 import { TokenType } from "../scan/TokenType";
 
 import { Expr } from "./Expr";
@@ -30,7 +30,8 @@ export class Parser extends BaseParser<Stmt[]> {
           statements.push(this.expressionStatement());
         } catch (error) {
           if (error instanceof ParseError) {
-            this.reporter.error(error.token, error.message);
+            let { from, to } = tokenBounds(error.token);
+            this.reporter.error(from, to, error.message);
             this.synchronize();
             break;
           } else {
@@ -197,7 +198,6 @@ export class Parser extends BaseParser<Stmt[]> {
     if (this.match(TokenType.Number, TokenType.String)) {
       return {
         is: Expr.Is.Literal,
-        value: this.previous().literal,
         token: this.previous(),
       };
     }

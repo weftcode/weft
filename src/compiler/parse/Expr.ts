@@ -1,4 +1,5 @@
-import { Token, Primitive } from "../scan/Token";
+import { Token, tokenBounds } from "../scan/Token";
+import { TokenType } from "../scan/TokenType";
 
 export type Expr =
   | Expr.Application
@@ -51,8 +52,7 @@ export namespace Expr {
   }
   export interface Literal {
     is: Expr.Is.Literal;
-    value: Primitive;
-    token: Token;
+    token: Token & { type: TokenType.Number | TokenType.String };
   }
   export interface Variable {
     is: Expr.Is.Variable;
@@ -66,7 +66,6 @@ export namespace Expr {
 }
 
 export function expressionBounds(expr: Expr): { to: number; from: number } {
-  let from: number, to: number;
   switch (expr.is) {
     case Expr.Is.Application:
     case Expr.Is.Binary:
@@ -79,18 +78,16 @@ export function expressionBounds(expr: Expr): { to: number; from: number } {
         ? { from: expr.operator.from, to: expressionBounds(expr.expression).to }
         : {
             from: expressionBounds(expr.expression).from,
-            to: expr.operator.to,
+            to: tokenBounds(expr.operator).to,
           };
     case Expr.Is.Grouping:
-      return { from: expr.leftParen.from, to: expr.rightParen.to };
+      return { from: expr.leftParen.from, to: tokenBounds(expr.rightParen).to };
     case Expr.Is.List:
       throw new Error();
     case Expr.Is.Literal:
-      ({ from, to } = expr.token);
-      return { from, to };
+      return tokenBounds(expr.token);
     case Expr.Is.Variable:
-      ({ from, to } = expr.name);
-      return { from, to };
+      return tokenBounds(expr.name);
     case Expr.Is.Empty:
       throw new Error("Empty AST nodes don't have source bounds");
     default:

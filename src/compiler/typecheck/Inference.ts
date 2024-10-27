@@ -40,8 +40,8 @@ export const W = (
       return [makeSubstitution({}), type, [new TypeInfo(expr, type)]];
     }
     case Expr.Is.Literal:
-      switch (typeof expr.value) {
-        case "string": {
+      switch (expr.token.type) {
+        case TokenType.String: {
           const type: MonoType = {
             type: "ty-app",
             C: "Pattern",
@@ -49,16 +49,12 @@ export const W = (
           };
           return [makeSubstitution({}), type, [new TypeInfo(expr, type)]];
         }
-        case "number": {
+        case TokenType.Number: {
           const type: MonoType = {
             type: "ty-app",
             C: "Pattern",
             mus: [{ type: "ty-app", C: "Number", mus: [] }],
           };
-          return [makeSubstitution({}), type, [new TypeInfo(expr, type)]];
-        }
-        case "boolean": {
-          const type: MonoType = { type: "ty-app", C: "Boolean", mus: [] };
           return [makeSubstitution({}), type, [new TypeInfo(expr, type)]];
         }
       }
@@ -99,10 +95,10 @@ export const W = (
     case Expr.Is.Section: {
       // TODO: This is likely, but not necessarily, a unique name. A better
       //       implementation would use a separate renaming step like GHC.
-      const x = (Math.random() + 1).toString(36).substring(7);
+      const lexeme = (Math.random() + 1).toString(36).substring(7);
       const xExp: Expr = {
         is: Expr.Is.Variable,
-        name: new Token(TokenType.Identifier, x, null, 0),
+        name: { type: TokenType.Identifier, lexeme, from: 0 },
       };
 
       // A section is just a binary operation wrapped in a function abstraction. One of the
@@ -111,7 +107,7 @@ export const W = (
       let right = expr.side === "right" ? xExp : expr.expression;
 
       // TODO: Does it matter that this binary expression has a made-up precedence?
-      const [substitution, type, annotations] = InferTypeAbs(typEnv, x, {
+      const [substitution, type, annotations] = InferTypeAbs(typEnv, lexeme, {
         is: Expr.Is.Binary,
         left,
         operator: expr.operator,
@@ -133,13 +129,13 @@ export const W = (
           (right, left) => ({
             is: Expr.Is.Binary,
             left,
-            operator: new Token(TokenType.Identifier, ":", null, 0),
+            operator: { type: TokenType.Identifier, lexeme: ":", from: 0 },
             right,
             precedence: 0,
           }),
           {
             is: Expr.Is.Variable,
-            name: new Token(TokenType.Identifier, "[]", null, 0),
+            name: { type: TokenType.Identifier, lexeme: "[]", from: 0 },
           }
         )
       );
