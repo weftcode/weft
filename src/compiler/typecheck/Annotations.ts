@@ -38,10 +38,7 @@ export class TypeInfo extends TypeAnnotation {
 export class MissingTypeWarning extends TypeAnnotation {
   private varName: string;
 
-  constructor(
-    expr: Expr & { type: Expr.Type.Variable },
-    private type: MonoType
-  ) {
+  constructor(expr: Expr & { is: Expr.Is.Variable }, private type: MonoType) {
     super("warning", expr);
     this.varName = expr.name.lexeme;
   }

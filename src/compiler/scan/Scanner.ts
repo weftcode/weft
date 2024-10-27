@@ -1,4 +1,4 @@
-import { Token, Primitive, ErrorToken } from "./Token";
+import { Token } from "./Token";
 import { TokenType } from "./TokenType";
 
 export class Scanner {
@@ -21,7 +21,7 @@ export class Scanner {
       this.scanToken();
     }
 
-    this.tokens.push(new Token(TokenType.EOF, "", null, this.current));
+    this.tokens.push({ type: TokenType.EOF, lexeme: "", from: this.current });
     return this.tokens;
   }
 
@@ -109,10 +109,7 @@ export class Scanner {
       while (this.isDigit(this.peek())) this.advance();
     }
 
-    this.addToken(
-      TokenType.Number,
-      parseFloat(this.source.substring(this.start, this.current))
-    );
+    this.addToken(TokenType.Number);
   }
 
   private string() {
@@ -130,8 +127,7 @@ export class Scanner {
     this.advance();
 
     // Trim the surrounding quotes.
-    const value = this.source.substring(this.start + 1, this.current - 1);
-    this.addToken(TokenType.String, value);
+    this.addToken(TokenType.String);
   }
 
   private match(expected: string) {
@@ -177,14 +173,19 @@ export class Scanner {
     this.lineStart = this.current;
   }
 
-  private addToken(type: TokenType, literal: Primitive = null) {
-    const text = this.source.substring(this.start, this.current);
-    this.tokens.push(new Token(type, text, literal, this.start));
+  private addToken(type: Exclude<TokenType, TokenType.Error>) {
+    const lexeme = this.source.substring(this.start, this.current);
+    this.tokens.push({ type, lexeme, from: this.start });
   }
 
   private addErrorToken(message: string) {
-    const text = this.source.substring(this.start, this.current);
-    this.tokens.push(new ErrorToken(text, this.start, message));
+    const lexeme = this.source.substring(this.start, this.current);
+    this.tokens.push({
+      type: TokenType.Error,
+      lexeme,
+      from: this.start,
+      message,
+    });
   }
 }
 

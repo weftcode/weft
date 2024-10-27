@@ -198,25 +198,21 @@ function generateTypeDiagnostics(
   expr: Expr,
   annotations: TypeAnnotationMap
 ): Diagnostic[] {
-  switch (expr.type) {
-    case Expr.Type.Variable:
-    case Expr.Type.Literal:
-    case Expr.Type.Empty:
-    case Expr.Type.Assignment: {
+  switch (expr.is) {
+    case Expr.Is.Variable:
+    case Expr.Is.Literal:
+    case Expr.Is.Empty:
       return annotations.has(expr) ? [annotations.get(expr)] : [];
-    }
 
-    case Expr.Type.Application:
-    case Expr.Type.Binary:
+    case Expr.Is.Application:
+    case Expr.Is.Binary:
       return generateTypeDiagnostics(expr.left, annotations).concat(
         generateTypeDiagnostics(expr.right, annotations)
       );
-    case Expr.Type.Grouping:
-    case Expr.Type.Section:
+    case Expr.Is.Grouping:
+    case Expr.Is.Section:
       return generateTypeDiagnostics(expr.expression, annotations);
-    case Expr.Type.Unary:
-      return generateTypeDiagnostics(expr.right, annotations);
-    case Expr.Type.List:
+    case Expr.Is.List:
       return expr.items.flatMap((e) => generateTypeDiagnostics(e, annotations));
     default:
       return expr satisfies never;
