@@ -1,5 +1,5 @@
 import { ErrorReporter } from "./Reporter";
-import { ErrorToken, Token } from "../scan/Token";
+import { Token } from "../scan/Token";
 import { TokenType } from "../scan/TokenType";
 
 export class ParseError extends Error {
@@ -42,7 +42,7 @@ export abstract class BaseParser<T> {
 
     let token = this.previous();
 
-    if (token instanceof ErrorToken) {
+    if (token.type === TokenType.Error) {
       throw new ParseError(token, token.message);
     }
 
