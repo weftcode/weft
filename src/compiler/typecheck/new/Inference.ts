@@ -81,23 +81,3 @@ export function inferApp(
     )
   );
 }
-
-function fnType(t1: Type, t2: Type): Type.App {
-  return {
-    is: Type.Is.App,
-    left: {
-      is: Type.Is.App,
-      left: {
-        is: Type.Is.Const,
-        id: "(->)",
-        kind: {
-          is: Kind.Is.Function,
-          left: { is: Kind.Is.Type },
-          right: { is: Kind.Is.Type },
-        },
-      },
-      right: t1,
-    },
-    right: t2,
-  };
-}
