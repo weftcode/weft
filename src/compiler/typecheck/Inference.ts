@@ -1,5 +1,5 @@
 import { Token } from "../scan/Token";
-import { Expr } from "../parse/Expr";
+import { Expr } from "../parse/AST/Expr";
 
 import {
   generalise,

@@ -1,5 +1,5 @@
-import { Token, tokenBounds } from "../scan/Token";
-import { TokenType } from "../scan/TokenType";
+import { Token, tokenBounds } from "../../scan/Token";
+import { TokenType } from "../../scan/TokenType";
 
 export type Expr =
   | Expr.Application

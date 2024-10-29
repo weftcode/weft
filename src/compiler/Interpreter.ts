@@ -1,7 +1,7 @@
 import { ErrorReporter } from "./parse/Reporter";
 import { Token, tokenBounds } from "./scan/Token";
-import { Expr } from "./parse/Expr";
-import { Stmt } from "./parse/Stmt";
+import { Expr } from "./parse/AST/Expr";
+import { Stmt } from "./parse/AST/Stmt";
 import { Bindings } from "./parse/API";
 
 import { Pattern } from "../strudel";
@@ -60,8 +60,8 @@ export class Interpreter {
   }
 
   private execute(stmt: Stmt) {
-    switch (stmt.type) {
-      case Stmt.Type.Expression:
+    switch (stmt.is) {
+      case Stmt.Is.Expression:
         return this.evaluate(stmt.expression) as any;
     }
   }

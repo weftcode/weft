@@ -5,8 +5,8 @@ import { Operators } from "./API";
 import { Token, tokenBounds } from "../scan/Token";
 import { TokenType } from "../scan/TokenType";
 
-import { Expr } from "./Expr";
-import { Stmt } from "./Stmt";
+import { Expr } from "./AST/Expr";
+import { Stmt } from "./AST/Stmt";
 import { ErrorReporter } from "./Reporter";
 
 export class Parser extends BaseParser<Stmt[]> {
@@ -44,7 +44,7 @@ export class Parser extends BaseParser<Stmt[]> {
     return statements;
   }
 
-  private expressionStatement() {
+  private expressionStatement(): Stmt {
     const expression = this.expression(0);
 
     if (!this.isAtEnd()) {
@@ -57,7 +57,7 @@ export class Parser extends BaseParser<Stmt[]> {
       this.consume(TokenType.LineBreak, "Expect new line after expression.");
     }
 
-    return Stmt.Expression(expression);
+    return { is: Stmt.Is.Expression, expression };
   }
 
   private expression(precedence: number) {
