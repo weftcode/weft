@@ -8,8 +8,9 @@ import { TokenType } from "../scan/TokenType";
 import { Expr } from "./AST/Expr";
 import { Stmt } from "./AST/Stmt";
 import { ErrorReporter } from "./Reporter";
+import { ParseInfo } from "./Utils";
 
-export class Parser extends BaseParser<Stmt[]> {
+export class Parser extends BaseParser<Stmt<ParseInfo>[]> {
   constructor(
     tokens: Token[],
     private operators: Operators,
@@ -19,7 +20,7 @@ export class Parser extends BaseParser<Stmt[]> {
   }
 
   parse() {
-    const statements: Stmt[] = [];
+    const statements: Stmt<ParseInfo>[] = [];
 
     while (!this.isAtEnd()) {
       if (this.check(TokenType.LineBreak)) {
@@ -44,7 +45,7 @@ export class Parser extends BaseParser<Stmt[]> {
     return statements;
   }
 
-  private expressionStatement(): Stmt {
+  private expressionStatement(): Stmt<ParseInfo> {
     const expression = this.expression(0);
 
     if (!this.isAtEnd()) {
@@ -60,7 +61,7 @@ export class Parser extends BaseParser<Stmt[]> {
     return { is: Stmt.Is.Expression, expression };
   }
 
-  private expression(precedence: number) {
+  private expression(precedence: number): Expr<ParseInfo> {
     let left = this.application();
 
     while (this.peek().type === TokenType.Operator) {
@@ -104,7 +105,7 @@ export class Parser extends BaseParser<Stmt[]> {
     return left;
   }
 
-  private application() {
+  private application(): Expr<ParseInfo> {
     let expr = this.grouping();
 
     while (this.peekFunctionTerm()) {
@@ -127,9 +128,9 @@ export class Parser extends BaseParser<Stmt[]> {
     );
   }
 
-  private grouping(): Expr {
+  private grouping(): Expr<ParseInfo> {
     if (this.match(TokenType.LeftParen)) {
-      let leftParen = this.previous();
+      let leftWrapper = this.previous();
       let leftOp: Expr.Variable | null = null;
       let rightOp: Expr.Variable | null = null;
 
@@ -154,7 +155,7 @@ export class Parser extends BaseParser<Stmt[]> {
         rightOp = { is: Expr.Is.Variable, name: this.advance() };
       }
 
-      let rightParen = this.consume(
+      let rightWrapper = this.consume(
         TokenType.RightParen,
         "Expect ')' after expression."
       );
@@ -164,7 +165,7 @@ export class Parser extends BaseParser<Stmt[]> {
       if (leftOp) {
         // Operator on both sides of a parenthesized expression: (+ 1 +)
         if (rightOp) {
-          throw new ParseError(rightParen, "Expect expression.");
+          throw new ParseError(rightWrapper, "Expect expression.");
         }
 
         sectionOp = { operator: leftOp, side: "left" };
@@ -197,20 +198,20 @@ export class Parser extends BaseParser<Stmt[]> {
         expression = { is: Expr.Is.Section, operator, expression, side };
       }
 
-      return { is: Expr.Is.Grouping, leftParen, expression, rightParen };
+      return { is: Expr.Is.Grouping, expression, leftWrapper, rightWrapper };
     } else {
       return this.functionTerm();
     }
   }
 
-  private functionTerm(): Expr {
+  private functionTerm(): Expr<ParseInfo> {
     if (this.match(TokenType.Number, TokenType.String)) {
       let token = this.previous();
 
       const checkLiteralToken = (
         t: Token
       ): t is Token & { type: TokenType.Number | TokenType.String } =>
-        token.type === TokenType.Number || token.type === TokenType.String;
+        t.type === TokenType.Number || t.type === TokenType.String;
 
       // This is only necessary because `this.match` doesn't provide enough guarantees
       // to TS that the token is of the requested type
@@ -229,7 +230,8 @@ export class Parser extends BaseParser<Stmt[]> {
     }
 
     if (this.match(TokenType.LeftBracket)) {
-      let items: Expr[] = [];
+      let leftWrapper = this.previous();
+      let items: Expr<ParseInfo>[] = [];
 
       while (!this.match(TokenType.RightBracket)) {
         if (this.isAtEnd()) {
@@ -243,7 +245,9 @@ export class Parser extends BaseParser<Stmt[]> {
         items.push(this.expression(0));
       }
 
-      return { is: Expr.Is.List, items };
+      let rightWrapper = this.previous();
+
+      return { is: Expr.Is.List, items, leftWrapper, rightWrapper };
     }
 
     return { is: Expr.Is.Empty };

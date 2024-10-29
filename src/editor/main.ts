@@ -192,7 +192,7 @@ const parseLinter = linter((view) => {
   }
 });
 
-import { Expr, expressionBounds } from "../compiler/parse/AST/Expr";
+import { Expr } from "../compiler/parse/AST/Expr";
 import { TypeAnnotation } from "../compiler/typecheck/Annotations";
 import { renamer } from "../compiler/rename/Renamer";
 

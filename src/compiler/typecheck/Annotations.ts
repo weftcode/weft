@@ -1,4 +1,6 @@
-import { Expr, expressionBounds } from "../parse/AST/Expr";
+import { Expr } from "../parse/AST/Expr";
+import { Stmt } from "../parse/AST/Stmt";
+import { ParseInfo, expressionBounds } from "../parse/Utils";
 import { printType } from "./Printer";
 import { MonoType } from "./Types";
 import { Substitution } from "./Utilities";
@@ -6,7 +8,7 @@ import { Substitution } from "./Utilities";
 type Severity = "info" | "warning" | "error";
 
 export abstract class TypeAnnotation {
-  constructor(readonly severity: Severity, readonly expr: Expr) {}
+  constructor(readonly severity: Severity, readonly expr: Expr<ParseInfo>) {}
 
   abstract get message(): string;
 
@@ -22,7 +24,7 @@ export abstract class TypeAnnotation {
 }
 
 export class TypeInfo extends TypeAnnotation {
-  constructor(expr: Expr, private type: MonoType) {
+  constructor(expr: Expr<ParseInfo>, private type: MonoType) {
     super("info", expr);
   }
 
@@ -55,7 +57,11 @@ export class MissingTypeWarning extends TypeAnnotation {
 }
 
 export class UnificationError extends TypeAnnotation {
-  constructor(expr: Expr, private type1: MonoType, private type2: MonoType) {
+  constructor(
+    expr: Expr<ParseInfo>,
+    private type1: MonoType,
+    private type2: MonoType
+  ) {
     super("error", expr);
   }
 
@@ -72,7 +78,7 @@ export class UnificationError extends TypeAnnotation {
 }
 
 export class ApplicationError extends TypeAnnotation {
-  constructor(expr: Expr) {
+  constructor(expr: Expr<ParseInfo>) {
     super("error", expr);
   }
 

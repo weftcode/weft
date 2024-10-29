@@ -1,15 +1,15 @@
 import { Token, tokenBounds } from "../../scan/Token";
 import { TokenType } from "../../scan/TokenType";
 
-export type Expr =
-  | Expr.Application
-  | Expr.Binary
-  | Expr.Section
-  | Expr.Grouping
-  | Expr.List
-  | Expr.Literal
-  | Expr.Variable
-  | Expr.Empty;
+export type Expr<Extend extends Expr.Extension = Expr.Extension> =
+  | Expr.Application<Extend>
+  | Expr.Binary<Extend>
+  | Expr.Section<Extend>
+  | Expr.Grouping<Extend>
+  | Expr.List<Extend>
+  | Expr.Literal<Extend>
+  | Expr.Variable<Extend>
+  | Expr.Empty<Extend>;
 
 export namespace Expr {
   export enum Is {
@@ -23,77 +23,59 @@ export namespace Expr {
     Empty = "Empty",
   }
 
-  export interface Empty {
-    is: Expr.Is.Empty;
+  export interface Extension {
+    "Expr.Application": object;
+    "Expr.Binary": object;
+    "Expr.Section": object;
+    "Expr.Grouping": object;
+    "Expr.List": object;
+    "Expr.Literal": object;
+    "Expr.Variable": object;
+    "Expr.Empty": object;
   }
 
-  export interface Binary {
-    is: Expr.Is.Binary;
-    left: Expr;
-    operator: Expr.Variable;
-    right: Expr;
+  export type Empty<Extend extends Extension = Extension> = {
+    is: Is.Empty;
+  } & Extend["Expr.Empty"];
+
+  export type Binary<Extend extends Extension = Extension> = {
+    is: Is.Binary;
+    left: Expr<Extend>;
+    operator: Variable<Extend>;
+    right: Expr<Extend>;
     precedence: number;
-  }
-  export interface Section {
-    is: Expr.Is.Section;
-    operator: Expr.Variable;
-    expression: Expr;
-    side: "left" | "right";
-  }
-  export interface Grouping {
-    is: Expr.Is.Grouping;
-    leftParen: Token;
-    expression: Expr;
-    rightParen: Token;
-  }
-  export interface List {
-    is: Expr.Is.List;
-    items: Expr[];
-  }
-  export interface Literal {
-    is: Expr.Is.Literal;
-    token: Token & { type: TokenType.Number | TokenType.String };
-  }
-  export interface Variable {
-    is: Expr.Is.Variable;
-    name: Token;
-  }
-  export interface Application {
-    is: Expr.Is.Application;
-    left: Expr;
-    right: Expr;
-  }
-}
+  } & Extend["Expr.Binary"];
 
-export function expressionBounds(expr: Expr): { to: number; from: number } {
-  switch (expr.is) {
-    case Expr.Is.Application:
-    case Expr.Is.Binary:
-      return {
-        from: expressionBounds(expr.left).from,
-        to: expressionBounds(expr.right).to,
-      };
-    case Expr.Is.Section:
-      return expr.side === "left"
-        ? {
-            from: expressionBounds(expr.operator).from,
-            to: expressionBounds(expr.expression).to,
-          }
-        : {
-            from: expressionBounds(expr.expression).from,
-            to: expressionBounds(expr.operator).to,
-          };
-    case Expr.Is.Grouping:
-      return { from: expr.leftParen.from, to: tokenBounds(expr.rightParen).to };
-    case Expr.Is.List:
-      throw new Error();
-    case Expr.Is.Literal:
-      return tokenBounds(expr.token);
-    case Expr.Is.Variable:
-      return tokenBounds(expr.name);
-    case Expr.Is.Empty:
-      throw new Error("Empty AST nodes don't have source bounds");
-    default:
-      return expr satisfies never;
-  }
+  export type Section<Extend extends Extension = Extension> = {
+    is: Is.Section;
+    operator: Variable<Extend>;
+    expression: Expr<Extend>;
+    side: "left" | "right";
+  } & Extend["Expr.Section"];
+
+  export type Grouping<Extend extends Extension = Extension> = {
+    is: Is.Grouping;
+    expression: Expr<Extend>;
+  } & Extend["Expr.Grouping"];
+
+  export type List<Extend extends Extension = Extension> = {
+    is: Is.List;
+    items: Expr<Extend>[];
+  } & Extend["Expr.List"];
+
+  export type Literal<Extend extends Extension = Extension> = {
+    is: Is.Literal;
+    token: Token & { type: TokenType.Number | TokenType.String };
+  } & Extend["Expr.Literal"];
+
+  export type Variable<Extend extends Extension = Extension> = {
+    is: Is.Variable;
+    name: Token;
+  } & Extend["Expr.Variable"];
+
+  export type Application<Extend extends Extension = Extension> = {
+    is: Is.Application;
+    left: Expr<Extend>;
+    right: Expr<Extend>;
+  } & Extend["Expr.Application"];
 }

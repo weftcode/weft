@@ -1,5 +1,5 @@
-import { Token } from "../scan/Token";
 import { Expr } from "../parse/AST/Expr";
+import { ParseInfo } from "../parse/Utils";
 
 import {
   generalise,
@@ -21,7 +21,7 @@ import {
 
 export const W = (
   typEnv: Context,
-  expr: Expr
+  expr: Expr<ParseInfo>
 ): [Substitution, MonoType | null, TypeAnnotation[]] => {
   switch (expr.is) {
     case Expr.Is.Variable: {
@@ -154,7 +154,7 @@ export const W = (
 function InferTypeAbs(
   typeEnv: Context,
   x: string,
-  expr: Expr
+  expr: Expr<ParseInfo>
 ): [Substitution, MonoType | null, TypeAnnotation[]] {
   const beta = newTypeVar();
   const [s1, t1, a1] = W(
@@ -180,8 +180,8 @@ function InferTypeAbs(
 
 function InferTypeApp(
   typeEnv: Context,
-  expr1: Expr,
-  expr2: Expr
+  expr1: Expr<ParseInfo>,
+  expr2: Expr<ParseInfo>
 ): [Substitution, MonoType | null, TypeAnnotation[]] {
   const [s1, t1, a1] = W(typeEnv, expr1);
   const [s2, t2, a2] = W(s1(typeEnv), expr2);
