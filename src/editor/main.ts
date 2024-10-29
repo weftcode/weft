@@ -48,7 +48,9 @@ async function decodeDoc(encodedDoc: string) {
   const stream = new ReadableStream({
     start: (controller) => {
       const binString = atob(encodedDoc);
-      controller.enqueue(Uint8Array.from(binString, (m) => m.codePointAt(0)));
+      controller.enqueue(
+        Uint8Array.from(binString, (m) => m.codePointAt(0) ?? 0)
+      );
       controller.close();
     },
   })
@@ -139,11 +141,13 @@ function handleEvaluation(code: string) {
       });
     }
   } catch (error) {
-    consoleComponent.update({
-      input: code,
-      success: false,
-      text: "Error: " + error.message,
-    });
+    if (error instanceof Error) {
+      consoleComponent.update({
+        input: code,
+        success: false,
+        text: "Error: " + error.message,
+      });
+    }
   }
 }
 
@@ -202,7 +206,8 @@ function generateTypeDiagnostics(
     case Expr.Is.Variable:
     case Expr.Is.Literal:
     case Expr.Is.Empty:
-      return annotations.has(expr) ? [annotations.get(expr)] : [];
+      let annotation = annotations.get(expr);
+      return annotation ? [annotation] : [];
 
     case Expr.Is.Application:
     case Expr.Is.Binary:
@@ -241,7 +246,7 @@ window.addEventListener("load", async () => {
     }
   });
 
-  document.getElementById("output").appendChild(consoleComponent.dom);
+  document.getElementById("output")?.appendChild(consoleComponent.dom);
 
   new EditorView({
     doc,
@@ -255,6 +260,6 @@ window.addEventListener("load", async () => {
       editorTheme,
       evalTheme,
     ],
-    parent: document.getElementById("editor"),
+    parent: document.getElementById("editor") ?? undefined,
   });
 });

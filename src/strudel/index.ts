@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 import { Bindings, expandSynonyms } from "../compiler/parse/API";
 
 export { Pattern } from "@strudel/core";

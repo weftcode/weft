@@ -70,7 +70,7 @@ export const W = (
       return [
         substitution,
         type,
-        annotations.concat([new TypeInfo(expr, type)]),
+        annotations.concat(type ? [new TypeInfo(expr, type)] : []),
       ];
     }
 
@@ -88,7 +88,7 @@ export const W = (
       return [
         substitution,
         type,
-        annotations.concat([new TypeInfo(expr, type)]),
+        annotations.concat(type ? [new TypeInfo(expr, type)] : []),
       ];
     }
 
@@ -117,7 +117,7 @@ export const W = (
       return [
         substitution,
         type,
-        annotations.concat([new TypeInfo(expr, type)]),
+        annotations.concat(type ? [new TypeInfo(expr, type)] : []),
       ];
     }
 

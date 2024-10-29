@@ -213,7 +213,9 @@ const ascSymbol = new Set([
   ":",
 ]);
 
-const special = {
+type TokenSet = { [lexeme: string]: Exclude<TokenType, TokenType.Error> };
+
+const special: TokenSet = {
   "(": TokenType.LeftParen,
   ")": TokenType.RightParen,
   ",": TokenType.Comma,
@@ -227,7 +229,7 @@ const special = {
 
 // Reserved operators. Unused operators are mapped to an error
 // token.
-const reservedop = {
+const reservedop: TokenSet = {
   "..": TokenType.DotDot,
   ":": TokenType.Colon,
   "::": TokenType.ColonColon,
@@ -243,7 +245,7 @@ const reservedop = {
 
 // Reserved identifiers. Currently all unused, so they're mapped
 // to a single error token
-const reserved = {
+const reserved: TokenSet = {
   case: TokenType.UnusedKeyword,
   class: TokenType.UnusedKeyword,
   data: TokenType.UnusedKeyword,

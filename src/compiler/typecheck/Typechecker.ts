@@ -1,6 +1,4 @@
-import { Expr, expressionBounds } from "../parse/Expr";
 import { Stmt } from "../parse/Stmt";
-import { Environment } from "../parse/Environment";
 import { ErrorReporter } from "../parse/Reporter";
 
 import { Scanner } from "../scan/Scanner";

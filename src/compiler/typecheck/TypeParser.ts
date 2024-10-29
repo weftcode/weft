@@ -35,7 +35,7 @@ export class TypeParser extends BaseParser<PolyType> {
     if (constructor !== null) {
       if (constructor.type === "ty-app") {
         let mus: MonoType[] = [];
-        let param: MonoType;
+        let param: MonoType | null;
 
         while ((param = this.typeTerm())) {
           mus.push(param);

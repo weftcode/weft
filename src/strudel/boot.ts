@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 import { reify, Cyclist, silence, stack } from "@strudel/core";
 import { registerVoicings } from "@strudel/tonal";
 import { simple } from "@strudel/tonal/ireal.mjs";

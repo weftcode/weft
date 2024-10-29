@@ -159,15 +159,23 @@ export class Parser extends BaseParser<Stmt[]> {
         "Expect ')' after expression."
       );
 
-      if (leftOp || rightOp) {
-        if (leftOp && rightOp) {
+      let sectionOp: Pick<Expr.Section, "operator" | "side"> | null = null;
+
+      if (leftOp) {
+        // Operator on both sides of a parenthesized expression: (+ 1 +)
+        if (rightOp) {
           throw new ParseError(rightParen, "Expect expression.");
         }
 
-        let operator = leftOp ?? rightOp;
-        let side: "left" | "right" = leftOp ? "left" : "right";
+        sectionOp = { operator: leftOp, side: "left" };
+      } else if (rightOp) {
+        sectionOp = { operator: rightOp, side: "right" };
+      }
 
+      if (sectionOp) {
+        let { operator, side } = sectionOp;
         let op = this.operators.get(operator.name.lexeme);
+
         if (!op) {
           throw new ParseError(
             this.peek(),

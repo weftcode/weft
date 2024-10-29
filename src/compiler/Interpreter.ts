@@ -50,7 +50,7 @@ export class Interpreter {
     if (object instanceof Pattern) {
       return (object as Pattern)
         .firstCycle()
-        .map((hap) => hap.show(true))
+        .map((hap: any) => hap.show(true))
         .join(", ");
     }
 
