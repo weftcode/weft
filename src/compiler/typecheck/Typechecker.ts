@@ -1,5 +1,4 @@
 import { Stmt } from "../parse/AST/Stmt";
-import { ParseInfo } from "../parse/Utils";
 import { ErrorReporter } from "../parse/Reporter";
 
 import { Scanner } from "../scan/Scanner";
@@ -35,7 +34,7 @@ export class TypeChecker {
     }
   }
 
-  check(statement: Stmt<ParseInfo>) {
+  check(statement: Stmt) {
     try {
       switch (statement.is) {
         case Stmt.Is.Expression:

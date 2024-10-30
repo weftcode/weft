@@ -56,11 +56,15 @@ export namespace Expr {
   export type Grouping<Extend extends Extension = Extension> = {
     is: Is.Grouping;
     expression: Expr<Extend>;
+    leftParen: Token;
+    rightParen: Token;
   } & Extend["Expr.Grouping"];
 
   export type List<Extend extends Extension = Extension> = {
     is: Is.List;
     items: Expr<Extend>[];
+    leftBracket: Token;
+    rightBracket: Token;
   } & Extend["Expr.List"];
 
   export type Literal<Extend extends Extension = Extension> = {

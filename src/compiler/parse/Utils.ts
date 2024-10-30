@@ -2,17 +2,7 @@ import { Token, tokenBounds } from "../scan/Token";
 import { Expr } from "./AST/Expr";
 import { Stmt } from "./AST/Stmt";
 
-interface WrappingTokens {
-  leftWrapper: Token;
-  rightWrapper: Token;
-}
-
-export type ParseInfo = {
-  "Expr.Grouping": WrappingTokens;
-  "Expr.List": WrappingTokens;
-} & Stmt.Extension;
-
-export function expressionBounds(expr: Expr<ParseInfo>): {
+export function expressionBounds(expr: Expr): {
   to: number;
   from: number;
 } {
@@ -35,13 +25,13 @@ export function expressionBounds(expr: Expr<ParseInfo>): {
           };
     case Expr.Is.Grouping:
       return {
-        from: expr.leftWrapper.from,
-        to: tokenBounds(expr.rightWrapper).to,
+        from: expr.leftParen.from,
+        to: tokenBounds(expr.rightParen).to,
       };
     case Expr.Is.List:
       return {
-        from: expr.leftWrapper.from,
-        to: tokenBounds(expr.rightWrapper).to,
+        from: expr.leftBracket.from,
+        to: tokenBounds(expr.rightBracket).to,
       };
     case Expr.Is.Literal:
       return tokenBounds(expr.token);

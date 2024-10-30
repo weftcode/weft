@@ -8,9 +8,8 @@ import { TokenType } from "../scan/TokenType";
 import { Expr } from "./AST/Expr";
 import { Stmt } from "./AST/Stmt";
 import { ErrorReporter } from "./Reporter";
-import { ParseInfo } from "./Utils";
 
-export class Parser extends BaseParser<Stmt<ParseInfo>[]> {
+export class Parser extends BaseParser<Stmt[]> {
   constructor(
     tokens: Token[],
     private operators: Operators,
@@ -20,7 +19,7 @@ export class Parser extends BaseParser<Stmt<ParseInfo>[]> {
   }
 
   parse() {
-    const statements: Stmt<ParseInfo>[] = [];
+    const statements: Stmt[] = [];
 
     while (!this.isAtEnd()) {
       if (this.check(TokenType.LineBreak)) {
@@ -45,7 +44,7 @@ export class Parser extends BaseParser<Stmt<ParseInfo>[]> {
     return statements;
   }
 
-  private expressionStatement(): Stmt<ParseInfo> {
+  private expressionStatement(): Stmt {
     const expression = this.expression(0);
 
     if (!this.isAtEnd()) {
@@ -61,7 +60,7 @@ export class Parser extends BaseParser<Stmt<ParseInfo>[]> {
     return { is: Stmt.Is.Expression, expression };
   }
 
-  private expression(precedence: number): Expr<ParseInfo> {
+  private expression(precedence: number): Expr {
     let left = this.application();
 
     while (this.peek().type === TokenType.Operator) {
@@ -105,7 +104,7 @@ export class Parser extends BaseParser<Stmt<ParseInfo>[]> {
     return left;
   }
 
-  private application(): Expr<ParseInfo> {
+  private application(): Expr {
     let expr = this.grouping();
 
     while (this.peekFunctionTerm()) {
@@ -128,9 +127,9 @@ export class Parser extends BaseParser<Stmt<ParseInfo>[]> {
     );
   }
 
-  private grouping(): Expr<ParseInfo> {
+  private grouping(): Expr {
     if (this.match(TokenType.LeftParen)) {
-      let leftWrapper = this.previous();
+      let leftParen = this.previous();
       let leftOp: Expr.Variable | null = null;
       let rightOp: Expr.Variable | null = null;
 
@@ -155,7 +154,7 @@ export class Parser extends BaseParser<Stmt<ParseInfo>[]> {
         rightOp = { is: Expr.Is.Variable, name: this.advance() };
       }
 
-      let rightWrapper = this.consume(
+      let rightParen = this.consume(
         TokenType.RightParen,
         "Expect ')' after expression."
       );
@@ -165,7 +164,7 @@ export class Parser extends BaseParser<Stmt<ParseInfo>[]> {
       if (leftOp) {
         // Operator on both sides of a parenthesized expression: (+ 1 +)
         if (rightOp) {
-          throw new ParseError(rightWrapper, "Expect expression.");
+          throw new ParseError(rightParen, "Expect expression.");
         }
 
         sectionOp = { operator: leftOp, side: "left" };
@@ -198,13 +197,13 @@ export class Parser extends BaseParser<Stmt<ParseInfo>[]> {
         expression = { is: Expr.Is.Section, operator, expression, side };
       }
 
-      return { is: Expr.Is.Grouping, expression, leftWrapper, rightWrapper };
+      return { is: Expr.Is.Grouping, expression, leftParen, rightParen };
     } else {
       return this.functionTerm();
     }
   }
 
-  private functionTerm(): Expr<ParseInfo> {
+  private functionTerm(): Expr {
     if (this.match(TokenType.Number, TokenType.String)) {
       let token = this.previous();
 
@@ -230,8 +229,8 @@ export class Parser extends BaseParser<Stmt<ParseInfo>[]> {
     }
 
     if (this.match(TokenType.LeftBracket)) {
-      let leftWrapper = this.previous();
-      let items: Expr<ParseInfo>[] = [];
+      let leftBracket = this.previous();
+      let items: Expr[] = [];
 
       while (!this.match(TokenType.RightBracket)) {
         if (this.isAtEnd()) {
@@ -245,9 +244,9 @@ export class Parser extends BaseParser<Stmt<ParseInfo>[]> {
         items.push(this.expression(0));
       }
 
-      let rightWrapper = this.previous();
+      let rightBracket = this.previous();
 
-      return { is: Expr.Is.List, items, leftWrapper, rightWrapper };
+      return { is: Expr.Is.List, items, leftBracket, rightBracket };
     }
 
     return { is: Expr.Is.Empty };

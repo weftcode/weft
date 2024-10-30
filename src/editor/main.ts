@@ -107,10 +107,9 @@ function handleEvaluation(code: string) {
       let typechecker = new TypeChecker(reporter, typeBindings);
 
       for (let stmt of stmts) {
-        let [sub, type, annotations] = typechecker.check(stmt);
-        annotations.forEach((annotation) => {
+        let [sub, expr] = typechecker.check(stmt);
+        generateTypeDiagnostics(sub, expr).forEach((annotation) => {
           if (annotation.severity === "error") {
-            annotation.apply(sub);
             reporter.error(annotation.from, annotation.to, annotation.message);
           }
         });
@@ -168,12 +167,9 @@ const parseLinter = linter((view) => {
     const typechecker = new TypeChecker(reporter, typeBindings);
 
     for (let stmt of stmts) {
-      let [_s, _t, annotations] = typechecker.check(stmt);
+      let [sub, expr] = typechecker.check(stmt);
 
-      let annotationMap = new WeakMap(annotations.map((a) => [a.expr, a]));
-      diagnostics = diagnostics.concat(
-        generateTypeDiagnostics(stmt.expression, annotationMap)
-      );
+      diagnostics = diagnostics.concat(generateTypeDiagnostics(sub, expr));
     }
 
     if (reporter.hasError) {
@@ -193,32 +189,48 @@ const parseLinter = linter((view) => {
 });
 
 import { Expr } from "../compiler/parse/AST/Expr";
-import { TypeAnnotation } from "../compiler/typecheck/Annotations";
+import {
+  TypeInfo,
+  TypeInfoAnnotation,
+  getType,
+} from "../compiler/typecheck/Annotations";
 import { renamer } from "../compiler/rename/Renamer";
-
-type TypeAnnotationMap = WeakMap<Expr, TypeAnnotation>;
+import { Substitution } from "../compiler/typecheck/Utilities";
 
 function generateTypeDiagnostics(
-  expr: Expr,
-  annotations: TypeAnnotationMap
+  sub: Substitution,
+  expr: Expr<TypeInfo>
 ): Diagnostic[] {
+  // Dispense with the simplest cases
+  switch (expr.is) {
+    case Expr.Is.Grouping:
+      return generateTypeDiagnostics(sub, expr.expression);
+    case Expr.Is.Empty:
+      return [];
+  }
+
+  // Now, check for a type annotation
+  let { typeAnnotation } = expr;
+  if (typeAnnotation) {
+    typeAnnotation.apply(sub);
+    return [typeAnnotation];
+  }
+
   switch (expr.is) {
     case Expr.Is.Variable:
     case Expr.Is.Literal:
-    case Expr.Is.Empty:
-      let annotation = annotations.get(expr);
-      return annotation ? [annotation] : [];
+      let type = getType(expr);
+      return type ? [new TypeInfoAnnotation(expr, sub(type))] : [];
 
     case Expr.Is.Application:
     case Expr.Is.Binary:
-      return generateTypeDiagnostics(expr.left, annotations).concat(
-        generateTypeDiagnostics(expr.right, annotations)
+      return generateTypeDiagnostics(sub, expr.left).concat(
+        generateTypeDiagnostics(sub, expr.right)
       );
-    case Expr.Is.Grouping:
     case Expr.Is.Section:
-      return generateTypeDiagnostics(expr.expression, annotations);
+      return generateTypeDiagnostics(sub, expr.expression);
     case Expr.Is.List:
-      return expr.items.flatMap((e) => generateTypeDiagnostics(e, annotations));
+      return expr.items.flatMap((e) => generateTypeDiagnostics(sub, e));
     default:
       return expr satisfies never;
   }
