@@ -68,6 +68,7 @@ function apply(
   }
 
   if (value.type === "ty-lit") {
+    if (s.raw[value.name]) return s.raw[value.name];
     return value;
   }
 
@@ -87,6 +88,14 @@ export const newTypeVar = (): TypeVariable => ({
   type: "ty-var",
   a: `t${currentTypeVar++}`,
 });
+
+export function newLiteral(litType: "string" | "number"): LiteralType {
+  return {
+    type: "ty-lit",
+    name: `t${currentTypeVar++}`,
+    litType,
+  };
+}
 
 // instantiate
 // mappings = { a |-> t0, b |-> t1 }
@@ -226,34 +235,41 @@ export function unify(type1: MonoType, type2: MonoType): Substitution | null {
   return s;
 }
 
-let litVar = 0;
-
 function unifyLiteral(type1: LiteralType, type2: MonoType) {
   if (type1.litType === "string") {
+    // Two possible substitutions for string literals: String and Pattern a
+    const stringSub = makeSubstitution({
+      [type1.name]: { type: "ty-app", C: "String", mus: [] },
+    });
+    const patSub = makeSubstitution({
+      [type1.name]: {
+        type: "ty-app",
+        C: "Pattern",
+        mus: [newTypeVar()],
+      },
+    });
+
     return (
-      // String literals unify with a string or with an arbitrary pattern (as mininotation)
-      unify({ type: "ty-app", C: "String", mus: [] }, type2) ??
-      unify(
-        {
-          type: "ty-app",
-          C: "Pattern",
-          mus: [{ type: "ty-var", a: `litvar${litVar++}` }],
-        },
-        type2
-      )
+      unify(stringSub(type1), type2)?.(stringSub) ??
+      unify(patSub(type1), type2)?.(patSub) ??
+      null
     );
   } else {
+    // Two possible substitutions for numeric literals: Number and Pattern Number
+    const numberSub = makeSubstitution({
+      [type1.name]: { type: "ty-app", C: "Number", mus: [] },
+    });
+    const patSub = makeSubstitution({
+      [type1.name]: {
+        type: "ty-app",
+        C: "Pattern",
+        mus: [{ type: "ty-app", C: "Number", mus: [] }],
+      },
+    });
     return (
-      // Numeric literals unify with a number or with a pattern of numbers
-      unify({ type: "ty-app", C: "Number", mus: [] }, type2) ??
-      unify(
-        {
-          type: "ty-app",
-          C: "Pattern",
-          mus: [{ type: "ty-app", C: "Number", mus: [] }],
-        },
-        type2
-      )
+      unify(numberSub(type1), type2)?.(numberSub) ??
+      unify(patSub(type1), type2)?.(patSub) ??
+      null
     );
   }
 }

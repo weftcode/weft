@@ -17,6 +17,7 @@ export interface TypeCommon {}
 
 export interface LiteralType extends TypeCommon {
   type: "ty-lit";
+  name: string;
   litType: "string" | "number";
 }
 

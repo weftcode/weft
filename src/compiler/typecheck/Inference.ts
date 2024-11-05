@@ -4,6 +4,7 @@ import {
   generalise,
   instantiate,
   makeSubstitution,
+  newLiteral,
   newTypeVar,
   Substitution,
   unify,
@@ -45,11 +46,9 @@ export const W = (
     }
 
     case Expr.Is.Literal:
-      const type: MonoType = {
-        type: "ty-lit",
-        litType: expr.token.type === TokenType.Number ? "number" : "string",
-      };
-      return [makeSubstitution({}), { ...expr, type }];
+      const litType =
+        expr.token.type === TokenType.Number ? "number" : "string";
+      return [makeSubstitution({}), { ...expr, type: newLiteral(litType) }];
 
     case Expr.Is.Grouping: {
       const [sub, expression] = W(typEnv, expr.expression);
