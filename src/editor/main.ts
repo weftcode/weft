@@ -128,7 +128,7 @@ function handleEvaluation(code: string) {
     } else {
       const interpreter = new Interpreter(reporter, bindings);
 
-      let results = interpreter.interpret(stmts);
+      let results = interpreter.interpret(stmts, 0);
       let text = [...results, ...reporter.errors].join("\n");
 
       if (text === "") {
@@ -249,7 +249,7 @@ window.addEventListener("load", async () => {
   new EditorView({
     doc,
     extensions: [
-      evaluation(handleEvaluation),
+      evaluation(bindings, typeBindings),
       basicSetup,
       StreamLanguage.define(haskell),
       parseLinter,

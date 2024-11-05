@@ -4,10 +4,12 @@ import { Expr } from "./parse/Expr";
 import { Stmt } from "./parse/Stmt";
 import { Bindings } from "./parse/API";
 
-import { Pattern } from "../strudel";
+import { Pattern, parseMini } from "../strudel";
 import { TokenType } from "./scan/TokenType";
 
 type Value = Value[] | ((input: Value) => Value);
+
+export type Location = [string, { from: number; to: number }];
 
 export class Interpreter {
   constructor(
@@ -15,8 +17,15 @@ export class Interpreter {
     private bindings: Bindings
   ) {}
 
-  interpret(statements: Stmt[]) {
+  private currentID: number = 0;
+
+  private miniNotationLocations: Location[] = [];
+
+  interpret(statements: Stmt[], id: number): [string[], Location[]] {
     let results: string[] = [];
+
+    this.currentID = id;
+    this.miniNotationLocations = [];
 
     try {
       for (let statement of statements) {
@@ -42,7 +51,7 @@ export class Interpreter {
       }
     }
 
-    return results;
+    return [results, this.miniNotationLocations];
   }
 
   private stringify(object: any) {
@@ -101,14 +110,26 @@ export class Interpreter {
     }
   }
 
-  private evaluateLiteral({ token }: Expr.Literal): string | number {
+  private evaluateLiteral({ token }: Expr.Literal): string | number | any {
     switch (token.type) {
       case TokenType.Number:
         // Parse number
         return parseFloat(token.lexeme);
       case TokenType.String:
-        // Trim surrounding quotes
-        return token.lexeme.substring(1, token.lexeme.length - 1);
+        const stringValue = token.lexeme.substring(1, token.lexeme.length - 1);
+
+        // TODO: Only do this for Patterns
+        let id = `${this.currentID}-${this.miniNotationLocations.length}`;
+        let { from, to } = tokenBounds(token);
+        this.miniNotationLocations.push([id, { from, to }]);
+
+        return parseMini(stringValue).withContext(({ locations, ...ctx }) => ({
+          locations: locations.map((loc) => ({ ...loc, id })),
+          ...ctx,
+        }));
+
+      // Trim surrounding quotes
+      // return token.lexeme.substring(1, token.lexeme.length - 1);
     }
   }
 
