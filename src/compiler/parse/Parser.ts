@@ -5,8 +5,8 @@ import { Operators } from "./API";
 import { Token, tokenBounds } from "../scan/Token";
 import { TokenType } from "../scan/TokenType";
 
-import { Expr } from "./Expr";
-import { Stmt } from "./Stmt";
+import { Expr } from "./AST/Expr";
+import { Stmt } from "./AST/Stmt";
 import { ErrorReporter } from "./Reporter";
 
 export class Parser extends BaseParser<Stmt[]> {
@@ -44,7 +44,7 @@ export class Parser extends BaseParser<Stmt[]> {
     return statements;
   }
 
-  private expressionStatement() {
+  private expressionStatement(): Stmt {
     const expression = this.expression(0);
 
     if (!this.isAtEnd()) {
@@ -57,10 +57,10 @@ export class Parser extends BaseParser<Stmt[]> {
       this.consume(TokenType.LineBreak, "Expect new line after expression.");
     }
 
-    return Stmt.Expression(expression);
+    return { is: Stmt.Is.Expression, expression };
   }
 
-  private expression(precedence: number) {
+  private expression(precedence: number): Expr {
     let left = this.application();
 
     while (this.peek().type === TokenType.Operator) {
@@ -104,7 +104,7 @@ export class Parser extends BaseParser<Stmt[]> {
     return left;
   }
 
-  private application() {
+  private application(): Expr {
     let expr = this.grouping();
 
     while (this.peekFunctionTerm()) {
@@ -159,15 +159,23 @@ export class Parser extends BaseParser<Stmt[]> {
         "Expect ')' after expression."
       );
 
-      if (leftOp || rightOp) {
-        if (leftOp && rightOp) {
+      let sectionOp: Pick<Expr.Section, "operator" | "side"> | null = null;
+
+      if (leftOp) {
+        // Operator on both sides of a parenthesized expression: (+ 1 +)
+        if (rightOp) {
           throw new ParseError(rightParen, "Expect expression.");
         }
 
-        let operator = leftOp ?? rightOp;
-        let side: "left" | "right" = leftOp ? "left" : "right";
+        sectionOp = { operator: leftOp, side: "left" };
+      } else if (rightOp) {
+        sectionOp = { operator: rightOp, side: "right" };
+      }
 
+      if (sectionOp) {
+        let { operator, side } = sectionOp;
         let op = this.operators.get(operator.name.lexeme);
+
         if (!op) {
           throw new ParseError(
             this.peek(),
@@ -189,7 +197,7 @@ export class Parser extends BaseParser<Stmt[]> {
         expression = { is: Expr.Is.Section, operator, expression, side };
       }
 
-      return { is: Expr.Is.Grouping, leftParen, expression, rightParen };
+      return { is: Expr.Is.Grouping, expression, leftParen, rightParen };
     } else {
       return this.functionTerm();
     }
@@ -202,7 +210,7 @@ export class Parser extends BaseParser<Stmt[]> {
       const checkLiteralToken = (
         t: Token
       ): t is Token & { type: TokenType.Number | TokenType.String } =>
-        token.type === TokenType.Number || token.type === TokenType.String;
+        t.type === TokenType.Number || t.type === TokenType.String;
 
       // This is only necessary because `this.match` doesn't provide enough guarantees
       // to TS that the token is of the requested type
@@ -221,6 +229,7 @@ export class Parser extends BaseParser<Stmt[]> {
     }
 
     if (this.match(TokenType.LeftBracket)) {
+      let leftBracket = this.previous();
       let items: Expr[] = [];
 
       while (!this.match(TokenType.RightBracket)) {
@@ -235,7 +244,9 @@ export class Parser extends BaseParser<Stmt[]> {
         items.push(this.expression(0));
       }
 
-      return { is: Expr.Is.List, items };
+      let rightBracket = this.previous();
+
+      return { is: Expr.Is.List, items, leftBracket, rightBracket };
     }
 
     return { is: Expr.Is.Empty };

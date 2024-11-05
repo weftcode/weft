@@ -51,7 +51,9 @@ async function decodeDoc(encodedDoc: string) {
   const stream = new ReadableStream({
     start: (controller) => {
       const binString = atob(encodedDoc);
-      controller.enqueue(Uint8Array.from(binString, (m) => m.codePointAt(0)));
+      controller.enqueue(
+        Uint8Array.from(binString, (m) => m.codePointAt(0) ?? 0)
+      );
       controller.close();
     },
   })
@@ -108,10 +110,9 @@ function handleEvaluation(code: string) {
       let typechecker = new TypeChecker(reporter, typeBindings);
 
       for (let stmt of stmts) {
-        let [sub, type, annotations] = typechecker.check(stmt);
-        annotations.forEach((annotation) => {
+        let [sub, expr] = typechecker.check(stmt);
+        generateTypeDiagnostics(sub, expr).forEach((annotation) => {
           if (annotation.severity === "error") {
-            annotation.apply(sub);
             reporter.error(annotation.from, annotation.to, annotation.message);
           }
         });
@@ -142,11 +143,13 @@ function handleEvaluation(code: string) {
       });
     }
   } catch (error) {
-    consoleComponent.update({
-      input: code,
-      success: false,
-      text: "Error: " + error.message,
-    });
+    if (error instanceof Error) {
+      consoleComponent.update({
+        input: code,
+        success: false,
+        text: "Error: " + error.message,
+      });
+    }
   }
 }
 
@@ -167,12 +170,9 @@ const parseLinter = linter((view) => {
     const typechecker = new TypeChecker(reporter, typeBindings);
 
     for (let stmt of stmts) {
-      let [_s, _t, annotations] = typechecker.check(stmt);
+      let [sub, expr] = typechecker.check(stmt);
 
-      let annotationMap = new WeakMap(annotations.map((a) => [a.expr, a]));
-      diagnostics = diagnostics.concat(
-        generateTypeDiagnostics(stmt.expression, annotationMap)
-      );
+      diagnostics = diagnostics.concat(generateTypeDiagnostics(sub, expr));
     }
 
     if (reporter.hasError) {
@@ -191,32 +191,49 @@ const parseLinter = linter((view) => {
   }
 });
 
-import { Expr, expressionBounds } from "../compiler/parse/Expr";
-import { TypeAnnotation } from "../compiler/typecheck/Annotations";
+import { Expr } from "../compiler/parse/AST/Expr";
+import {
+  TypeInfo,
+  TypeInfoAnnotation,
+  getType,
+} from "../compiler/typecheck/Annotations";
 import { renamer } from "../compiler/rename/Renamer";
-
-type TypeAnnotationMap = WeakMap<Expr, TypeAnnotation>;
+import { Substitution } from "../compiler/typecheck/Utilities";
 
 function generateTypeDiagnostics(
-  expr: Expr,
-  annotations: TypeAnnotationMap
+  sub: Substitution,
+  expr: Expr<TypeInfo>
 ): Diagnostic[] {
+  // Dispense with the simplest cases
+  switch (expr.is) {
+    case Expr.Is.Grouping:
+      return generateTypeDiagnostics(sub, expr.expression);
+    case Expr.Is.Empty:
+      return [];
+  }
+
+  // Now, check for a type annotation
+  let { typeAnnotation } = expr;
+  if (typeAnnotation) {
+    typeAnnotation.apply(sub);
+    return [typeAnnotation];
+  }
+
   switch (expr.is) {
     case Expr.Is.Variable:
     case Expr.Is.Literal:
-    case Expr.Is.Empty:
-      return annotations.has(expr) ? [annotations.get(expr)] : [];
+      let type = getType(expr);
+      return type ? [new TypeInfoAnnotation(expr, sub(type))] : [];
 
     case Expr.Is.Application:
     case Expr.Is.Binary:
-      return generateTypeDiagnostics(expr.left, annotations).concat(
-        generateTypeDiagnostics(expr.right, annotations)
+      return generateTypeDiagnostics(sub, expr.left).concat(
+        generateTypeDiagnostics(sub, expr.right)
       );
-    case Expr.Is.Grouping:
     case Expr.Is.Section:
-      return generateTypeDiagnostics(expr.expression, annotations);
+      return generateTypeDiagnostics(sub, expr.expression);
     case Expr.Is.List:
-      return expr.items.flatMap((e) => generateTypeDiagnostics(e, annotations));
+      return expr.items.flatMap((e) => generateTypeDiagnostics(sub, e));
     default:
       return expr satisfies never;
   }
@@ -235,7 +252,7 @@ window.addEventListener("load", async () => {
 
   consoleComponent.update({
     level: "info",
-    text: "Welcome to the very experimental web Tidal editor!\nUse Ctrl+Enter (or Command+Enter on Mac) to evaluate a block of code. Play patterns in normal Tidal style with the functions `d1` to `d2`. To hush all currently-playing patterns, either evaluate the `hush` function or press Ctrl+. (or Command+. on Mac).",
+    text: "Welcome to the very experimental web Tidal editor!\nUse Ctrl+Enter (or Command+Enter on Mac) to evaluate a block of code. Play patterns in normal Tidal style with the functions `d1` to `d12`. To hush all currently-playing patterns, either evaluate the `hush` function or press Ctrl+. (or Command+. on Mac).",
   });
 
   window.addEventListener("keydown", (event) => {
@@ -244,7 +261,7 @@ window.addEventListener("load", async () => {
     }
   });
 
-  document.getElementById("output").appendChild(consoleComponent.dom);
+  document.getElementById("output")?.appendChild(consoleComponent.dom);
 
   new EditorView({
     doc,
@@ -258,6 +275,6 @@ window.addEventListener("load", async () => {
       editorTheme,
       evalTheme,
     ],
-    parent: document.getElementById("editor"),
+    parent: document.getElementById("editor") ?? undefined,
   });
 });

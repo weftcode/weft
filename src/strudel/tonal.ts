@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 import * as strudelTonal from "@strudel/tonal";
 import { Bindings } from "../compiler/parse/API";
 

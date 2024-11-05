@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 import { controls as strudelControls } from "@strudel/core";
 import { Bindings } from "../compiler/parse/API";
 

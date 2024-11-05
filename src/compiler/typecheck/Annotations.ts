@@ -1,4 +1,6 @@
-import { Expr, expressionBounds } from "../parse/Expr";
+import { Expr } from "../parse/AST/Expr";
+import { Stmt } from "../parse/AST/Stmt";
+import { expressionBounds } from "../parse/Utils";
 import { printType } from "./Printer";
 import { MonoType } from "./Types";
 import { Substitution } from "./Utilities";
@@ -6,7 +8,7 @@ import { Substitution } from "./Utilities";
 type Severity = "info" | "warning" | "error";
 
 export abstract class TypeAnnotation {
-  constructor(readonly severity: Severity, readonly expr: Expr) {}
+  constructor(readonly severity: Severity, public expr: Expr) {}
 
   abstract get message(): string;
 
@@ -21,7 +23,7 @@ export abstract class TypeAnnotation {
   abstract apply(substitution: Substitution): void;
 }
 
-export class TypeInfo extends TypeAnnotation {
+export class TypeInfoAnnotation extends TypeAnnotation {
   constructor(expr: Expr, private type: MonoType) {
     super("info", expr);
   }
@@ -81,4 +83,29 @@ export class ApplicationError extends TypeAnnotation {
   }
 
   apply() {}
+}
+
+export type NodeTypeInfo = {
+  type: MonoType | null;
+  typeAnnotation?: TypeAnnotation;
+};
+
+export type TypeInfo = {
+  "Stmt.Expression": NodeTypeInfo;
+  "Expr.Variable": NodeTypeInfo;
+  "Expr.Literal": NodeTypeInfo;
+  "Expr.Application": NodeTypeInfo;
+  "Expr.Binary": NodeTypeInfo;
+  "Expr.Section": NodeTypeInfo;
+  "Expr.List": NodeTypeInfo;
+} & Stmt.Extension;
+
+export function getType(expr: Expr<TypeInfo>): MonoType | null {
+  if (expr.is === Expr.Is.Grouping) {
+    return getType(expr.expression);
+  } else if (expr.is === Expr.Is.Empty) {
+    return null;
+  } else {
+    return expr.type;
+  }
 }

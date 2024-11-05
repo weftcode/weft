@@ -1,6 +1,6 @@
 import { tokenBounds } from "../scan/Token";
-import { Expr } from "../parse/Expr";
-import { Stmt } from "../parse/Stmt";
+import { Expr } from "../parse/AST/Expr";
+import { Stmt } from "../parse/AST/Stmt";
 import { ErrorReporter } from "../parse/Reporter";
 import { Bindings } from "../parse/API";
 
@@ -10,12 +10,12 @@ export function renamer(
   reporter: ErrorReporter
 ) {
   for (let stmt of stmts) {
-    switch (stmt.type) {
-      case Stmt.Type.Expression:
+    switch (stmt.is) {
+      case Stmt.Is.Expression:
         expressionRenamer(stmt.expression, context, reporter);
         break;
       default:
-        stmt.type satisfies never;
+        stmt.is satisfies never;
     }
   }
 }

@@ -1,6 +1,6 @@
 import { PolyType } from "./Types";
 
-export function printType(type: PolyType, parenthesize = false) {
+export function printType(type: PolyType, parenthesize = false): string {
   switch (type.type) {
     case "ty-var":
       return type.a;

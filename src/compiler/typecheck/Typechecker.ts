@@ -1,6 +1,4 @@
-import { Expr, expressionBounds } from "../parse/Expr";
-import { Stmt } from "../parse/Stmt";
-import { Environment } from "../parse/Environment";
+import { Stmt } from "../parse/AST/Stmt";
 import { ErrorReporter } from "../parse/Reporter";
 
 import { Scanner } from "../scan/Scanner";
@@ -38,11 +36,11 @@ export class TypeChecker {
 
   check(statement: Stmt) {
     try {
-      switch (statement.type) {
-        case Stmt.Type.Expression:
+      switch (statement.is) {
+        case Stmt.Is.Expression:
           return W(makeContext(this.environment), statement.expression);
         default:
-          return statement.type satisfies never;
+          return statement.is satisfies never;
       }
     } catch (e) {
       if (e instanceof UnificationError && e.type2) {
