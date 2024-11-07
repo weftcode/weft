@@ -95,64 +95,6 @@ const evalTheme = EditorView.theme({
 
 const consoleComponent = editorConsole();
 
-function handleEvaluation(code: string) {
-  let reporter = new ErrorReporter();
-
-  try {
-    const scanner = new Scanner(code);
-    const tokens = scanner.scanTokens();
-    const parser = new Parser(tokens, getOperators(bindings), reporter);
-    const stmts = parser.parse();
-
-    renamer(stmts, bindings, reporter);
-
-    if (!reporter.hasError) {
-      let typechecker = new TypeChecker(reporter, typeBindings);
-
-      for (let stmt of stmts) {
-        let [sub, expr] = typechecker.check(stmt);
-        generateTypeDiagnostics(sub, expr).forEach((annotation) => {
-          if (annotation.severity === "error") {
-            reporter.error(annotation.from, annotation.to, annotation.message);
-          }
-        });
-      }
-    }
-
-    if (reporter.hasError) {
-      consoleComponent.update({
-        input: code,
-        success: false,
-        text:
-          "Error: " + reporter.errors.map((error) => error.message).join("\n"),
-      });
-    } else {
-      const interpreter = new Interpreter(reporter, bindings);
-
-      let results = interpreter.interpret(stmts, 0);
-      let text = [...results, ...reporter.errors].join("\n");
-
-      if (text === "") {
-        return;
-      }
-
-      consoleComponent.update({
-        input: code,
-        success: true,
-        text,
-      });
-    }
-  } catch (error) {
-    if (error instanceof Error) {
-      consoleComponent.update({
-        input: code,
-        success: false,
-        text: "Error: " + error.message,
-      });
-    }
-  }
-}
-
 const parseLinter = linter((view) => {
   try {
     let reporter = new ErrorReporter();

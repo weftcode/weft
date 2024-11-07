@@ -1,5 +1,6 @@
 import { Scanner } from "../compiler/scan/Scanner";
 import { Parser } from "../compiler/parse/Parser";
+import { renamer } from "../compiler/rename/Renamer";
 import { TypeChecker } from "../compiler/typecheck/Typechecker";
 import { ErrorReporter } from "../compiler/parse/Reporter";
 import { Interpreter } from "../compiler/Interpreter";
@@ -8,6 +9,8 @@ import { Bindings, getOperators } from "../compiler/parse/API";
 import { EditorView } from "codemirror";
 import { EditorState, Extension, StateEffect } from "@codemirror/state";
 import { keymap } from "@codemirror/view";
+
+import type { console as editorConsole, Evaluation } from "./console";
 
 import {
   evalDecoration,
@@ -28,6 +31,72 @@ export const evalTheme = EditorView.theme({
 });
 
 type TypeBindings = { [id: string]: string };
+
+interface EvaluationResults {
+  results: Evaluation[];
+  miniLocations: Location[];
+}
+
+export function handleEvaluation(
+  code: string,
+  bindings: Bindings
+): EvaluationResults {
+  let reporter = new ErrorReporter();
+
+  try {
+    const scanner = new Scanner(code);
+    const tokens = scanner.scanTokens();
+    const parser = new Parser(tokens, getOperators(bindings), reporter);
+    const stmts = parser.parse();
+
+    renamer(stmts, bindings, reporter);
+
+    if (!reporter.hasError) {
+      let typechecker = new TypeChecker(reporter, typeBindings);
+
+      for (let stmt of stmts) {
+        let [sub, expr] = typechecker.check(stmt);
+        generateTypeDiagnostics(sub, expr).forEach((annotation) => {
+          if (annotation.severity === "error") {
+            reporter.error(annotation.from, annotation.to, annotation.message);
+          }
+        });
+      }
+    }
+
+    if (reporter.hasError) {
+      consoleComponent.update({
+        input: code,
+        success: false,
+        text:
+          "Error: " + reporter.errors.map((error) => error.message).join("\n"),
+      });
+    } else {
+      const interpreter = new Interpreter(reporter, bindings);
+
+      let results = interpreter.interpret(stmts, 0);
+      let text = [...results, ...reporter.errors].join("\n");
+
+      if (text === "") {
+        return;
+      }
+
+      consoleComponent.update({
+        input: code,
+        success: true,
+        text,
+      });
+    }
+  } catch (error) {
+    if (error instanceof Error) {
+      consoleComponent.update({
+        input: code,
+        success: false,
+        text: "Error: " + error.message,
+      });
+    }
+  }
+}
 
 export function evaluation(
   bindings: Bindings,
@@ -58,47 +127,4 @@ export function evaluation(
     evalDecoration(),
     mininotationStringField,
   ];
-}
-
-function handleEvaluation(
-  code: string,
-  bindings: Bindings,
-  typeBindings: TypeBindings
-) {
-  let reporter = new ErrorReporter();
-
-  try {
-    const scanner = new Scanner(code);
-    const tokens = scanner.scanTokens();
-    document.getElementById("output").innerText = tokens
-      .map((t) => t.toString())
-      .join("\n");
-    const parser = new Parser(tokens, getOperators(bindings), reporter);
-    const stmts = parser.parse();
-
-    if (!reporter.hasError) {
-      let typechecker = new TypeChecker(reporter, typeBindings);
-
-      for (let stmt of stmts) {
-        typechecker.check(stmt);
-      }
-    }
-
-    if (reporter.hasError) {
-      document.getElementById("output").innerText = reporter.errors.join("\n");
-    } else {
-      const interpreter = new Interpreter(reporter, bindings);
-
-      let [results, locations] = interpreter.interpret(stmts, 0);
-
-      document.getElementById("output").innerText = [
-        ...results,
-        ...reporter.errors,
-      ].join("\n");
-
-      return locations;
-    }
-  } catch (error) {
-    console.log(error);
-  }
 }
