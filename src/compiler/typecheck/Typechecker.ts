@@ -44,10 +44,6 @@ export class TypeChecker {
       }
     } catch (e) {
       if (e instanceof UnificationError && e.type2) {
-        // const { from, to } =
-        //   "from" in e.type2.source
-        //     ? e.type2.source
-        //     : expressionBounds(e.type2.source);
         this.reporter.error(0, 0, e.message);
       }
 
