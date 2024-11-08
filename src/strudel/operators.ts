@@ -1,10 +1,19 @@
 // @ts-nocheck
 
-import { Bindings } from "../compiler/parse/API";
+import { TokenType } from "../compiler/scan/TokenType";
+import { addBinding, BindingSpec } from "../compiler/environment";
 
 import { reify } from "@strudel/core";
 
-export const operators: Bindings = {
+export default (env: Environment) => {
+  for (let [name, binding] of Object.entries(operators)) {
+    env = addBinding(env, { name, ...binding });
+  }
+
+  return env;
+};
+
+const operators: BindingSpec = {
   // Addition/subtration
   "|+": {
     type: "Pattern a -> Pattern a -> Pattern a",
@@ -100,7 +109,12 @@ export const operators: Bindings = {
     value: (a, b) => reify(a).set.in(reify(b)),
 
     prec: [8, "left"],
-    synonyms: ["#"],
+  },
+  "#": {
+    type: "Pattern a -> Pattern a -> Pattern a",
+    value: (a, b) => reify(a).set.in(reify(b)),
+
+    prec: [8, "left"],
   },
   "|>|": {
     type: "Pattern a -> Pattern a -> Pattern a",

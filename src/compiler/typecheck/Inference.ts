@@ -1,7 +1,6 @@
 import { Expr } from "../parse/AST/Expr";
 
 import {
-  generalise,
   instantiate,
   makeSubstitution,
   newLiteral,
@@ -89,33 +88,45 @@ export const W = (
     }
 
     case Expr.Is.Section: {
-      throw new Error("Skipping section inference for the moment");
-      // // TODO: This is likely, but not necessarily, a unique name. A better
-      // //       implementation would use a separate renaming step like GHC.
-      // const lexeme = (Math.random() + 1).toString(36).substring(7);
-      // const xExp: Expr = {
-      //   is: Expr.Is.Variable,
-      //   name: { type: TokenType.Identifier, lexeme, from: 0 },
-      // };
+      // TODO: This is likely, but not necessarily, a unique name. A better
+      //       implementation would use a separate renaming step like GHC.
+      const lexeme = (Math.random() + 1).toString(36).substring(7);
+      const xExp: Expr = {
+        is: Expr.Is.Variable,
+        name: { type: TokenType.Identifier, lexeme, from: 0 },
+      };
 
-      // // A section is just a binary operation wrapped in a function abstraction. One of the
-      // // sides of the operator is the variable from the abstraction
-      // let left = expr.side === "left" ? xExp : expr.expression;
-      // let right = expr.side === "right" ? xExp : expr.expression;
+      // A section is just a binary operation wrapped in a function abstraction. One of the
+      // sides of the operator is the variable from the abstraction
+      let left = expr.side === "left" ? xExp : expr.expression;
+      let right = expr.side === "right" ? xExp : expr.expression;
 
-      // // TODO: Does it matter that this binary expression has a made-up precedence?
-      // const [substitution, type, annotations] = InferTypeAbs(typEnv, lexeme, {
-      //   is: Expr.Is.Binary,
-      //   left,
-      //   operator: expr.operator,
-      //   right,
-      //   precedence: 0,
-      // });
-      // return [
-      //   substitution,
-      //   type,
-      //   annotations.concat(type ? [new TypeInfoAnnotation(expr, type)] : []),
-      // ];
+      // TODO: Does it matter that this binary expression has a made-up precedence?
+      const [substitution, typeInfo, absExpr] = InferTypeAbs(typEnv, lexeme, {
+        is: Expr.Is.Binary,
+        left,
+        operator: expr.operator,
+        right,
+        precedence: 0,
+      });
+
+      // We expect that the typed expression we got back is still a binary expression
+      if (absExpr.is !== Expr.Is.Binary) {
+        throw new Error(
+          `Unexpected expression in section inference: ${absExpr.is}`
+        );
+      }
+
+      return [
+        substitution,
+        {
+          is: Expr.Is.Section,
+          operator: absExpr.operator,
+          expression: expr.side === "left" ? absExpr.right : absExpr.left,
+          side: expr.side,
+          ...typeInfo,
+        },
+      ];
     }
 
     case Expr.Is.List:
@@ -148,32 +159,25 @@ export const W = (
   }
 };
 
-// function InferTypeAbs(
-//   typeEnv: Context,
-//   x: string,
-//   expr: Expr
-// ): [Substitution, MonoType | null, TypeAnnotation[]] {
-//   const beta = newTypeVar();
-//   const [s1, t1, a1] = W(
-//     makeContext({
-//       ...typeEnv,
-//       [x]: beta,
-//     }),
-//     expr
-//   );
+function InferTypeAbs(
+  typeEnv: Context,
+  x: string,
+  expr: Expr
+): [Substitution, NodeTypeInfo, Expr<TypeInfo>] {
+  const beta = newTypeVar();
+  const [s1, e1] = W(
+    makeContext({
+      ...typeEnv,
+      [x]: beta,
+    }),
+    expr
+  );
 
-//   return [
-//     s1,
-//     t1
-//       ? s1({
-//           type: "ty-app",
-//           C: "->",
-//           mus: [beta, t1],
-//         })
-//       : null,
-//     a1,
-//   ];
-// }
+  let t1 = getType(e1);
+  let type = t1 && s1({ type: "ty-app", C: "->", mus: [beta, t1] });
+
+  return [s1, { type }, e1];
+}
 
 function InferTypeApp(
   typeEnv: Context,
@@ -215,16 +219,3 @@ function InferTypeApp(
 
   return [sLeft, { type: null }, left, right];
 }
-
-// TODO: Implement Let
-// case "Core_Let": {
-//   const [s1, t1] = W(typEnv, expr.e1);
-//   const [s2, t2] = W(
-//     makeContext({
-//       ...s1(typEnv),
-//       [expr.x]: generalise(typEnv, t1),
-//     }),
-//     expr.e2
-//   );
-//   return [s2(s1), t2];
-// }

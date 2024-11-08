@@ -2,11 +2,11 @@ import { tokenBounds } from "../scan/Token";
 import { Expr } from "../parse/AST/Expr";
 import { Stmt } from "../parse/AST/Stmt";
 import { ErrorReporter } from "../parse/Reporter";
-import { Bindings } from "../parse/API";
+import { TypeEnv } from "../environment";
 
 export function renamer(
   stmts: Stmt[],
-  context: Bindings,
+  context: TypeEnv,
   reporter: ErrorReporter
 ) {
   for (let stmt of stmts) {
@@ -22,7 +22,7 @@ export function renamer(
 
 export function expressionRenamer(
   expr: Expr,
-  context: Bindings,
+  context: TypeEnv,
   reporter: ErrorReporter
 ): void {
   switch (expr.is) {

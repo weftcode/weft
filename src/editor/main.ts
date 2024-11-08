@@ -4,7 +4,7 @@ import { Diagnostic, linter } from "@codemirror/lint";
 import { StreamLanguage } from "@codemirror/language";
 import { haskell } from "@codemirror/legacy-modes/mode/haskell";
 
-import { evaluation } from "@management/cm-evaluate";
+import { evaluation } from "./evaluation";
 
 import { console as editorConsole } from "./console";
 
@@ -16,16 +16,28 @@ import { dracula } from "thememirror/dist/index.js";
 import { Scanner } from "../compiler/scan/Scanner";
 import { Parser } from "../compiler/parse/Parser";
 import { ErrorReporter } from "../compiler/parse/Reporter";
-import { Interpreter } from "../compiler/Interpreter";
 
-import { getOperators } from "../compiler/parse/API";
+import strudel from "../strudel";
+import { hush } from "../strudel";
+import standardLib from "../standard-lib";
 
-import { bindings as strudel, hush, typeBindings } from "../strudel";
-import { standardLib } from "../standard-lib";
-
-const bindings = { ...strudel, ...standardLib };
-
+import { Environment } from "../compiler/environment";
 import { TypeChecker } from "../compiler/typecheck/Typechecker";
+
+let env: Environment = {
+  typeConEnv: {
+    Number: { dataCons: [] },
+    String: { dataCons: [] },
+    Bool: { dataCons: [{ name: "True" }, { name: "False" }] },
+    IO: { dataCons: [] },
+  },
+  typeEnv: {},
+};
+
+// @ts-ignore
+env = strudel(env);
+
+console.log(env);
 
 async function updateURLField(input: HTMLInputElement, doc: string) {
   const stream = new ReadableStream({
@@ -101,15 +113,15 @@ const parseLinter = linter((view) => {
 
     const scanner = new Scanner(view.state.doc.toString());
     const tokens = scanner.scanTokens();
-    const parser = new Parser(tokens, getOperators(bindings), reporter);
+    const parser = new Parser(tokens, env.typeEnv, reporter);
     const stmts = parser.parse();
 
     let diagnostics: Diagnostic[] = [];
 
     // Run renamer to check for undefined variables
-    renamer(stmts, bindings, reporter);
+    renamer(stmts, env.typeEnv, reporter);
 
-    const typechecker = new TypeChecker(reporter, typeBindings);
+    const typechecker = new TypeChecker(reporter, env);
 
     for (let stmt of stmts) {
       let [sub, expr] = typechecker.check(stmt);
@@ -208,7 +220,7 @@ window.addEventListener("load", async () => {
   new EditorView({
     doc,
     extensions: [
-      evaluation(bindings, typeBindings),
+      evaluation(env),
       basicSetup,
       StreamLanguage.define(haskell),
       parseLinter,
