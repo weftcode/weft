@@ -1,7 +1,5 @@
 import { BaseParser } from "./BaseParser";
 
-import { Operators } from "./API";
-
 import { Token, tokenBounds } from "../scan/Token";
 import { TokenType } from "../scan/TokenType";
 
@@ -9,10 +7,12 @@ import { Expr } from "./AST/Expr";
 import { Stmt } from "./AST/Stmt";
 import { ErrorReporter } from "./Reporter";
 
+import { TypeEnv } from "../environment";
+
 export class Parser extends BaseParser<Stmt[]> {
   constructor(
     tokens: Token[],
-    private operators: Operators,
+    private environment: TypeEnv,
     reporter: ErrorReporter
   ) {
     super(tokens, reporter);
@@ -64,14 +64,14 @@ export class Parser extends BaseParser<Stmt[]> {
     let left = this.application();
 
     while (this.peek().type === TokenType.Operator) {
-      let op = this.operators.get(this.peek().lexeme);
+      let op = this.environment[this.peek().lexeme];
       if (!op) {
         throw new ParseError(
           this.peek(),
           `Undefined operator "${this.peek().lexeme}"`
         );
       }
-      let [opPrecedence, opAssociativity] = op;
+      let [opPrecedence, opAssociativity] = op.prec ?? [9, "left"];
 
       // If we encounter a lower-precedence operator, stop consuming tokens
       if (opPrecedence < precedence) break;
@@ -174,7 +174,7 @@ export class Parser extends BaseParser<Stmt[]> {
 
       if (sectionOp) {
         let { operator, side } = sectionOp;
-        let op = this.operators.get(operator.name.lexeme);
+        let op = this.environment[operator.name.lexeme];
 
         if (!op) {
           throw new ParseError(
@@ -182,7 +182,7 @@ export class Parser extends BaseParser<Stmt[]> {
             `Undefined operator "${this.peek().lexeme}"`
           );
         }
-        let [precedence] = op;
+        let [precedence] = op.prec ?? [9];
 
         if (
           expression.is === Expr.Is.Binary &&

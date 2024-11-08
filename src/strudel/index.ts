@@ -1,26 +1,21 @@
-// @ts-nocheck
+import { Environment } from "../compiler/environment";
 
-import { Bindings, expandSynonyms } from "../compiler/parse/API";
+import core from "./core";
+import operators from "./operators";
+import controls from "./controls";
+import tonal from "./tonal";
+import boot from "./boot";
 
+export { hush } from "./boot";
+// @ts-ignore
 export { Pattern } from "@strudel/core";
 
-import { operators } from "./operators";
-import { core } from "./core";
-import { controls } from "./controls";
-import { tonal } from "./tonal";
-import { boot } from "./boot";
-export { hush } from "./boot";
+export default (env: Environment) => {
+  env = core(env);
+  env = operators(env);
+  env = controls(env);
+  env = tonal(env);
+  env = boot(env);
 
-export const bindings: Bindings = expandSynonyms({
-  ...operators,
-  ...core,
-  ...controls,
-  ...boot,
-  ...tonal,
-});
-
-export const typeBindings: { [name: string]: string } = Object.fromEntries(
-  Object.entries(bindings).flatMap(([name, { type }]) =>
-    type.length > 0 ? [[name, type]] : []
-  )
-);
+  return env;
+};

@@ -1,17 +1,25 @@
 // @ts-nocheck
 
 import * as strudelTonal from "@strudel/tonal";
-import { Bindings } from "../compiler/parse/API";
+import { addBinding, BindingSpec } from "../compiler/environment";
 
-export const tonal: Bindings = {
+export default (env: Environment) => {
+  for (let [name, binding] of Object.entries(tonal)) {
+    env = addBinding(env, { name, ...binding });
+  }
+
+  return env;
+};
+
+const tonal: BindingSpec = {
   addVoicings: {
-    type: "String -> [(String, [String])] -> (Note, Note) -> IO ()",
+    type: "String -> [(String, [String])] -> (Number, Number) -> IO ()",
     value: (...args) => ({ runIO: () => strudelTonal.addVoicings(...args) }),
   },
   // Internal?
-  registerVoicings: { type: "", value: strudelTonal.registerVoicings },
+  // registerVoicings: { type: "", value: strudelTonal.registerVoicings },
   rootNotes: {
-    type: "Pattern Number -> Pattern Note -> Pattern Note",
+    type: "Pattern Number -> Pattern Number -> Pattern Number",
     value: strudelTonal.rootNotes,
   },
   scale: {
@@ -23,10 +31,10 @@ export const tonal: Bindings = {
     value: strudelTonal.scaleTranspose,
   },
   // Internal?
-  setVoicingRange: { type: "", value: strudelTonal.setVoicingRange },
+  // setVoicingRange: { type: "", value: strudelTonal.setVoicingRange },
   // Pattern Interval really, but it doesn't really matter
   transpose: {
-    type: "Pattern Note -> Pattern Controls -> Pattern Controls",
+    type: "Pattern Number -> Pattern Controls -> Pattern Controls",
     value: strudelTonal.transpose,
   },
   voicing: {
@@ -34,12 +42,12 @@ export const tonal: Bindings = {
     value: strudelTonal.voicing,
   },
   // Internal?
-  voicingAlias: { type: "", value: strudelTonal.voicingAlias },
+  // voicingAlias: { type: "", value: strudelTonal.voicingAlias },
   // Internal?
-  voicingRegistry: { type: "", value: strudelTonal.voicingRegistry },
+  // voicingRegistry: { type: "", value: strudelTonal.voicingRegistry },
   // Deprecated
   voicings: {
-    type: "String -> Pattern String -> Pattern Note",
+    type: "String -> Pattern String -> Pattern Number",
     value: strudelTonal.voicings,
   },
 };

@@ -18,11 +18,26 @@ import { Parser } from "../compiler/parse/Parser";
 import { ErrorReporter } from "../compiler/parse/Reporter";
 import { Interpreter } from "../compiler/Interpreter";
 
-import { getOperators } from "../compiler/parse/API";
+import strudel from "../strudel";
+import { hush } from "../strudel";
 
-import { bindings, hush, typeBindings } from "../strudel";
-
+import { Environment } from "../compiler/environment";
 import { TypeChecker } from "../compiler/typecheck/Typechecker";
+
+let env: Environment = {
+  typeConEnv: {
+    Number: { dataCons: [] },
+    String: { dataCons: [] },
+    Bool: { dataCons: [{ name: "True" }, { name: "False" }] },
+    IO: { dataCons: [] },
+  },
+  typeEnv: {},
+};
+
+// @ts-ignore
+env = strudel(env);
+
+console.log(env);
 
 async function updateURLField(input: HTMLInputElement, doc: string) {
   const stream = new ReadableStream({
@@ -98,13 +113,13 @@ function handleEvaluation(code: string) {
   try {
     const scanner = new Scanner(code);
     const tokens = scanner.scanTokens();
-    const parser = new Parser(tokens, getOperators(bindings), reporter);
+    const parser = new Parser(tokens, env.typeEnv, reporter);
     const stmts = parser.parse();
 
-    renamer(stmts, bindings, reporter);
+    renamer(stmts, env.typeEnv, reporter);
 
     if (!reporter.hasError) {
-      let typechecker = new TypeChecker(reporter, typeBindings);
+      let typechecker = new TypeChecker(reporter, env);
 
       for (let stmt of stmts) {
         let [sub, expr] = typechecker.check(stmt);
@@ -124,7 +139,7 @@ function handleEvaluation(code: string) {
           "Error: " + reporter.errors.map((error) => error.message).join("\n"),
       });
     } else {
-      const interpreter = new Interpreter(reporter, bindings);
+      const interpreter = new Interpreter(reporter, env.typeEnv);
 
       let results = interpreter.interpret(stmts);
       let text = [...results, ...reporter.errors].join("\n");
@@ -156,15 +171,15 @@ const parseLinter = linter((view) => {
 
     const scanner = new Scanner(view.state.doc.toString());
     const tokens = scanner.scanTokens();
-    const parser = new Parser(tokens, getOperators(bindings), reporter);
+    const parser = new Parser(tokens, env.typeEnv, reporter);
     const stmts = parser.parse();
 
     let diagnostics: Diagnostic[] = [];
 
     // Run renamer to check for undefined variables
-    renamer(stmts, bindings, reporter);
+    renamer(stmts, env.typeEnv, reporter);
 
-    const typechecker = new TypeChecker(reporter, typeBindings);
+    const typechecker = new TypeChecker(reporter, env);
 
     for (let stmt of stmts) {
       let [sub, expr] = typechecker.check(stmt);

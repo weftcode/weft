@@ -1,37 +1,18 @@
 import { Stmt } from "../parse/AST/Stmt";
 import { ErrorReporter } from "../parse/Reporter";
 
-import { Scanner } from "../scan/Scanner";
-import { TypeParser } from "./TypeParser";
-
 import { makeContext, PolyType } from "./Types";
 import { W } from "./Inference";
 import { UnificationError } from "./Utilities";
+import { Environment } from "../environment";
 
 export class TypeChecker {
-  private environment: { [name: string]: PolyType } = {};
+  private environment: { [name: string]: PolyType };
 
-  constructor(
-    private readonly reporter: ErrorReporter,
-    bindings: { [name: string]: string }
-  ) {
-    for (let [name, typeString] of Object.entries(bindings)) {
-      let tokens = new Scanner(typeString).scanTokens();
-
-      try {
-        let type = new TypeParser(tokens, reporter).parse();
-
-        this.environment[name] = type;
-      } catch (e) {
-        if (e instanceof Error) {
-          console.log("Error parsing type definition:");
-          console.log(typeString);
-          console.log(e.message);
-        } else {
-          throw e;
-        }
-      }
-    }
+  constructor(private readonly reporter: ErrorReporter, env: Environment) {
+    this.environment = Object.fromEntries(
+      Object.entries(env.typeEnv).map(([key, { type }]) => [key, type])
+    );
   }
 
   check(statement: Stmt) {

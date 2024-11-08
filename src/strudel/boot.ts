@@ -13,7 +13,7 @@ import {
 } from "@strudel/webaudio";
 
 import { miniAllStrings } from "@strudel/mini";
-import { Bindings } from "../compiler/parse/API";
+import { addBinding, BindingSpec } from "../compiler/environment";
 
 initAudioOnFirstClick();
 const ctx = getAudioContext();
@@ -79,9 +79,17 @@ export function p(id: string | number) {
   });
 }
 
+export default (env: Environment) => {
+  for (let [name, binding] of Object.entries(boot)) {
+    env = addBinding(env, { name, ...binding });
+  }
+
+  return env;
+};
+
 // Bindings (similar to Tidal's BootTidal.hs)
-export const boot: Bindings = {
-  p: { type: "ID -> Pattern Controls -> IO ()", value: p },
+const boot: BindingSpec = {
+  p: { type: "String -> Pattern Controls -> IO ()", value: p },
   d1: { type: "Pattern Controls -> IO ()", value: p(1) },
   d2: { type: "Pattern Controls -> IO ()", value: p(2) },
   d3: { type: "Pattern Controls -> IO ()", value: p(3) },

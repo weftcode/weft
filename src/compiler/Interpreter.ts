@@ -2,17 +2,17 @@ import { ErrorReporter } from "./parse/Reporter";
 import { Token, tokenBounds } from "./scan/Token";
 import { Expr } from "./parse/AST/Expr";
 import { Stmt } from "./parse/AST/Stmt";
-import { Bindings } from "./parse/API";
 
 import { Pattern } from "../strudel";
 import { TokenType } from "./scan/TokenType";
+import { TypeEnv } from "./environment";
 
 type Value = Value[] | ((input: Value) => Value);
 
 export class Interpreter {
   constructor(
     private readonly reporter: ErrorReporter,
-    private bindings: Bindings
+    private bindings: TypeEnv
   ) {}
 
   interpret(statements: Stmt[]) {
