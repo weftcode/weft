@@ -1,18 +1,20 @@
-import { Bindings } from "../compiler/parse/API";
+import { BindingSpec } from "../compiler/environment";
 
-export const standardLib: Bindings = {
+export type BindingsSpec = { [name: string]: Omit<BindingSpec, "name"> };
+
+export const standardLib: BindingsSpec = {
   // Haskell Operators
   $: {
     // Function application
     type: "(a -> b) -> a -> b",
-    value: (a, b) => a(b),
+    value: <X, Y>(a: (x: X) => Y, b: X) => a(b),
     prec: [0, "right"],
   },
 
   ".": {
     // Function composition
     type: "(b -> c) -> (a -> b) -> a -> c",
-    value: (a, b) => (c) => a(b(c)),
+    value: <X, Y, Z>(a: (y: Y) => Z, b: (x: X) => Y, c: X) => a(b(c)),
     prec: [9, "right"],
   },
 
@@ -28,32 +30,32 @@ export const standardLib: Bindings = {
     // TODO: this isn't actually parseable yet, it's only used for
     // typechecking list literals
     type: "a -> [a] -> [a]",
-    value: (a, as) => [a, ...as],
+    value: <X>(a: X, as: X[]) => [a, ...as],
     prec: [5, "right"],
   },
 
   // Arithmetic
   "+": {
     type: "Number -> Number -> Number",
-    value: (a, b) => a + b,
+    value: (a: number, b: number) => a + b,
     prec: [6, "left"],
   },
 
   "-": {
     type: "Number -> Number -> Number",
-    value: (a, b) => a - b,
+    value: (a: number, b: number) => a - b,
     prec: [6, "left"],
   },
 
   "*": {
     type: "Number -> Number -> Number",
-    value: (a, b) => a * b,
+    value: (a: number, b: number) => a * b,
     prec: [7, "left"],
   },
 
   "/": {
     type: "Number -> Number -> Number",
-    value: (a, b) => a / b,
+    value: (a: number, b: number) => a / b,
     prec: [7, "left"],
   },
 };

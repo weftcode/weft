@@ -4,7 +4,6 @@ import { renamer } from "../compiler/rename/Renamer";
 import { TypeChecker } from "../compiler/typecheck/Typechecker";
 import { ErrorReporter } from "../compiler/parse/Reporter";
 import { Interpreter } from "../compiler/Interpreter";
-import { Bindings, getOperators } from "../compiler/parse/API";
 
 import { EditorView } from "codemirror";
 import { EditorState, Extension, StateEffect } from "@codemirror/state";
@@ -21,6 +20,7 @@ import {
   mininotationStringField,
   replaceMininotation,
 } from "../strudel/highlights/state";
+import { Environment } from "../compiler/environment";
 
 export const evalTheme = EditorView.theme({
   "@keyframes cm-eval-flash": {
@@ -30,8 +30,6 @@ export const evalTheme = EditorView.theme({
   "& .cm-evaluated": { animation: "cm-eval-flash 0.5s" },
 });
 
-type TypeBindings = { [id: string]: string };
-
 interface EvaluationResults {
   results: Evaluation[];
   miniLocations: Location[];
@@ -39,20 +37,20 @@ interface EvaluationResults {
 
 export function handleEvaluation(
   code: string,
-  bindings: Bindings
+  env: Environment
 ): EvaluationResults {
   let reporter = new ErrorReporter();
 
   try {
     const scanner = new Scanner(code);
     const tokens = scanner.scanTokens();
-    const parser = new Parser(tokens, getOperators(bindings), reporter);
+    const parser = new Parser(tokens, env.typeEnv, reporter);
     const stmts = parser.parse();
 
-    renamer(stmts, bindings, reporter);
+    renamer(stmts, env.typeEnv, reporter);
 
     if (!reporter.hasError) {
-      let typechecker = new TypeChecker(reporter, typeBindings);
+      let typechecker = new TypeChecker(reporter, env);
 
       for (let stmt of stmts) {
         let [sub, expr] = typechecker.check(stmt);
@@ -72,7 +70,7 @@ export function handleEvaluation(
           "Error: " + reporter.errors.map((error) => error.message).join("\n"),
       });
     } else {
-      const interpreter = new Interpreter(reporter, bindings);
+      const interpreter = new Interpreter(reporter, env.typeEnv);
 
       let results = interpreter.interpret(stmts, 0);
       let text = [...results, ...reporter.errors].join("\n");
@@ -98,10 +96,7 @@ export function handleEvaluation(
   }
 }
 
-export function evaluation(
-  bindings: Bindings,
-  typeBindings: TypeBindings
-): Extension {
+export function evaluation(env: Environment): Extension {
   const listener = EditorState.transactionExtender.of((tr) => {
     let effects: StateEffect<any>[] = [];
 
@@ -109,7 +104,7 @@ export function evaluation(
       if (effect.is(evalEffect)) {
         let { from, to } = effect.value;
         let code = tr.newDoc.sliceString(from, to);
-        let locations = handleEvaluation(code, bindings, typeBindings);
+        let locations = handleEvaluation(code, env);
 
         if (locations) {
           effects.push(replaceMininotation(from, to, locations));
