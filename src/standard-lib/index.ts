@@ -1,8 +1,29 @@
-import { BindingSpec } from "../compiler/environment";
+import {
+  BindingSpec,
+  Environment,
+  addDataType,
+  addBinding,
+} from "../compiler/environment";
 
 export type BindingsSpec = { [name: string]: Omit<BindingSpec, "name"> };
 
-export const standardLib: BindingsSpec = {
+export default (env: Environment) => {
+  env = addDataType(env, { name: "Number", dataCons: [] });
+  env = addDataType(env, { name: "String", dataCons: [] });
+  env = addDataType(env, {
+    name: "Bool",
+    dataCons: [{ name: "True" }, { name: "False" }],
+  });
+  env = addDataType(env, { name: "IO", dataCons: [] });
+
+  for (let [name, binding] of Object.entries(standardLib)) {
+    env = addBinding(env, { name, ...binding });
+  }
+
+  return env;
+};
+
+const standardLib: BindingsSpec = {
   // Haskell Operators
   $: {
     // Function application
@@ -57,5 +78,10 @@ export const standardLib: BindingsSpec = {
     type: "Number -> Number -> Number",
     value: (a: number, b: number) => a / b,
     prec: [7, "left"],
+  },
+
+  id: {
+    type: "a -> a",
+    value: <A>(a: A) => a,
   },
 };

@@ -7,5 +7,9 @@ export interface Environment {
   // Class Environment
 }
 
+export function makeEnv(): Environment {
+  return { typeConEnv: {}, typeEnv: {} };
+}
+
 export * from "./TypeEnv";
 export * from "./TypeConEnv";

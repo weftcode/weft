@@ -34,7 +34,7 @@ function getTime() {
 }
 
 async function onTrigger(hap, deadline, duration, cps) {
-  console.log(hap.context);
+  // console.log(hap.context);
   try {
     if (!hap.context.onTrigger || !hap.context.dominantTrigger) {
       await webaudioOutput(hap, deadline, duration, cps);
@@ -115,6 +115,14 @@ const boot: BindingSpec = {
     value: (cpm) => ({
       runIO: () => {
         scheduler.setCps(cpm / 60);
+      },
+    }),
+  },
+  loadSounds: {
+    type: "String -> IO ()",
+    value: (path) => ({
+      runIO: () => {
+        console.log(`Loading from: "${path}"`);
       },
     }),
   },

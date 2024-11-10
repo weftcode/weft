@@ -1,9 +1,10 @@
 import { Scanner } from "../compiler/scan/Scanner";
 import { Parser } from "../compiler/parse/Parser";
+import { Stmt } from "../compiler/parse/AST/Stmt";
 import { renamer } from "../compiler/rename/Renamer";
 import { TypeChecker } from "../compiler/typecheck/Typechecker";
 import { ErrorReporter } from "../compiler/parse/Reporter";
-import { Interpreter } from "../compiler/Interpreter";
+import { Interpreter, Location } from "../compiler/Interpreter";
 
 import { EditorView } from "codemirror";
 import { EditorState, Extension, StateEffect } from "@codemirror/state";
@@ -16,11 +17,16 @@ import {
   evalEffect,
   evalKeymap,
 } from "@management/cm-evaluate";
-import {
-  mininotationStringField,
-  replaceMininotation,
-} from "../strudel/highlights/state";
+
+// import {
+//   mininotationStringField,
+//   replaceMininotation,
+// } from "../strudel/highlights/state";
+
 import { Environment } from "../compiler/environment";
+import { expressionBounds } from "../compiler/parse/Utils";
+import { TypeInfo } from "../compiler/typecheck/Annotations";
+import { Substitution } from "../compiler/typecheck/Utilities";
 
 export const evalTheme = EditorView.theme({
   "@keyframes cm-eval-flash": {
@@ -32,7 +38,7 @@ export const evalTheme = EditorView.theme({
 
 interface EvaluationResults {
   results: Evaluation[];
-  miniLocations: Location[];
+  miniLocations?: Location[];
 }
 
 export function handleEvaluation(
@@ -40,6 +46,8 @@ export function handleEvaluation(
   env: Environment
 ): EvaluationResults {
   let reporter = new ErrorReporter();
+
+  let results: Evaluation[] = [];
 
   try {
     const scanner = new Scanner(code);
@@ -49,21 +57,24 @@ export function handleEvaluation(
 
     renamer(stmts, env.typeEnv, reporter);
 
+    let typedStmts: Stmt<TypeInfo>[] = [];
+
     if (!reporter.hasError) {
       let typechecker = new TypeChecker(reporter, env);
 
       for (let stmt of stmts) {
-        let [sub, expr] = typechecker.check(stmt);
-        generateTypeDiagnostics(sub, expr).forEach((annotation) => {
-          if (annotation.severity === "error") {
-            reporter.error(annotation.from, annotation.to, annotation.message);
-          }
-        });
+        let typedStmt = typechecker.check(stmt);
+        typedStmts.push(typedStmt);
+        // generateTypeDiagnostics(sub, expr).forEach((annotation) => {
+        //   if (annotation.severity === "error") {
+        //     reporter.error(annotation.from, annotation.to, annotation.message);
+        //   }
+        // });
       }
     }
 
     if (reporter.hasError) {
-      consoleComponent.update({
+      results.push({
         input: code,
         success: false,
         text:
@@ -72,31 +83,50 @@ export function handleEvaluation(
     } else {
       const interpreter = new Interpreter(reporter, env.typeEnv);
 
-      let results = interpreter.interpret(stmts, 0);
-      let text = [...results, ...reporter.errors].join("\n");
+      let [values, locations] = interpreter.interpret(typedStmts, 0);
 
-      if (text === "") {
-        return;
-      }
+      console.log(code);
 
-      consoleComponent.update({
-        input: code,
-        success: true,
-        text,
+      values.forEach((text, i) => {
+        if (text !== "") {
+          let { from, to } = expressionBounds(stmts[i].expression);
+          results.push({
+            input: code.slice(from, to),
+            success: true,
+            text,
+          });
+        }
       });
+
+      if (reporter.hasError) {
+        results.push({
+          input: code,
+          success: false,
+          text:
+            "Error: " +
+            reporter.errors.map((error) => error.message).join("\n"),
+        });
+      }
     }
   } catch (error) {
     if (error instanceof Error) {
-      consoleComponent.update({
+      results.push({
         input: code,
         success: false,
         text: "Error: " + error.message,
       });
     }
+
+    throw error;
   }
+
+  return { results };
 }
 
-export function evaluation(env: Environment): Extension {
+export function evaluation(
+  env: Environment,
+  consoleComponent: ReturnType<typeof editorConsole>
+): Extension {
   const listener = EditorState.transactionExtender.of((tr) => {
     let effects: StateEffect<any>[] = [];
 
@@ -104,11 +134,13 @@ export function evaluation(env: Environment): Extension {
       if (effect.is(evalEffect)) {
         let { from, to } = effect.value;
         let code = tr.newDoc.sliceString(from, to);
-        let locations = handleEvaluation(code, env);
+        let { results, miniLocations } = handleEvaluation(code, env);
 
-        if (locations) {
-          effects.push(replaceMininotation(from, to, locations));
+        for (let result of results) {
+          consoleComponent.update(result);
         }
+
+        // effects.push(replaceMininotation(from, to, miniLocations));
       }
     }
 
@@ -120,6 +152,6 @@ export function evaluation(env: Environment): Extension {
     evalTheme,
     keymap.of(evalKeymap),
     evalDecoration(),
-    mininotationStringField,
+    // mininotationStringField,
   ];
 }

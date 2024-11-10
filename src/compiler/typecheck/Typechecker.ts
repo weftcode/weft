@@ -5,6 +5,7 @@ import { makeContext, PolyType } from "./Types";
 import { W } from "./Inference";
 import { UnificationError } from "./Utilities";
 import { Environment } from "../environment";
+import { applyToExpr } from "./Annotations";
 
 export class TypeChecker {
   private environment: { [name: string]: PolyType };
@@ -19,7 +20,11 @@ export class TypeChecker {
     try {
       switch (statement.is) {
         case Stmt.Is.Expression:
-          return W(makeContext(this.environment), statement.expression);
+          let [sub, expr] = W(
+            makeContext(this.environment),
+            statement.expression
+          );
+          return { ...statement, expression: applyToExpr(expr, sub) };
         default:
           return statement.is satisfies never;
       }

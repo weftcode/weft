@@ -6,6 +6,7 @@ import { Stmt } from "./parse/AST/Stmt";
 import { Pattern, parseMini } from "../strudel";
 import { TokenType } from "./scan/TokenType";
 import { TypeEnv } from "./environment";
+import { TypeInfo } from "./typecheck/Annotations";
 
 type Value = Value[] | ((input: Value) => Value);
 
@@ -21,7 +22,7 @@ export class Interpreter {
 
   private miniNotationLocations: Location[] = [];
 
-  interpret(statements: Stmt[], id: number): [string[], Location[]] {
+  interpret(statements: Stmt<TypeInfo>[], id: number): [string[], Location[]] {
     let results: string[] = [];
 
     this.currentID = id;
@@ -68,14 +69,14 @@ export class Interpreter {
     return object.toString();
   }
 
-  private execute(stmt: Stmt) {
+  private execute(stmt: Stmt<TypeInfo>) {
     switch (stmt.is) {
       case Stmt.Is.Expression:
         return this.evaluate(stmt.expression) as any;
     }
   }
 
-  private evaluate(expr: Expr): any {
+  private evaluate(expr: Expr<TypeInfo>): any {
     switch (expr.is) {
       case Expr.Is.Literal:
         return this.evaluateLiteral(expr);
@@ -110,30 +111,45 @@ export class Interpreter {
     }
   }
 
-  private evaluateLiteral({ token }: Expr.Literal): string | number | any {
+  private evaluateLiteral({
+    token,
+    type,
+  }: Expr.Literal<TypeInfo>): string | number | any {
     switch (token.type) {
       case TokenType.Number:
         // Parse number
         return parseFloat(token.lexeme);
       case TokenType.String:
+        // Trim surrounding quotes
         const stringValue = token.lexeme.substring(1, token.lexeme.length - 1);
+
+        if (!type) {
+          throw new Error(
+            `Discovered a type error while trying to evaluate string literal "${stringValue}"`
+          );
+        }
 
         // TODO: Only do this for Patterns
         let id = `${this.currentID}-${this.miniNotationLocations.length}`;
         let { from, to } = tokenBounds(token);
         this.miniNotationLocations.push([id, { from, to }]);
 
-        return parseMini(stringValue).withContext(({ locations, ...ctx }) => ({
-          locations: locations.map((loc) => ({ ...loc, id })),
-          ...ctx,
-        }));
+        // return parseMini(stringValue).withContext(({ locations, ...ctx }) => ({
+        //   locations: locations.map((loc) => ({ ...loc, id })),
+        //   ...ctx,
+        // }));
 
-      // Trim surrounding quotes
-      // return token.lexeme.substring(1, token.lexeme.length - 1);
+        console.log(JSON.stringify(type));
+
+        if (type.type === "ty-app" && type.C === "Pattern") {
+          return parseMini(stringValue);
+        } else {
+          return stringValue;
+        }
     }
   }
 
-  private curry(func: Expr): Function {
+  private curry(func: Expr<TypeInfo>): Function {
     if (func.is === Expr.Is.Variable || func.is === Expr.Is.Section) {
       return this.evaluate(func) as any;
     } else if (func.is === Expr.Is.Grouping) {

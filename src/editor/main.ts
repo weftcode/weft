@@ -21,23 +21,13 @@ import strudel from "../strudel";
 import { hush } from "../strudel";
 import standardLib from "../standard-lib";
 
-import { Environment } from "../compiler/environment";
+import { makeEnv } from "../compiler/environment";
 import { TypeChecker } from "../compiler/typecheck/Typechecker";
 
-let env: Environment = {
-  typeConEnv: {
-    Number: { dataCons: [] },
-    String: { dataCons: [] },
-    Bool: { dataCons: [{ name: "True" }, { name: "False" }] },
-    IO: { dataCons: [] },
-  },
-  typeEnv: {},
-};
+let env = standardLib(makeEnv());
 
 // @ts-ignore
 env = strudel(env);
-
-console.log(env);
 
 async function updateURLField(input: HTMLInputElement, doc: string) {
   const stream = new ReadableStream({
@@ -97,14 +87,6 @@ const autosave = EditorView.updateListener.of((update) => {
   }
 });
 
-const evalTheme = EditorView.theme({
-  "@keyframes cm-eval-flash": {
-    from: { backgroundColor: "#FFFFFF" },
-    to: { backgroundColor: "#FFFFFF00" },
-  },
-  "& .cm-evaluated": { animation: "cm-eval-flash 0.5s" },
-});
-
 const consoleComponent = editorConsole();
 
 const parseLinter = linter((view) => {
@@ -124,9 +106,9 @@ const parseLinter = linter((view) => {
     const typechecker = new TypeChecker(reporter, env);
 
     for (let stmt of stmts) {
-      let [sub, expr] = typechecker.check(stmt);
+      let { expression } = typechecker.check(stmt);
 
-      diagnostics = diagnostics.concat(generateTypeDiagnostics(sub, expr));
+      // diagnostics = diagnostics.concat(generateTypeDiagnostics(sub, expression));
     }
 
     if (reporter.hasError) {
@@ -220,14 +202,13 @@ window.addEventListener("load", async () => {
   new EditorView({
     doc,
     extensions: [
-      evaluation(env),
+      evaluation(env, consoleComponent),
       basicSetup,
       StreamLanguage.define(haskell),
       parseLinter,
       autosave,
       dracula,
       editorTheme,
-      evalTheme,
     ],
     parent: document.getElementById("editor") ?? undefined,
   });
