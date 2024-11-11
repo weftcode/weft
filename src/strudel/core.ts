@@ -139,7 +139,10 @@ const core: BindingSpec = {
   // },
   // drawPianoroll: { type: "", value: strudelCore.drawPianoroll },
   // duration: { type: "", value: strudelCore.duration },
-  // early: { type: "", value: strudelCore.early },
+  "<~": {
+    type: "Pattern Number -> Pattern a -> Pattern a",
+    value: strudelCore.early,
+  },
   echo: {
     type: "Pattern Number -> Pattern Number -> Pattern Number -> Pattern Controls -> Pattern Controls",
     value: strudelCore.echo,
@@ -262,7 +265,10 @@ const core: BindingSpec = {
   // keep: { type: "", value: strudelCore.keep },
   // keepif: { type: "", value: strudelCore.keepif },
   // lastOf: { type: "", value: strudelCore.lastOf },
-  // late: { type: "", value: strudelCore.late },
+  "~>": {
+    type: "Pattern Number -> Pattern a -> Pattern a",
+    value: strudelCore.late,
+  },
   // legato: { type: "", value: strudelCore.legato },
   linger: {
     type: "Pattern Number -> Pattern a -> Pattern a",
