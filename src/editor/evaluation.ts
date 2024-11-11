@@ -18,15 +18,14 @@ import {
   evalKeymap,
 } from "@management/cm-evaluate";
 
-// import {
-//   mininotationStringField,
-//   replaceMininotation,
-// } from "../strudel/highlights/state";
+import {
+  mininotationStringField,
+  replaceMininotation,
+} from "../strudel/highlights/state";
 
 import { Environment } from "../compiler/environment";
 import { expressionBounds } from "../compiler/parse/Utils";
 import { TypeInfo } from "../compiler/typecheck/Annotations";
-import { Substitution } from "../compiler/typecheck/Utilities";
 
 export const evalTheme = EditorView.theme({
   "@keyframes cm-eval-flash": {
@@ -41,13 +40,17 @@ interface EvaluationResults {
   miniLocations?: Location[];
 }
 
+let evalCounter = 0;
+
 export function handleEvaluation(
   code: string,
+  offset: number,
   env: Environment
 ): EvaluationResults {
   let reporter = new ErrorReporter();
 
   let results: Evaluation[] = [];
+  let miniLocations: Location[] | undefined;
 
   try {
     const scanner = new Scanner(code);
@@ -83,9 +86,18 @@ export function handleEvaluation(
     } else {
       const interpreter = new Interpreter(reporter, env.typeEnv);
 
-      let [values, locations] = interpreter.interpret(typedStmts, 0);
+      let values: string[];
+      [values, miniLocations] = interpreter.interpret(
+        typedStmts,
+        evalCounter++
+      );
 
-      console.log(code);
+      if (miniLocations) {
+        miniLocations = miniLocations.map(([id, { from, to }]) => [
+          id,
+          { from: from + offset, to: to + offset },
+        ]);
+      }
 
       values.forEach((text, i) => {
         if (text !== "") {
@@ -120,7 +132,7 @@ export function handleEvaluation(
     throw error;
   }
 
-  return { results };
+  return { results, miniLocations };
 }
 
 export function evaluation(
@@ -134,13 +146,15 @@ export function evaluation(
       if (effect.is(evalEffect)) {
         let { from, to } = effect.value;
         let code = tr.newDoc.sliceString(from, to);
-        let { results, miniLocations } = handleEvaluation(code, env);
+        let { results, miniLocations } = handleEvaluation(code, from, env);
 
         for (let result of results) {
           consoleComponent.update(result);
         }
 
-        // effects.push(replaceMininotation(from, to, miniLocations));
+        if (miniLocations) {
+          effects.push(replaceMininotation(from, to, miniLocations));
+        }
       }
     }
 
@@ -152,6 +166,6 @@ export function evaluation(
     evalTheme,
     keymap.of(evalKeymap),
     evalDecoration(),
-    // mininotationStringField,
+    mininotationStringField,
   ];
 }

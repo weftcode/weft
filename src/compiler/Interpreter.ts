@@ -129,20 +129,17 @@ export class Interpreter {
           );
         }
 
-        // TODO: Only do this for Patterns
-        let id = `${this.currentID}-${this.miniNotationLocations.length}`;
-        let { from, to } = tokenBounds(token);
-        this.miniNotationLocations.push([id, { from, to }]);
-
-        // return parseMini(stringValue).withContext(({ locations, ...ctx }) => ({
-        //   locations: locations.map((loc) => ({ ...loc, id })),
-        //   ...ctx,
-        // }));
-
-        console.log(JSON.stringify(type));
-
         if (type.type === "ty-app" && type.C === "Pattern") {
-          return parseMini(stringValue);
+          let id = `${this.currentID}-${this.miniNotationLocations.length}`;
+          let { from, to } = tokenBounds(token);
+          this.miniNotationLocations.push([id, { from, to }]);
+
+          return parseMini(stringValue).withContext(
+            ({ locations, ...ctx }: any) => ({
+              locations: locations.map((loc: any) => ({ ...loc, id })),
+              ...ctx,
+            })
+          );
         } else {
           return stringValue;
         }

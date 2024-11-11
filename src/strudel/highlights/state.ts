@@ -9,11 +9,10 @@ import {
 import { Location } from "../../compiler/Interpreter";
 
 export interface HighlightEvent {
-  miniID: number;
+  miniID: string;
   from: number;
   to: number;
-  onset: number;
-  cycle: number;
+  time: number;
   duration: number;
 }
 
@@ -81,16 +80,13 @@ export const mininotationStringField = StateField.define<
   },
 });
 
-export type TimestampedHighlightEvent = HighlightEvent & { time: number };
-
 export const highlightTickEffect = StateEffect.define<number>();
 
-export const highlightAddEffect =
-  StateEffect.define<TimestampedHighlightEvent[]>();
+export const highlightAddEffect = StateEffect.define<HighlightEvent[]>();
 
 export const highlightSetField = StateField.define({
   create: () => [],
-  update: (value: TimestampedHighlightEvent[], tr) => {
+  update: (value: HighlightEvent[], tr) => {
     for (let effect of tr.effects) {
       if (effect.is(highlightTickEffect)) {
         value = value.filter((event) => {

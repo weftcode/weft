@@ -13,6 +13,7 @@ import {
 } from "@strudel/webaudio";
 
 import { addBinding, BindingSpec } from "../compiler/environment";
+import { HighlightHandler } from "./highlights";
 
 initAudioOnFirstClick();
 const ctx = getAudioContext();
@@ -33,8 +34,21 @@ function getTime() {
   return ctx.currentTime;
 }
 
+export const handlerSet = new Set<HighlightHandler>();
+
 async function onTrigger(hap, deadline, duration, cps) {
-  // console.log(hap.context);
+  for (let handler of handlerSet) {
+    for (let { start, end, id } of hap.context.locations) {
+      handler({
+        from: start,
+        to: end,
+        miniID: id,
+        time: (getTime() + deadline) * 1000,
+        duration: duration * 1000,
+      });
+    }
+  }
+
   try {
     if (!hap.context.onTrigger || !hap.context.dominantTrigger) {
       await webaudioOutput(hap, deadline, duration, cps);

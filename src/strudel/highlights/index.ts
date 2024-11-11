@@ -9,32 +9,33 @@ import {
 import { Decoration, EditorView, ViewPlugin, keymap } from "@codemirror/view";
 
 import {
+  HighlightEvent,
   mininotationStringField,
-  TimestampedHighlightEvent,
   highlightTickEffect,
   highlightAddEffect,
   highlightSetField,
 } from "./state";
 
-export function highlighter(api: typeof ElectronAPI): Extension {
-  const highlighterPlugin = ViewPlugin.define((view) => {
-    let pendingHighlights: TimestampedHighlightEvent[] = [];
+export type HighlightHandler = (highlight: HighlightEvent) => void;
 
-    let offTidalHighlight = api.onTidalHighlight((highlight) => {
+export function highlighter(handlerSet: Set<HighlightHandler>): Extension {
+  const highlighterPlugin = ViewPlugin.define((view) => {
+    let pendingHighlights: HighlightEvent[] = [];
+
+    const handler: HighlightHandler = (highlight) => {
       // TODO: Filter out duplicate highlights
-      pendingHighlights.push({
-        ...highlight,
-        time: fromNTPTime(highlight.onset),
-      });
-    });
+      pendingHighlights.push(highlight);
+    };
+
+    handlerSet.add(handler);
 
     const update = (time: number) => {
       let effects: StateEffect<any>[] = [];
 
       effects.push(highlightTickEffect.of(time));
 
-      let toAdd: TimestampedHighlightEvent[] = [];
-      let stillPending: TimestampedHighlightEvent[] = [];
+      let toAdd: HighlightEvent[] = [];
+      let stillPending: HighlightEvent[] = [];
 
       // Partition the pending events based on whether they're ready
       for (let event of pendingHighlights) {
@@ -64,7 +65,7 @@ export function highlighter(api: typeof ElectronAPI): Extension {
 
     return {
       destroy: () => {
-        offTidalHighlight();
+        handlerSet.delete(handler);
         cancelAnimationFrame(animationFrame);
       },
     };
@@ -79,8 +80,7 @@ export function highlighter(api: typeof ElectronAPI): Extension {
 
 const highlightDecoration = Decoration.mark({
   attributes: {
-    style:
-      "background-color: var(--color-livecode-active-event-background); color: var(--color-foreground-inverted)",
+    style: "background-color: #fff; color: #000",
   },
 });
 

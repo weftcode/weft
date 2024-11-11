@@ -135,6 +135,8 @@ import {
 } from "../compiler/typecheck/Annotations";
 import { renamer } from "../compiler/rename/Renamer";
 import { Substitution } from "../compiler/typecheck/Utilities";
+import { highlighter } from "../strudel/highlights";
+import { handlerSet } from "../strudel/boot";
 
 function generateTypeDiagnostics(
   sub: Substitution,
@@ -209,6 +211,7 @@ window.addEventListener("load", async () => {
       autosave,
       dracula,
       editorTheme,
+      highlighter(handlerSet),
     ],
     parent: document.getElementById("editor") ?? undefined,
   });
