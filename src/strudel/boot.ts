@@ -1,4 +1,4 @@
-//@ts-nocheck
+// @ts-nocheck
 
 import { reify, Cyclist, silence, stack } from "@strudel/core";
 import { registerVoicings } from "@strudel/tonal";
@@ -12,8 +12,8 @@ import {
   samples,
 } from "@strudel/webaudio";
 
-import { miniAllStrings } from "@strudel/mini";
-import { Bindings } from "../compiler/parse/API";
+import { addBinding, BindingSpec } from "../compiler/environment";
+import { HighlightHandler } from "./highlights";
 
 initAudioOnFirstClick();
 const ctx = getAudioContext();
@@ -29,13 +29,26 @@ samples(`${ds}/piano.json`);
 samples(`${ds}/Dirt-Samples.json`);
 samples(`${ds}/EmuSP12.json`);
 samples(`${ds}/vcsl.json`);
-miniAllStrings();
 
 function getTime() {
   return ctx.currentTime;
 }
 
+export const handlerSet = new Set<HighlightHandler>();
+
 async function onTrigger(hap, deadline, duration, cps) {
+  for (let handler of handlerSet) {
+    for (let { start, end, id } of hap.context.locations) {
+      handler({
+        from: start,
+        to: end,
+        miniID: id,
+        time: (getTime() + deadline) * 1000,
+        duration: duration * 1000,
+      });
+    }
+  }
+
   try {
     if (!hap.context.onTrigger || !hap.context.dominantTrigger) {
       await webaudioOutput(hap, deadline, duration, cps);
@@ -79,9 +92,17 @@ export function p(id: string | number) {
   });
 }
 
+export default (env: Environment) => {
+  for (let [name, binding] of Object.entries(boot)) {
+    env = addBinding(env, { name, ...binding });
+  }
+
+  return env;
+};
+
 // Bindings (similar to Tidal's BootTidal.hs)
-export const boot: Bindings = {
-  p: { type: "ID -> Pattern Controls -> IO ()", value: p },
+const boot: BindingSpec = {
+  p: { type: "String -> Pattern Controls -> IO ()", value: p },
   d1: { type: "Pattern Controls -> IO ()", value: p(1) },
   d2: { type: "Pattern Controls -> IO ()", value: p(2) },
   d3: { type: "Pattern Controls -> IO ()", value: p(3) },
@@ -95,20 +116,28 @@ export const boot: Bindings = {
   d11: { type: "Pattern Controls -> IO ()", value: p(11) },
   d12: { type: "Pattern Controls -> IO ()", value: p(12) },
   hush: { type: "IO ()", value: { runIO: hush } },
-  // setCps: {
-  //   type: "Number -> IO ()",
-  //   value: (cps) => ({
-  //     runIO: () => {
-  //       scheduler.setCps(cps);
-  //     },
-  //   }),
-  // },
-  // setCpm: {
-  //   type: "Number -> IO ()",
-  //   value: (cpm) => ({
-  //     runIO: () => {
-  //       scheduler.setCps(cpm / 60);
-  //     },
-  //   }),
-  // },
+  setCps: {
+    type: "Number -> IO ()",
+    value: (cps) => ({
+      runIO: () => {
+        scheduler.setCps(cps);
+      },
+    }),
+  },
+  setCpm: {
+    type: "Number -> IO ()",
+    value: (cpm) => ({
+      runIO: () => {
+        scheduler.setCps(cpm / 60);
+      },
+    }),
+  },
+  loadSounds: {
+    type: "String -> IO ()",
+    value: (path) => ({
+      runIO: () => {
+        console.log(`Loading from: "${path}"`);
+      },
+    }),
+  },
 };

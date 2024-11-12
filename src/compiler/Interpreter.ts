@@ -1,22 +1,32 @@
 import { ErrorReporter } from "./parse/Reporter";
 import { Token, tokenBounds } from "./scan/Token";
-import { Expr } from "./parse/Expr";
-import { Stmt } from "./parse/Stmt";
-import { Bindings } from "./parse/API";
+import { Expr } from "./parse/AST/Expr";
+import { Stmt } from "./parse/AST/Stmt";
 
-import { Pattern } from "../strudel";
+import { Pattern, parseMini } from "../strudel";
 import { TokenType } from "./scan/TokenType";
+import { TypeEnv } from "./environment";
+import { TypeInfo } from "./typecheck/Annotations";
 
 type Value = Value[] | ((input: Value) => Value);
+
+export type Location = [string, { from: number; to: number }];
 
 export class Interpreter {
   constructor(
     private readonly reporter: ErrorReporter,
-    private bindings: Bindings
+    private bindings: TypeEnv
   ) {}
 
-  interpret(statements: Stmt[]) {
+  private currentID: number = 0;
+
+  private miniNotationLocations: Location[] = [];
+
+  interpret(statements: Stmt<TypeInfo>[], id: number): [string[], Location[]] {
     let results: string[] = [];
+
+    this.currentID = id;
+    this.miniNotationLocations = [];
 
     try {
       for (let statement of statements) {
@@ -42,7 +52,7 @@ export class Interpreter {
       }
     }
 
-    return results;
+    return [results, this.miniNotationLocations];
   }
 
   private stringify(object: any) {
@@ -50,7 +60,7 @@ export class Interpreter {
     if (object instanceof Pattern) {
       return (object as Pattern)
         .firstCycle()
-        .map((hap) => hap.show(true))
+        .map((hap: any) => hap.show(true))
         .join(", ");
     }
 
@@ -59,14 +69,14 @@ export class Interpreter {
     return object.toString();
   }
 
-  private execute(stmt: Stmt) {
-    switch (stmt.type) {
-      case Stmt.Type.Expression:
+  private execute(stmt: Stmt<TypeInfo>) {
+    switch (stmt.is) {
+      case Stmt.Is.Expression:
         return this.evaluate(stmt.expression) as any;
     }
   }
 
-  private evaluate(expr: Expr): any {
+  private evaluate(expr: Expr<TypeInfo>): any {
     switch (expr.is) {
       case Expr.Is.Literal:
         return this.evaluateLiteral(expr);
@@ -101,18 +111,42 @@ export class Interpreter {
     }
   }
 
-  private evaluateLiteral({ token }: Expr.Literal): string | number {
+  private evaluateLiteral({
+    token,
+    type,
+  }: Expr.Literal<TypeInfo>): string | number | any {
     switch (token.type) {
       case TokenType.Number:
         // Parse number
         return parseFloat(token.lexeme);
       case TokenType.String:
         // Trim surrounding quotes
-        return token.lexeme.substring(1, token.lexeme.length - 1);
+        const stringValue = token.lexeme.substring(1, token.lexeme.length - 1);
+
+        if (!type) {
+          throw new Error(
+            `Discovered a type error while trying to evaluate string literal "${stringValue}"`
+          );
+        }
+
+        if (type.type === "ty-app" && type.C === "Pattern") {
+          let id = `${this.currentID}-${this.miniNotationLocations.length}`;
+          let { from, to } = tokenBounds(token);
+          this.miniNotationLocations.push([id, { from, to }]);
+
+          return parseMini(stringValue).withContext(
+            ({ locations, ...ctx }: any) => ({
+              locations: locations.map((loc: any) => ({ ...loc, id })),
+              ...ctx,
+            })
+          );
+        } else {
+          return stringValue;
+        }
     }
   }
 
-  private curry(func: Expr): Function {
+  private curry(func: Expr<TypeInfo>): Function {
     if (func.is === Expr.Is.Variable || func.is === Expr.Is.Section) {
       return this.evaluate(func) as any;
     } else if (func.is === Expr.Is.Grouping) {

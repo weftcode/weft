@@ -4,7 +4,7 @@ import { Diagnostic, linter } from "@codemirror/lint";
 import { StreamLanguage } from "@codemirror/language";
 import { haskell } from "@codemirror/legacy-modes/mode/haskell";
 
-import { evaluation } from "@management/cm-evaluate";
+import { evaluation } from "./evaluation";
 
 import { console as editorConsole } from "./console";
 
@@ -16,13 +16,18 @@ import { dracula } from "thememirror/dist/index.js";
 import { Scanner } from "../compiler/scan/Scanner";
 import { Parser } from "../compiler/parse/Parser";
 import { ErrorReporter } from "../compiler/parse/Reporter";
-import { Interpreter } from "../compiler/Interpreter";
 
-import { getOperators } from "../compiler/parse/API";
+import strudel from "../strudel";
+import { hush } from "../strudel";
+import standardLib from "../standard-lib";
 
-import { bindings, hush, typeBindings } from "../strudel";
-
+import { makeEnv } from "../compiler/environment";
 import { TypeChecker } from "../compiler/typecheck/Typechecker";
+
+let env = standardLib(makeEnv());
+
+// @ts-ignore
+env = strudel(env);
 
 async function updateURLField(input: HTMLInputElement, doc: string) {
   const stream = new ReadableStream({
@@ -48,7 +53,9 @@ async function decodeDoc(encodedDoc: string) {
   const stream = new ReadableStream({
     start: (controller) => {
       const binString = atob(encodedDoc);
-      controller.enqueue(Uint8Array.from(binString, (m) => m.codePointAt(0)));
+      controller.enqueue(
+        Uint8Array.from(binString, (m) => m.codePointAt(0) ?? 0)
+      );
       controller.close();
     },
   })
@@ -80,72 +87,7 @@ const autosave = EditorView.updateListener.of((update) => {
   }
 });
 
-const evalTheme = EditorView.theme({
-  "@keyframes cm-eval-flash": {
-    from: { backgroundColor: "#FFFFFF" },
-    to: { backgroundColor: "#FFFFFF00" },
-  },
-  "& .cm-evaluated": { animation: "cm-eval-flash 0.5s" },
-});
-
 const consoleComponent = editorConsole();
-
-function handleEvaluation(code: string) {
-  let reporter = new ErrorReporter();
-
-  try {
-    const scanner = new Scanner(code);
-    const tokens = scanner.scanTokens();
-    const parser = new Parser(tokens, getOperators(bindings), reporter);
-    const stmts = parser.parse();
-
-    renamer(stmts, bindings, reporter);
-
-    if (!reporter.hasError) {
-      let typechecker = new TypeChecker(reporter, typeBindings);
-
-      for (let stmt of stmts) {
-        let [sub, type, annotations] = typechecker.check(stmt);
-        annotations.forEach((annotation) => {
-          if (annotation.severity === "error") {
-            annotation.apply(sub);
-            reporter.error(annotation.from, annotation.to, annotation.message);
-          }
-        });
-      }
-    }
-
-    if (reporter.hasError) {
-      consoleComponent.update({
-        input: code,
-        success: false,
-        text:
-          "Error: " + reporter.errors.map((error) => error.message).join("\n"),
-      });
-    } else {
-      const interpreter = new Interpreter(reporter, bindings);
-
-      let results = interpreter.interpret(stmts);
-      let text = [...results, ...reporter.errors].join("\n");
-
-      if (text === "") {
-        return;
-      }
-
-      consoleComponent.update({
-        input: code,
-        success: true,
-        text,
-      });
-    }
-  } catch (error) {
-    consoleComponent.update({
-      input: code,
-      success: false,
-      text: "Error: " + error.message,
-    });
-  }
-}
 
 const parseLinter = linter((view) => {
   try {
@@ -153,23 +95,20 @@ const parseLinter = linter((view) => {
 
     const scanner = new Scanner(view.state.doc.toString());
     const tokens = scanner.scanTokens();
-    const parser = new Parser(tokens, getOperators(bindings), reporter);
+    const parser = new Parser(tokens, env.typeEnv, reporter);
     const stmts = parser.parse();
 
     let diagnostics: Diagnostic[] = [];
 
     // Run renamer to check for undefined variables
-    renamer(stmts, bindings, reporter);
+    renamer(stmts, env.typeEnv, reporter);
 
-    const typechecker = new TypeChecker(reporter, typeBindings);
+    const typechecker = new TypeChecker(reporter, env);
 
     for (let stmt of stmts) {
-      let [_s, _t, annotations] = typechecker.check(stmt);
+      let { expression } = typechecker.check(stmt);
 
-      let annotationMap = new WeakMap(annotations.map((a) => [a.expr, a]));
-      diagnostics = diagnostics.concat(
-        generateTypeDiagnostics(stmt.expression, annotationMap)
-      );
+      diagnostics = diagnostics.concat(collectTypeDiagnostics(expression));
     }
 
     if (reporter.hasError) {
@@ -188,36 +127,10 @@ const parseLinter = linter((view) => {
   }
 });
 
-import { Expr, expressionBounds } from "../compiler/parse/Expr";
-import { TypeAnnotation } from "../compiler/typecheck/Annotations";
 import { renamer } from "../compiler/rename/Renamer";
-
-type TypeAnnotationMap = WeakMap<Expr, TypeAnnotation>;
-
-function generateTypeDiagnostics(
-  expr: Expr,
-  annotations: TypeAnnotationMap
-): Diagnostic[] {
-  switch (expr.is) {
-    case Expr.Is.Variable:
-    case Expr.Is.Literal:
-    case Expr.Is.Empty:
-      return annotations.has(expr) ? [annotations.get(expr)] : [];
-
-    case Expr.Is.Application:
-    case Expr.Is.Binary:
-      return generateTypeDiagnostics(expr.left, annotations).concat(
-        generateTypeDiagnostics(expr.right, annotations)
-      );
-    case Expr.Is.Grouping:
-    case Expr.Is.Section:
-      return generateTypeDiagnostics(expr.expression, annotations);
-    case Expr.Is.List:
-      return expr.items.flatMap((e) => generateTypeDiagnostics(e, annotations));
-    default:
-      return expr satisfies never;
-  }
-}
+import { highlighter } from "../strudel/highlights";
+import { handlerSet } from "../strudel/boot";
+import { collectTypeDiagnostics } from "../compiler/typecheck/Annotations";
 
 window.addEventListener("load", async () => {
   let doc: string;
@@ -232,7 +145,7 @@ window.addEventListener("load", async () => {
 
   consoleComponent.update({
     level: "info",
-    text: "Welcome to the very experimental web Tidal editor!\nUse Ctrl+Enter (or Command+Enter on Mac) to evaluate a block of code. Play patterns in normal Tidal style with the functions `d1` to `d2`. To hush all currently-playing patterns, either evaluate the `hush` function or press Ctrl+. (or Command+. on Mac).",
+    text: "Welcome to the very experimental web Tidal editor!\nUse Ctrl+Enter (or Command+Enter on Mac) to evaluate a block of code. Play patterns in normal Tidal style with the functions `d1` to `d12`. To hush all currently-playing patterns, either evaluate the `hush` function or press Ctrl+. (or Command+. on Mac).",
   });
 
   window.addEventListener("keydown", (event) => {
@@ -241,20 +154,20 @@ window.addEventListener("load", async () => {
     }
   });
 
-  document.getElementById("output").appendChild(consoleComponent.dom);
+  document.getElementById("output")?.appendChild(consoleComponent.dom);
 
   new EditorView({
     doc,
     extensions: [
-      evaluation(handleEvaluation),
+      evaluation(env, consoleComponent),
       basicSetup,
       StreamLanguage.define(haskell),
       parseLinter,
       autosave,
       dracula,
       editorTheme,
-      evalTheme,
+      highlighter(handlerSet),
     ],
-    parent: document.getElementById("editor"),
+    parent: document.getElementById("editor") ?? undefined,
   });
 });
