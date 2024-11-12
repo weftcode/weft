@@ -1,5 +1,7 @@
 import { Kind, Type } from "./Type";
 
+import { eq } from "../../../utils";
+
 export const KType: Kind = {
   is: Kind.Is.Type,
 };
@@ -38,3 +40,22 @@ export const tString = TConst("String");
 
 export const tList = TConst("[]", KFunc(KType, KType));
 export const tArrow = TConst("(->)", KFunc(KType, KFunc(KType, KType)));
+
+interface FnType {
+  left: Type;
+  right: Type;
+}
+
+export function asFnType(type: Type): FnType | null {
+  if (type.is !== Type.Is.App) {
+    return null;
+  }
+
+  const { left, right } = type;
+
+  if (left.is !== Type.Is.App || !eq(left.left, tArrow)) {
+    return null;
+  }
+
+  return { left: left.right, right };
+}
