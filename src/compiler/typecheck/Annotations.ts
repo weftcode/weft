@@ -5,6 +5,8 @@ import { printType } from "./Printer";
 import { MonoType } from "./Types";
 import { Substitution } from "./Utilities";
 
+import type { Diagnostic } from "@codemirror/lint";
+
 type Severity = "info" | "warning" | "error";
 
 export abstract class TypeAnnotation {
@@ -114,6 +116,10 @@ export function applyToExpr<T extends Expr<TypeInfo>>(
   expr: T,
   sub: Substitution
 ): T {
+  if ("typeAnnotation" in expr && expr.typeAnnotation) {
+    expr.typeAnnotation.apply(sub);
+  }
+
   switch (expr.is) {
     case Expr.Is.Empty:
       return expr;
@@ -162,6 +168,42 @@ export function applyToExpr<T extends Expr<TypeInfo>>(
         type: type && sub(type),
       };
     }
+    default:
+      return expr satisfies never;
+  }
+}
+
+export function collectTypeDiagnostics(expr: Expr<TypeInfo>): Diagnostic[] {
+  // Dispense with the simplest cases
+  switch (expr.is) {
+    case Expr.Is.Grouping:
+      return collectTypeDiagnostics(expr.expression);
+    case Expr.Is.Empty:
+      return [];
+  }
+
+  // Now, check for a type annotation
+  let { typeAnnotation } = expr;
+  if (typeAnnotation) {
+    console.log("Found type error annotation");
+    return [typeAnnotation];
+  }
+
+  switch (expr.is) {
+    case Expr.Is.Variable:
+    case Expr.Is.Literal:
+      let type = getType(expr);
+      return type ? [new TypeInfoAnnotation(expr, type)] : [];
+
+    case Expr.Is.Application:
+    case Expr.Is.Binary:
+      return collectTypeDiagnostics(expr.left).concat(
+        collectTypeDiagnostics(expr.right)
+      );
+    case Expr.Is.Section:
+      return collectTypeDiagnostics(expr.expression);
+    case Expr.Is.List:
+      return expr.items.flatMap((e) => collectTypeDiagnostics(e));
     default:
       return expr satisfies never;
   }

@@ -108,7 +108,7 @@ const parseLinter = linter((view) => {
     for (let stmt of stmts) {
       let { expression } = typechecker.check(stmt);
 
-      // diagnostics = diagnostics.concat(generateTypeDiagnostics(sub, expression));
+      diagnostics = diagnostics.concat(collectTypeDiagnostics(expression));
     }
 
     if (reporter.hasError) {
@@ -127,55 +127,10 @@ const parseLinter = linter((view) => {
   }
 });
 
-import { Expr } from "../compiler/parse/AST/Expr";
-import {
-  TypeInfo,
-  TypeInfoAnnotation,
-  getType,
-} from "../compiler/typecheck/Annotations";
 import { renamer } from "../compiler/rename/Renamer";
-import { Substitution } from "../compiler/typecheck/Utilities";
 import { highlighter } from "../strudel/highlights";
 import { handlerSet } from "../strudel/boot";
-
-function generateTypeDiagnostics(
-  sub: Substitution,
-  expr: Expr<TypeInfo>
-): Diagnostic[] {
-  // Dispense with the simplest cases
-  switch (expr.is) {
-    case Expr.Is.Grouping:
-      return generateTypeDiagnostics(sub, expr.expression);
-    case Expr.Is.Empty:
-      return [];
-  }
-
-  // Now, check for a type annotation
-  let { typeAnnotation } = expr;
-  if (typeAnnotation) {
-    typeAnnotation.apply(sub);
-    return [typeAnnotation];
-  }
-
-  switch (expr.is) {
-    case Expr.Is.Variable:
-    case Expr.Is.Literal:
-      let type = getType(expr);
-      return type ? [new TypeInfoAnnotation(expr, sub(type))] : [];
-
-    case Expr.Is.Application:
-    case Expr.Is.Binary:
-      return generateTypeDiagnostics(sub, expr.left).concat(
-        generateTypeDiagnostics(sub, expr.right)
-      );
-    case Expr.Is.Section:
-      return generateTypeDiagnostics(sub, expr.expression);
-    case Expr.Is.List:
-      return expr.items.flatMap((e) => generateTypeDiagnostics(sub, e));
-    default:
-      return expr satisfies never;
-  }
-}
+import { collectTypeDiagnostics } from "../compiler/typecheck/Annotations";
 
 window.addEventListener("load", async () => {
   let doc: string;
