@@ -1,10 +1,11 @@
-import { Expr } from "../../parse/Expr";
+import { Expr } from "../../parse/AST/Expr";
 
 import { Kind, Type } from "./Type";
 
 import { TypeInf, freshInst, unify } from "./Monad";
-import { Context } from "./Context";
+import { TypeEnv } from "./Context";
 import { Predicate } from "./TypeClass";
+import { TFunc } from "./BuiltIns";
 
 // data Expr = Var   Id
 //           | Lit   Literal
@@ -32,31 +33,31 @@ import { Predicate } from "./TypeClass";
 //                                    return (ps ++ qs, t)
 
 export function inferExpr(
-  env: Context,
+  env: TypeEnv,
   expr: Expr
 ): TypeInf<[Predicate[], Type]> {
-  switch (expr.type) {
-    case Expr.Type.Variable:
+  switch (expr.is) {
+    case Expr.Is.Variable:
       let scheme = env[expr.name.lexeme];
       return freshInst(scheme).bind(({ preds, type }) =>
         TypeInf.pure([preds, type])
       );
 
     // Grouping
-    case Expr.Type.Grouping:
+    case Expr.Is.Grouping:
       return inferExpr(env, expr.expression);
 
     // Function application
-    case Expr.Type.Application:
+    case Expr.Is.Application:
       return inferApp(env, expr);
 
     // Special cases of function application
-    case Expr.Type.Binary:
+    case Expr.Is.Binary:
       return inferApp(env, {
-        type: Expr.Type.Application,
+        is: Expr.Is.Application,
         left: {
-          type: Expr.Type.Application,
-          left: { type: Expr.Type.Variable, name: expr.operator },
+          is: Expr.Is.Application,
+          left: expr.operator,
           right: expr.left,
         },
         right: expr.right,
@@ -68,13 +69,13 @@ export function inferExpr(
 }
 
 export function inferApp(
-  env: Context,
-  { left, right }: Expr & { type: Expr.Type.Application }
+  env: TypeEnv,
+  { left, right }: Expr & { is: Expr.Is.Application }
 ) {
   return inferExpr(env, left).bind(([ps, typeL]) =>
     inferExpr(env, right).bind(([qs, typeR]) =>
       TypeInf.newTVar({ is: Kind.Is.Type }).bind((typeResult) =>
-        unify(fnType(typeR, typeResult), typeL).then(
+        unify(TFunc(typeR, typeResult), typeL).then(
           TypeInf.pure<[Predicate[], Type]>([ps.concat(qs), typeResult])
         )
       )
