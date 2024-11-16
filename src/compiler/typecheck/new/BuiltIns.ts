@@ -34,6 +34,16 @@ export function TFunc(left: Type, right: Type): Type.App {
   return TApp(TApp(tArrow, left), right);
 }
 
+export function TTuple(arity: number) {
+  // Assume arity >= 2
+  let kind = KType;
+  for (let i = 0; i < arity - 1; ++i) {
+    kind = KFunc(KType, kind);
+  }
+
+  return TConst(`(${",".repeat(arity - 1)})`, kind);
+}
+
 export const tUnit = TConst("()");
 export const tNumber = TConst("Number");
 export const tString = TConst("String");

@@ -11,16 +11,34 @@ export namespace TypeNode {
     Tuple = "Tuple",
     Group = "Grouping",
     Var = "Variable",
+    Const = "Constructor",
     Unit = "Unit",
   }
 
   export interface Qual {
     is: Is.Qual;
-    context: Type; // TODO: clarify this
+    context: Context;
     type: Type;
   }
 
-  export type Type = Func | App | List | Tuple | Group | Var | Unit;
+  interface HNFPred extends App {
+    left: Const;
+    right: Var;
+  }
+
+  interface HNFApp extends App {
+    left: HNFPred | HNFApp;
+  }
+
+  export type ClassAssertion = HNFPred | HNFApp;
+
+  export interface ClassAssertionList extends Tuple {
+    items: ClassAssertion[];
+  }
+
+  export type Context = ClassAssertion | ClassAssertionList;
+
+  export type Type = Func | App | List | Tuple | Group | Var | Const | Unit;
 
   export interface Func {
     is: Is.Func;
@@ -47,6 +65,11 @@ export namespace TypeNode {
   export interface Group {
     is: Is.Group;
     type: Type;
+  }
+
+  export interface Const {
+    is: Is.Const;
+    name: Token;
   }
 
   export interface Var {

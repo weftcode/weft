@@ -13,14 +13,42 @@ export class TypeParser extends BaseParser<TypeNode> {
     let context = this.functionType();
 
     if (this.match(TokenType.DoubleArrow)) {
-      // We found a type constraint! For now, let's not try re-parsing it
       return {
         is: TypeNode.Is.Qual,
-        context,
+        context: this.asContext(context),
         type: this.functionType(),
       };
     } else {
       return context;
+    }
+  }
+
+  private asContext(node: TypeNode.Type): TypeNode.Context {
+    if (node.is === TypeNode.Is.Tuple) {
+      return {
+        ...node,
+        items: node.items.map((item) => this.asClassAssertion(item)),
+      };
+    } else {
+      return this.asClassAssertion(node);
+    }
+  }
+
+  private asClassAssertion(node: TypeNode.Type): TypeNode.ClassAssertion {
+    if (node.is !== TypeNode.Is.App) {
+      throw new Error(`Class assertion can't be of form: ${node.is}`);
+    }
+
+    const { left, right } = node;
+
+    if (left.is === TypeNode.Is.Const) {
+      if (right.is !== TypeNode.Is.Var) {
+        throw new Error(`Class assertion must be in head-normal form`);
+      }
+
+      return { ...node, left, right };
+    } else {
+      return { ...node, left: this.asClassAssertion(left) };
     }
   }
 
@@ -92,11 +120,13 @@ export class TypeParser extends BaseParser<TypeNode> {
   private typeIdentifier(): TypeNode.Type | null {
     if (this.match(TokenType.Identifier)) {
       let name = this.previous();
+      let { lexeme } = name;
 
-      return {
-        is: TypeNode.Is.Var,
-        name,
-      };
+      if (lexeme[0] >= "a" && lexeme[0] <= "z") {
+        return { is: TypeNode.Is.Var, name };
+      } else if (lexeme[0] >= "A" && lexeme[0] <= "Z") {
+        return { is: TypeNode.Is.Const, name };
+      }
     }
 
     return null;
