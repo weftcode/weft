@@ -1,5 +1,8 @@
-import { Type } from "./Type";
+import { kindOf, Type } from "./Type";
 import { Substitution, combine, applyToType } from "./Substitution";
+
+import { eq } from "../../../utils";
+import { varsInType } from "./Vars";
 
 export function mgu(type1: Type, type2: Type): Substitution {
   if (type1.is === Type.Is.App && type2.is === Type.Is.App) {
@@ -29,19 +32,19 @@ export function mgu(type1: Type, type2: Type): Substitution {
   throw new Error("types do not unify");
 }
 
-// function varBind(tyVar: Type.Var, type: Type): Substitution {
-//   // Equivalent type variables just need the null substitution
-//   if (eq(tyVar, type)) {
-//     return {};
-//   }
+function varBind(tyVar: Type.Var, type: Type): Substitution {
+  // Equivalent type variables just need the null substitution
+  if (eq(tyVar, type)) {
+    return {};
+  }
 
-//   if (TypesType.tv(type).some((t) => eq(t, tyVar))) {
-//     throw new Error("occurs check fails");
-//   }
+  if (varsInType(type).some((t) => eq(t, tyVar))) {
+    throw new Error("occurs check fails");
+  }
 
-//   if (eq(Type.kind(tyVar), Type.kind(type))) {
-//     throw new Error("kinds do not match");
-//   }
+  if (eq(kindOf(tyVar), kindOf(type))) {
+    throw new Error("kinds do not match");
+  }
 
-//   return [[tyVar, type]];
-// }
+  return { [tyVar.id]: type };
+}

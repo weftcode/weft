@@ -1,4 +1,5 @@
-import { Instance } from "../TypeClass";
+import { Type } from "../Type";
+import { Predicate, Instance } from "../TypeClass";
 import { TypeScheme } from "../TypeScheme";
 
 export type TypeClassEnv = {
@@ -15,6 +16,12 @@ export interface ClassSpec {
   name: string;
   superClasses: string[];
   functions: { readonly [name: string]: { type: string; value?: any } };
+}
+
+export interface InstanceSpec {
+  name: string;
+  type: Type;
+  functions: { readonly [name: string]: { value: any } };
 }
 
 // const getSuper = (ce: ClassEnv, id: Id) => ce.classes[id][0];
@@ -49,26 +56,26 @@ function addClass(spec: ClassSpec, ce: TypeClassEnv): TypeClassEnv {
 
   return {
     ...ce,
-    [name]: { superClasses, functions, instances: [] },
+    [name]: { superClasses, functions: {}, instances: [] },
   };
 }
 
-function addInst(ps: Predicate[], p: Predicate, ce: ClassEnv) {
-  let className = p.isIn;
+function addInst(spec: InstanceSpec, ce: TypeClassEnv): TypeClassEnv {
+  let { name } = spec;
 
-  if (!(className in ce.classes)) {
+  if (!(name in ce)) {
     throw new Error("no class for instance");
   }
 
-  let its = getInsts(ce, className);
+  let { instances } = ce[name];
 
-  if (its.map((i) => i.head).some((q) => overlap(p, q))) {
+  if (instances.map((i) => i.inst).some((q) => overlap(p, q))) {
     throw new Error(`overlapping instance`);
   }
 
-  return modify(ce, className, [
-    getSuper(ce, className),
-    [{ preds: ps, head: p }, ...its],
+  return modify(ce, name, [
+    getSuper(ce, name),
+    [{ preds: ps, head: p }, ...insts],
   ]);
 }
 
