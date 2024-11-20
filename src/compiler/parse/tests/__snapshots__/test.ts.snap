@@ -1,0 +1,356 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Basic Code Snapshot parses correctly 1`] = `
+[
+  {
+    "expression": {
+      "is": "Binary",
+      "left": {
+        "is": "Variable",
+        "name": {
+          "from": 23,
+          "lexeme": "putStrLn",
+          "type": "IDENTIFIER",
+        },
+      },
+      "operator": {
+        "is": "Variable",
+        "name": {
+          "from": 32,
+          "lexeme": "$",
+          "type": "OPERATOR",
+        },
+      },
+      "precedence": 0,
+      "right": {
+        "is": "Application",
+        "left": {
+          "is": "Variable",
+          "name": {
+            "from": 34,
+            "lexeme": "show",
+            "type": "IDENTIFIER",
+          },
+        },
+        "right": {
+          "expression": {
+            "is": "Application",
+            "left": {
+              "is": "Application",
+              "left": {
+                "is": "Variable",
+                "name": {
+                  "from": 40,
+                  "lexeme": "fmap",
+                  "type": "IDENTIFIER",
+                },
+              },
+              "right": {
+                "expression": {
+                  "expression": {
+                    "is": "Literal",
+                    "token": {
+                      "from": 48,
+                      "lexeme": "8",
+                      "type": "NUMBER",
+                    },
+                  },
+                  "is": "Section",
+                  "operator": {
+                    "is": "Variable",
+                    "name": {
+                      "from": 46,
+                      "lexeme": "+",
+                      "type": "OPERATOR",
+                    },
+                  },
+                  "side": "left",
+                },
+                "is": "Grouping",
+                "leftParen": {
+                  "from": 45,
+                  "lexeme": "(",
+                  "type": "LEFT_PAREN",
+                },
+                "rightParen": {
+                  "from": 49,
+                  "lexeme": ")",
+                  "type": "RIGHT_PAREN",
+                },
+              },
+            },
+            "right": {
+              "is": "List",
+              "items": [
+                {
+                  "is": "Literal",
+                  "token": {
+                    "from": 52,
+                    "lexeme": "0",
+                    "type": "NUMBER",
+                  },
+                },
+                {
+                  "is": "Binary",
+                  "left": {
+                    "is": "Literal",
+                    "token": {
+                      "from": 55,
+                      "lexeme": "1",
+                      "type": "NUMBER",
+                    },
+                  },
+                  "operator": {
+                    "is": "Variable",
+                    "name": {
+                      "from": 57,
+                      "lexeme": "+",
+                      "type": "OPERATOR",
+                    },
+                  },
+                  "precedence": 0,
+                  "right": {
+                    "is": "Literal",
+                    "token": {
+                      "from": 59,
+                      "lexeme": "2",
+                      "type": "NUMBER",
+                    },
+                  },
+                },
+                {
+                  "is": "Literal",
+                  "token": {
+                    "from": 62,
+                    "lexeme": "2",
+                    "type": "NUMBER",
+                  },
+                },
+                {
+                  "is": "Literal",
+                  "token": {
+                    "from": 65,
+                    "lexeme": "3",
+                    "type": "NUMBER",
+                  },
+                },
+                {
+                  "is": "Literal",
+                  "token": {
+                    "from": 68,
+                    "lexeme": "4",
+                    "type": "NUMBER",
+                  },
+                },
+              ],
+              "leftBracket": {
+                "from": 51,
+                "lexeme": "[",
+                "type": "LEFT_BRACKET",
+              },
+              "rightBracket": {
+                "from": 69,
+                "lexeme": "]",
+                "type": "RIGHT_BRACKET",
+              },
+            },
+          },
+          "is": "Grouping",
+          "leftParen": {
+            "from": 39,
+            "lexeme": "(",
+            "type": "LEFT_PAREN",
+          },
+          "rightParen": {
+            "from": 70,
+            "lexeme": ")",
+            "type": "RIGHT_PAREN",
+          },
+        },
+      },
+    },
+    "is": 0,
+  },
+  {
+    "expression": {
+      "is": "Application",
+      "left": {
+        "is": "Variable",
+        "name": {
+          "from": 72,
+          "lexeme": "putStrLn",
+          "type": "IDENTIFIER",
+        },
+      },
+      "right": {
+        "is": "Literal",
+        "token": {
+          "from": 84,
+          "lexeme": ""Hello World!"",
+          "type": "STRING",
+        },
+      },
+    },
+    "is": 0,
+  },
+]
+`;
+
+exports[`Basic Code Snapshot scans correctly 1`] = `
+[
+  {
+    "from": 0,
+    "lexeme": "
+",
+    "type": "LINE_BREAK",
+  },
+  {
+    "from": 22,
+    "lexeme": "
+",
+    "type": "LINE_BREAK",
+  },
+  {
+    "from": 23,
+    "lexeme": "putStrLn",
+    "type": "IDENTIFIER",
+  },
+  {
+    "from": 32,
+    "lexeme": "$",
+    "type": "OPERATOR",
+  },
+  {
+    "from": 34,
+    "lexeme": "show",
+    "type": "IDENTIFIER",
+  },
+  {
+    "from": 39,
+    "lexeme": "(",
+    "type": "LEFT_PAREN",
+  },
+  {
+    "from": 40,
+    "lexeme": "fmap",
+    "type": "IDENTIFIER",
+  },
+  {
+    "from": 45,
+    "lexeme": "(",
+    "type": "LEFT_PAREN",
+  },
+  {
+    "from": 46,
+    "lexeme": "+",
+    "type": "OPERATOR",
+  },
+  {
+    "from": 48,
+    "lexeme": "8",
+    "type": "NUMBER",
+  },
+  {
+    "from": 49,
+    "lexeme": ")",
+    "type": "RIGHT_PAREN",
+  },
+  {
+    "from": 51,
+    "lexeme": "[",
+    "type": "LEFT_BRACKET",
+  },
+  {
+    "from": 52,
+    "lexeme": "0",
+    "type": "NUMBER",
+  },
+  {
+    "from": 53,
+    "lexeme": ",",
+    "type": "COMMA",
+  },
+  {
+    "from": 55,
+    "lexeme": "1",
+    "type": "NUMBER",
+  },
+  {
+    "from": 57,
+    "lexeme": "+",
+    "type": "OPERATOR",
+  },
+  {
+    "from": 59,
+    "lexeme": "2",
+    "type": "NUMBER",
+  },
+  {
+    "from": 60,
+    "lexeme": ",",
+    "type": "COMMA",
+  },
+  {
+    "from": 62,
+    "lexeme": "2",
+    "type": "NUMBER",
+  },
+  {
+    "from": 63,
+    "lexeme": ",",
+    "type": "COMMA",
+  },
+  {
+    "from": 65,
+    "lexeme": "3",
+    "type": "NUMBER",
+  },
+  {
+    "from": 66,
+    "lexeme": ",",
+    "type": "COMMA",
+  },
+  {
+    "from": 68,
+    "lexeme": "4",
+    "type": "NUMBER",
+  },
+  {
+    "from": 69,
+    "lexeme": "]",
+    "type": "RIGHT_BRACKET",
+  },
+  {
+    "from": 70,
+    "lexeme": ")",
+    "type": "RIGHT_PAREN",
+  },
+  {
+    "from": 71,
+    "lexeme": "
+",
+    "type": "LINE_BREAK",
+  },
+  {
+    "from": 72,
+    "lexeme": "putStrLn",
+    "type": "IDENTIFIER",
+  },
+  {
+    "from": 84,
+    "lexeme": ""Hello World!"",
+    "type": "STRING",
+  },
+  {
+    "from": 98,
+    "lexeme": "
+",
+    "type": "LINE_BREAK",
+  },
+  {
+    "from": 99,
+    "lexeme": "",
+    "type": "EOF",
+  },
+]
+`;
