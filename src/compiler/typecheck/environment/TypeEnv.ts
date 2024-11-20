@@ -1,14 +1,12 @@
-import { Scanner } from "../../../scan/Scanner";
-import { TypeParser } from "../../../parse/TypeParser";
-import { ErrorReporter } from "../../../parse/Reporter";
+import { Scanner } from "../../scan/Scanner";
+import { TypeParser } from "../../parse/TypeParser";
+import { ErrorReporter } from "../../parse/Reporter";
 
 import { Environment, TypeConEnv } from ".";
-import { TypeNode } from "../../../parse/AST/TypeNode";
-import { printType } from "../../../typecheck/Printer";
-import { generalise } from "../../../typecheck/Utilities";
+import { TypeNode } from "../../parse/AST/TypeNode";
 import { Kind, Type } from "../Type";
 import { Predicate, QualType } from "../TypeClass";
-import { TypeScheme } from "../TypeScheme";
+import { quantify, TypeScheme } from "../TypeScheme";
 import { KFunc, KType, TFunc, tList, TTuple, tUnit } from "../BuiltIns";
 
 export type TypeEnv = {
@@ -23,7 +21,7 @@ export interface Binding {
   prec?: Precedence;
 }
 
-export type BindingSpec = Binding & {
+export type BindingSpec = Omit<Binding, "type"> & {
   name: string;
   type: string;
 };
@@ -33,10 +31,7 @@ export function addBinding(
   { name, type: typeString, value, prec }: BindingSpec
 ): Environment {
   try {
-    let type = generalise(
-      makeContext({}),
-      validateQualType(parseTypeString(typeString), env.typeConEnv)
-    );
+    let type = quantify([], validateQualType(parseTypeString(typeString), env));
 
     return {
       ...env,

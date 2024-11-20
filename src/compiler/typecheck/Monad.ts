@@ -50,18 +50,22 @@ export class TypeInf<A> {
   }
 
   private constructor(
-    readonly run: (sub: Substitution, n: number) => TypeInfState<A>
+    readonly _run: (sub: Substitution, n: number) => TypeInfState<A>
   ) {}
 
   bind<B>(func: (a: A) => TypeInf<B>) {
     return new TypeInf((subA, numA) => {
-      const { sub, num, value } = this.run(subA, numA);
-      return func(value).run(sub, num);
+      const { sub, num, value } = this._run(subA, numA);
+      return func(value)._run(sub, num);
     });
   }
 
   then<B>(next: TypeInf<B>) {
     return this.bind(() => next);
+  }
+
+  run() {
+    return this._run({}, 0).value;
   }
 }
 

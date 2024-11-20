@@ -21,8 +21,8 @@ import strudel from "../strudel";
 import { hush } from "../strudel";
 import standardLib from "../standard-lib";
 
-import { makeEnv } from "../compiler/environment";
-import { TypeChecker } from "../compiler/typecheck/Typechecker";
+import { makeEnv } from "../compiler/typecheck/environment";
+import { TypeChecker } from "../compiler/typecheck/TypeChecker";
 
 let env = standardLib(makeEnv());
 

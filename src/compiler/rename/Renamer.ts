@@ -2,7 +2,7 @@ import { tokenBounds } from "../scan/Token";
 import { Expr } from "../parse/AST/Expr";
 import { Stmt } from "../parse/AST/Stmt";
 import { ErrorReporter } from "../parse/Reporter";
-import { TypeEnv } from "../environment";
+import { TypeEnv } from "../typecheck/environment";
 
 export function renamer(
   stmts: Stmt[],

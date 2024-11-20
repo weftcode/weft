@@ -3,7 +3,7 @@ import {
   Environment,
   addDataType,
   addBinding,
-} from "../compiler/environment";
+} from "../compiler/typecheck/environment";
 
 export type BindingsSpec = { [name: string]: Omit<BindingSpec, "name"> };
 

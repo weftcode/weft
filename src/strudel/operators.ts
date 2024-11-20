@@ -1,7 +1,7 @@
 // @ts-nocheck
 
 import { TokenType } from "../compiler/scan/TokenType";
-import { addBinding, BindingSpec } from "../compiler/environment";
+import { addBinding, BindingSpec } from "../compiler/typecheck/environment";
 
 import { reify } from "@strudel/core";
 

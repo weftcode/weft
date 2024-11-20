@@ -1,7 +1,7 @@
 // @ts-nocheck
 
 import * as strudelTonal from "@strudel/tonal";
-import { addBinding, BindingSpec } from "../compiler/environment";
+import { addBinding, BindingSpec } from "../compiler/typecheck/environment";
 
 export default (env: Environment) => {
   for (let [name, binding] of Object.entries(tonal)) {

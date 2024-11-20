@@ -1,33 +1,55 @@
-import { PolyType } from "./Types";
+import { Type } from "./Type";
+import { QualType } from "./TypeClass";
+import { TypeScheme } from "./TypeScheme";
 
-export function printType(type: PolyType, parenthesize = false): string {
-  switch (type.type) {
-    case "ty-var":
-      return type.a;
-    case "ty-app":
-      if (type.mus.length === 0) return type.C;
+import { asFnType } from "./BuiltIns";
 
-      switch (type.C) {
-        case "->":
-          return parens(
-            `${printType(
-              type.mus[0],
-              type.mus[0].type === "ty-app" && type.mus[0].C === "->"
-            )} -> ${printType(type.mus[1])}`,
-            parenthesize
-          );
-        case "()":
-          return `(${type.mus.map((m) => printType(m)).join(", ")})`;
-        default:
-          return parens(
-            `${type.C} ${type.mus.map((t) => printType(t, true)).join(" ")}`,
-            parenthesize
-          );
+export function printQualType({ preds, type }: QualType) {
+  if (preds.length === 0) {
+    return printType(type);
+  }
+
+  const context = parens(
+    preds
+      .map(({ isIn, type }) => `${isIn} ${printType(type, true)}`)
+      .join(", "),
+    preds.length > 1
+  );
+
+  return `${context} => ${printType(type)}`;
+}
+
+export function printType(type: Type, parenthesize = false): string {
+  switch (type.is) {
+    case Type.Is.Var:
+    case Type.Is.Const:
+      return type.id;
+    case Type.Is.App:
+      let left: Type, right: Type;
+      const fnType = asFnType(type);
+
+      if (fnType) {
+        ({ left, right } = fnType);
+        return parens(
+          `${printType(left, !!asFnType(left))} -> ${printType(right)}`,
+          parenthesize
+        );
+      } else {
+        ({ left, right } = type);
+        return parens(
+          `${printType(left)} ${printType(right, true)}`,
+          parenthesize
+        );
       }
-    case "ty-quantifier":
-      return parens(`forall ${type.a}. ${printType(type.sigma)}`, parenthesize);
-    case "ty-lit":
-      return `<${type.litType === "string" ? "String" : "Numeric"} Literal>`;
+    case Type.Is.Gen:
+      return `<t${type.num}>`;
+    default:
+      return type satisfies never;
+
+    // case "ty-quantifier":
+    //   return parens(`forall ${type.a}. ${printType(type.sigma)}`, parenthesize);
+    // case "ty-lit":
+    //   return `<${type.litType === "string" ? "String" : "Numeric"} Literal>`;
   }
 }
 

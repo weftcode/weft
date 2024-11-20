@@ -4,9 +4,9 @@ import { ErrorReporter } from "../parse/Reporter";
 
 import { Environment, TypeConEnv } from ".";
 import { TypeNode } from "../parse/AST/TypeNode";
-import { makeContext, MonoType, PolyType } from "../typecheck/Types";
-import { printType } from "../typecheck/Printer";
-import { generalise } from "../typecheck/Utilities";
+import { makeContext, MonoType, PolyType } from "../typecheck/old/Types";
+import { printType } from "../typecheck/old/Printer";
+import { generalise } from "../typecheck/old/Utilities";
 
 export type TypeEnv = {
   readonly [name: string]: Binding;

@@ -1,9 +1,23 @@
-import { Kind, Type } from "./Type";
+import { eq } from "../../utils";
+
+import { applyToQualType } from "./Substitution";
+import { Kind, Type, kindOf } from "./Type";
 import { Predicate, QualType } from "./TypeClass";
+import { varsInQualType } from "./Vars";
 
 export interface TypeScheme {
   forAll: Kind[];
   qual: QualType;
+}
+
+export function quantify(vs: Type.Var[], qt: QualType): TypeScheme {
+  let vs1 = varsInQualType(qt).filter((v) => !vs.some((v1) => eq(v, v1)));
+
+  let s = Object.fromEntries<Type.Gen>(
+    vs1.map(({ id }, i) => [id, { is: Type.Is.Gen, num: i }])
+  );
+
+  return { forAll: vs1.map((v) => kindOf(v)), qual: applyToQualType(s, qt) };
 }
 
 export function instType(ts: Type[], type: Type): Type {

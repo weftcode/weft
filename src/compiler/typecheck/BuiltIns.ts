@@ -1,6 +1,6 @@
 import { Kind, Type } from "./Type";
 
-import { eq } from "../../../utils";
+import { eq } from "../../utils";
 
 export const KType: Kind = {
   is: Kind.Is.Type,
@@ -12,6 +12,10 @@ export function KFunc(left: Kind, right: Kind) {
     left,
     right,
   };
+}
+
+export function TVar(id: string, kind = KType): Type.Var {
+  return { is: Type.Is.Var, id, kind };
 }
 
 export function TConst(id: string, kind = KType): Type.Const {

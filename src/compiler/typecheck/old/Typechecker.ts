@@ -1,10 +1,10 @@
-import { Stmt } from "../parse/AST/Stmt";
-import { ErrorReporter } from "../parse/Reporter";
+import { Stmt } from "../../parse/AST/Stmt";
+import { ErrorReporter } from "../../parse/Reporter";
 
 import { makeContext, PolyType } from "./Types";
 import { W } from "./Inference";
 import { UnificationError } from "./Utilities";
-import { Environment } from "../environment";
+import { Environment } from "../../environment";
 import { applyToExpr } from "./Annotations";
 
 export class TypeChecker {

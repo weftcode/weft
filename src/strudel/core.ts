@@ -6,7 +6,7 @@ import {
   addDataType,
   addBinding,
   BindingSpec,
-} from "../compiler/environment";
+} from "../compiler/typecheck/environment";
 
 export default (env: Environment) => {
   env = addDataType(env, { name: "Pattern", dataCons: [] });

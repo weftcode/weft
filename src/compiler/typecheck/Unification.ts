@@ -1,7 +1,9 @@
 import { kindOf, Type } from "./Type";
 import { Substitution, combine, applyToType } from "./Substitution";
 
-import { eq } from "../../../utils";
+import { printType } from "./Printer";
+
+import { eq } from "../../utils";
 import { varsInType } from "./Vars";
 
 export function mgu(type1: Type, type2: Type): Substitution {
@@ -29,7 +31,9 @@ export function mgu(type1: Type, type2: Type): Substitution {
     }
   }
 
-  throw new Error("types do not unify");
+  throw new Error(
+    `Type Error: Can't unify "${printType(type1)}" with ${printType(type2)}`
+  );
 }
 
 function varBind(tyVar: Type.Var, type: Type): Substitution {
@@ -42,7 +46,7 @@ function varBind(tyVar: Type.Var, type: Type): Substitution {
     throw new Error("occurs check fails");
   }
 
-  if (eq(kindOf(tyVar), kindOf(type))) {
+  if (!eq(kindOf(tyVar), kindOf(type))) {
     throw new Error("kinds do not match");
   }
 

@@ -1,3 +1,5 @@
+import { Kind } from "../Type";
+
 import { Environment } from ".";
 
 export type TypeConEnv = {
@@ -5,7 +7,7 @@ export type TypeConEnv = {
 };
 
 export interface TypeCon {
-  // Kind
+  kind: Kind;
   dataCons: DataCon[];
 }
 
@@ -14,10 +16,11 @@ export interface DataCon {
   // type: PolyType;
 }
 
-export interface TypeConSpec {
+export type TypeConSpec = TypeCon & {
   name: string;
+  kind: Kind;
   dataCons: DataCon[];
-}
+};
 
 export function addDataType(
   env: Environment,

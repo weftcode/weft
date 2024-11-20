@@ -1,3 +1,5 @@
+import { printType } from "./Printer";
+
 export type Kind = Kind.Type | Kind.Function;
 
 export namespace Kind {
@@ -59,10 +61,10 @@ export function kindOf(type: Type): Kind {
     case Type.Is.App: {
       let k = kindOf(type.left);
       if (k.is === Kind.Is.Function) {
-        return k.left;
+        return k.right;
       } else {
         throw new Error(
-          "Tried to use a type with kind `Type` as a type function"
+          `Tried to use a type with kind "Type" as a type function`
         );
       }
     }

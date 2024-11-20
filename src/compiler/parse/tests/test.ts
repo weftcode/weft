@@ -4,7 +4,7 @@ import { Scanner } from "../../scan/Scanner";
 import { Parser } from "../Parser";
 import { ErrorReporter } from "../Reporter";
 
-import { makeEnv } from "../../environment";
+import { makeEnv } from "../../typecheck/environment";
 import prelude from "../../../standard-lib";
 
 const env = prelude(makeEnv()).typeEnv;

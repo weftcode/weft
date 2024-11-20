@@ -18,7 +18,7 @@ export function eq(a: unknown, b: unknown): boolean {
       keyA < keyB ? -1 : keyA > keyB ? 1 : 0;
 
     const as = Object.entries(a).sort(compEntry);
-    const bs = Object.entries(a).sort(compEntry);
+    const bs = Object.entries(b).sort(compEntry);
 
     return eq(as, bs);
   }

@@ -10,7 +10,7 @@ import {
   PolyType,
   TypeVariable,
   TypeFunctionApplication,
-} from "../Types";
+} from "../old/Types";
 
 export namespace Constraint {
   export enum Type {

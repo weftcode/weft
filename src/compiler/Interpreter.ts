@@ -5,7 +5,8 @@ import { Stmt } from "./parse/AST/Stmt";
 
 import { Pattern, parseMini } from "../strudel";
 import { TokenType } from "./scan/TokenType";
-import { TypeEnv } from "./environment";
+import { Type } from "./typecheck/Type";
+import { TypeEnv } from "./typecheck/environment";
 import { TypeInfo } from "./typecheck/Annotations";
 
 type Value = Value[] | ((input: Value) => Value);
@@ -129,7 +130,11 @@ export class Interpreter {
           );
         }
 
-        if (type.type === "ty-app" && type.C === "Pattern") {
+        if (
+          type.is === Type.Is.App &&
+          type.left.is === Type.Is.Const &&
+          type.left.id === "Pattern"
+        ) {
           let id = `${this.currentID}-${this.miniNotationLocations.length}`;
           let { from, to } = tokenBounds(token);
           this.miniNotationLocations.push([id, { from, to }]);

@@ -35,156 +35,156 @@ export interface InstanceSpec {
 //   defaults,
 // });
 
-function addClass(spec: ClassSpec, ce: TypeClassEnv): TypeClassEnv {
-  let { name, superClasses } = spec;
-  if (name in ce) {
-    throw new Error(
-      `Can't add new class ${name}: Class name is already defined`
-    );
-  }
+// function addClass(spec: ClassSpec, ce: TypeClassEnv): TypeClassEnv {
+//   let { name, superClasses } = spec;
+//   if (name in ce) {
+//     throw new Error(
+//       `Can't add new class ${name}: Class name is already defined`
+//     );
+//   }
 
-  if (superClasses.some((sName) => !(sName in ce))) {
-    throw new Error(`Can't add new class ${name}: Superclass is not defined`);
-  }
+//   if (superClasses.some((sName) => !(sName in ce))) {
+//     throw new Error(`Can't add new class ${name}: Superclass is not defined`);
+//   }
 
-  const functions = Object.fromEntries(
-    Object.entries(spec.functions).map(([fName, { type, value }]) => [
-      fName,
-      { type: null, value },
-    ])
-  );
+//   const functions = Object.fromEntries(
+//     Object.entries(spec.functions).map(([fName, { type, value }]) => [
+//       fName,
+//       { type: null, value },
+//     ])
+//   );
 
-  return {
-    ...ce,
-    [name]: { superClasses, functions: {}, instances: [] },
-  };
-}
+//   return {
+//     ...ce,
+//     [name]: { superClasses, functions: {}, instances: [] },
+//   };
+// }
 
-function addInst(spec: InstanceSpec, ce: TypeClassEnv): TypeClassEnv {
-  let { name } = spec;
+// function addInst(spec: InstanceSpec, ce: TypeClassEnv): TypeClassEnv {
+//   let { name } = spec;
 
-  if (!(name in ce)) {
-    throw new Error("no class for instance");
-  }
+//   if (!(name in ce)) {
+//     throw new Error("no class for instance");
+//   }
 
-  let { instances } = ce[name];
+//   let { instances } = ce[name];
 
-  if (instances.map((i) => i.inst).some((q) => overlap(p, q))) {
-    throw new Error(`overlapping instance`);
-  }
+//   if (instances.map((i) => i.inst).some((q) => overlap(p, q))) {
+//     throw new Error(`overlapping instance`);
+//   }
 
-  return modify(ce, name, [
-    getSuper(ce, name),
-    [{ preds: ps, head: p }, ...insts],
-  ]);
-}
+//   return modify(ce, name, [
+//     getSuper(ce, name),
+//     [{ preds: ps, head: p }, ...insts],
+//   ]);
+// }
 
-function overlap(p: Predicate, q: Predicate) {
-  try {
-    mguPred(p, q);
-    return true;
-  } catch (e) {
-    return false;
-  }
-}
+// function overlap(p: Predicate, q: Predicate) {
+//   try {
+//     mguPred(p, q);
+//     return true;
+//   } catch (e) {
+//     return false;
+//   }
+// }
 
 // Example Instances
 
 // 7.3 Entailment
 
-function bySuper(ce: ClassEnv, p: Predicate): Predicate[] {
-  let { isIn: i, type: t } = p;
-  return [
-    p,
-    ...getSuper(ce, i).flatMap((i1) => bySuper(ce, { isIn: i1, type: t })),
-  ];
-}
+// function bySuper(ce: ClassEnv, p: Predicate): Predicate[] {
+//   let { isIn: i, type: t } = p;
+//   return [
+//     p,
+//     ...getSuper(ce, i).flatMap((i1) => bySuper(ce, { isIn: i1, type: t })),
+//   ];
+// }
 
-function byInst(ce: ClassEnv, p: Predicate) {
-  let { isIn: i, type: t } = p;
+// function byInst(ce: ClassEnv, p: Predicate) {
+//   let { isIn: i, type: t } = p;
 
-  const tryInst = ({ preds: ps, head: h }: Inst) => {
-    let u = matchPred(h, p);
-    return ps.map((p1) => TypesPred.apply(u, p1));
-  };
+//   const tryInst = ({ preds: ps, head: h }: Inst) => {
+//     let u = matchPred(h, p);
+//     return ps.map((p1) => TypesPred.apply(u, p1));
+//   };
 
-  //
-  for (let it of getInsts(ce, i)) {
-    try {
-      return tryInst(it);
-    } catch (e) {}
-  }
+//   //
+//   for (let it of getInsts(ce, i)) {
+//     try {
+//       return tryInst(it);
+//     } catch (e) {}
+//   }
 
-  throw new Error("byInst failed");
-}
+//   throw new Error("byInst failed");
+// }
 
-function entail(ce: ClassEnv, ps: Predicate[], p: Predicate): boolean {
-  let checkSupers = ps
-    .map((p1) => bySuper(ce, p1))
-    .some((ps1) => ps1.some((p2) => eq(p, p2)));
+// function entail(ce: ClassEnv, ps: Predicate[], p: Predicate): boolean {
+//   let checkSupers = ps
+//     .map((p1) => bySuper(ce, p1))
+//     .some((ps1) => ps1.some((p2) => eq(p, p2)));
 
-  let checkInst: boolean;
+//   let checkInst: boolean;
 
-  try {
-    checkInst = byInst(ce, p).every((q) => entail(ce, ps, q));
-  } catch (e) {
-    checkInst = false;
-  }
+//   try {
+//     checkInst = byInst(ce, p).every((q) => entail(ce, ps, q));
+//   } catch (e) {
+//     checkInst = false;
+//   }
 
-  return checkSupers || checkInst;
-}
+//   return checkSupers || checkInst;
+// }
 
-// 7.4 Context Reduction
+// // 7.4 Context Reduction
 
-function inHnf({ type: t }: Predicate) {
-  return hnf(t);
+// function inHnf({ type: t }: Predicate) {
+//   return hnf(t);
 
-  function hnf(type: Type): boolean {
-    switch (type.type) {
-      case "tvar":
-        return true;
-      case "tyapp":
-        return hnf(type.args[0]);
-      default:
-        return false;
-    }
-  }
-}
+//   function hnf(type: Type): boolean {
+//     switch (type.type) {
+//       case "tvar":
+//         return true;
+//       case "tyapp":
+//         return hnf(type.args[0]);
+//       default:
+//         return false;
+//     }
+//   }
+// }
 
-const toHnfs = (ce: ClassEnv, ps: Predicate[]) =>
-  ps.flatMap((p) => toHnf(ce, p));
+// const toHnfs = (ce: ClassEnv, ps: Predicate[]) =>
+//   ps.flatMap((p) => toHnf(ce, p));
 
-function toHnf(ce: ClassEnv, p: Predicate): Predicate[] {
-  if (inHnf(p)) {
-    return [p];
-  }
+// function toHnf(ce: ClassEnv, p: Predicate): Predicate[] {
+//   if (inHnf(p)) {
+//     return [p];
+//   }
 
-  try {
-    return toHnfs(ce, byInst(ce, p));
-  } catch (e) {
-    throw new Error("context reduction");
-  }
-}
+//   try {
+//     return toHnfs(ce, byInst(ce, p));
+//   } catch (e) {
+//     throw new Error("context reduction");
+//   }
+// }
 
-function simplify(ce: ClassEnv, ps: Predicate[]) {
-  let rs: Predicate[] = [];
-  let p: Predicate;
+// function simplify(ce: ClassEnv, ps: Predicate[]) {
+//   let rs: Predicate[] = [];
+//   let p: Predicate;
 
-  while (ps.length > 0) {
-    [p, ...ps] = ps;
+//   while (ps.length > 0) {
+//     [p, ...ps] = ps;
 
-    // If p is entailed by the existing list of predicates then
-    // it can be eliminated. Otherwise, it's treated as necessary
-    // and moved to rs
-    if (!entail(ce, rs.concat(ps), p)) {
-      rs = [p, ...rs];
-    }
-  }
+//     // If p is entailed by the existing list of predicates then
+//     // it can be eliminated. Otherwise, it's treated as necessary
+//     // and moved to rs
+//     if (!entail(ce, rs.concat(ps), p)) {
+//       rs = [p, ...rs];
+//     }
+//   }
 
-  return rs;
-}
+//   return rs;
+// }
 
-const reduce = (ce: ClassEnv, ps: Predicate[]) => simplify(ce, toHnfs(ce, ps));
+// const reduce = (ce: ClassEnv, ps: Predicate[]) => simplify(ce, toHnfs(ce, ps));
 
 // export interface Instance {
 //   class: string;

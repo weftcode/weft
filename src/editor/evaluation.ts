@@ -2,7 +2,7 @@ import { Scanner } from "../compiler/scan/Scanner";
 import { Parser } from "../compiler/parse/Parser";
 import { Stmt } from "../compiler/parse/AST/Stmt";
 import { renamer } from "../compiler/rename/Renamer";
-import { TypeChecker } from "../compiler/typecheck/Typechecker";
+import { TypeChecker } from "../compiler/typecheck/TypeChecker";
 import { ErrorReporter } from "../compiler/parse/Reporter";
 import { Interpreter, Location } from "../compiler/Interpreter";
 
@@ -23,7 +23,7 @@ import {
   replaceMininotation,
 } from "../strudel/highlights/state";
 
-import { Environment } from "../compiler/environment";
+import { Environment } from "../compiler/typecheck/environment";
 import { expressionBounds } from "../compiler/parse/Utils";
 import { TypeInfo } from "../compiler/typecheck/Annotations";
 

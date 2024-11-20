@@ -7,7 +7,7 @@ import { Expr } from "./AST/Expr";
 import { Stmt } from "./AST/Stmt";
 import { ErrorReporter } from "./Reporter";
 
-import { TypeEnv } from "../environment";
+import { TypeEnv } from "../typecheck/environment";
 
 export class Parser extends BaseParser<Stmt[]> {
   constructor(

@@ -1,9 +1,9 @@
-import { Expr } from "../parse/AST/Expr";
-import { Stmt } from "../parse/AST/Stmt";
-import { expressionBounds } from "../parse/Utils";
+import { Expr } from "../../parse/AST/Expr";
+import { Stmt } from "../../parse/AST/Stmt";
+import { expressionBounds } from "../../parse/Utils";
 import { printType } from "./Printer";
-import { Type } from "./Type";
-import { Substitution, applyToType } from "./Substitution";
+import { MonoType } from "./Types";
+import { Substitution } from "./Utilities";
 
 import type { Diagnostic } from "@codemirror/lint";
 
@@ -26,7 +26,7 @@ export abstract class TypeAnnotation {
 }
 
 export class TypeInfoAnnotation extends TypeAnnotation {
-  constructor(expr: Expr, private type: Type) {
+  constructor(expr: Expr, private type: MonoType) {
     super("info", expr);
   }
 
@@ -35,14 +35,14 @@ export class TypeInfoAnnotation extends TypeAnnotation {
   }
 
   apply(substitution: Substitution) {
-    this.type = applyToType(substitution, this.type);
+    this.type = substitution(this.type);
   }
 }
 
 export class MissingTypeWarning extends TypeAnnotation {
   private varName: string;
 
-  constructor(expr: Expr & { is: Expr.Is.Variable }, private type: Type) {
+  constructor(expr: Expr & { is: Expr.Is.Variable }, private type: MonoType) {
     super("warning", expr);
     this.varName = expr.name.lexeme;
   }
@@ -54,12 +54,12 @@ export class MissingTypeWarning extends TypeAnnotation {
   }
 
   apply(substitution: Substitution) {
-    this.type = applyToType(substitution, this.type);
+    this.type = substitution(this.type);
   }
 }
 
 export class UnificationError extends TypeAnnotation {
-  constructor(expr: Expr, private type1: Type, private type2: Type) {
+  constructor(expr: Expr, private type1: MonoType, private type2: MonoType) {
     super("error", expr);
   }
 
@@ -70,8 +70,8 @@ export class UnificationError extends TypeAnnotation {
   }
 
   apply(substitution: Substitution) {
-    this.type1 = applyToType(substitution, this.type1);
-    this.type2 = applyToType(substitution, this.type2);
+    this.type1 = substitution(this.type1);
+    this.type2 = substitution(this.type2);
   }
 }
 
@@ -88,7 +88,7 @@ export class ApplicationError extends TypeAnnotation {
 }
 
 export type NodeTypeInfo = {
-  type: Type | null;
+  type: MonoType | null;
   typeAnnotation?: TypeAnnotation;
 };
 
@@ -102,7 +102,7 @@ export type TypeInfo = {
   "Expr.List": NodeTypeInfo;
 } & Stmt.Extension;
 
-export function getType(expr: Expr<TypeInfo>): Type | null {
+export function getType(expr: Expr<TypeInfo>): MonoType | null {
   if (expr.is === Expr.Is.Grouping) {
     return getType(expr.expression);
   } else if (expr.is === Expr.Is.Empty) {
@@ -126,7 +126,7 @@ export function applyToExpr<T extends Expr<TypeInfo>>(
     case Expr.Is.Literal:
     case Expr.Is.Variable: {
       const { type } = expr;
-      return { ...expr, type: type && applyToType(sub, type) };
+      return { ...expr, type: type && sub(type) };
     }
     case Expr.Is.Application: {
       const { left, right, type } = expr;
@@ -134,7 +134,7 @@ export function applyToExpr<T extends Expr<TypeInfo>>(
         ...expr,
         left: applyToExpr(left, sub),
         right: applyToExpr(right, sub),
-        type: type && applyToType(sub, type),
+        type: type && sub(type),
       };
     }
     case Expr.Is.Binary: {
@@ -144,7 +144,7 @@ export function applyToExpr<T extends Expr<TypeInfo>>(
         left: applyToExpr(left, sub),
         right: applyToExpr(right, sub),
         operator: applyToExpr(operator, sub),
-        type: type && applyToType(sub, type),
+        type: type && sub(type),
       };
     }
     case Expr.Is.Grouping: {
@@ -157,7 +157,7 @@ export function applyToExpr<T extends Expr<TypeInfo>>(
         ...expr,
         expression: applyToExpr(expression, sub),
         operator: applyToExpr(operator, sub),
-        type: type && applyToType(sub, type),
+        type: type && sub(type),
       };
     }
     case Expr.Is.List: {
@@ -165,7 +165,7 @@ export function applyToExpr<T extends Expr<TypeInfo>>(
       return {
         ...expr,
         items: items.map((item) => applyToExpr(item, sub)),
-        type: type && applyToType(sub, type),
+        type: type && sub(type),
       };
     }
     default:
