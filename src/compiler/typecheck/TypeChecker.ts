@@ -7,6 +7,8 @@ import { inferExpr } from "./Inference";
 import { Environment } from "./environment";
 import { TypeInf } from "./Monad";
 import { applyToExpr } from "./Annotations";
+import { applyToPred } from "./Substitution";
+import { printSubstitution } from "./Printer";
 // import { applyToExpr } from "./Annotations";
 
 export class TypeChecker {
@@ -23,8 +25,10 @@ export class TypeChecker {
             this.environment.typeEnv,
             statement.expression
           )
-            .bind(([_, expr]) =>
-              TypeInf.getSub.bind((sub) => TypeInf.pure(applyToExpr(expr, sub)))
+            .bind(([ps, expr]) =>
+              TypeInf.getSub.bind((sub) => {
+                return TypeInf.pure(applyToExpr(expr, sub));
+              })
             )
             .run();
           return { ...statement, expression };

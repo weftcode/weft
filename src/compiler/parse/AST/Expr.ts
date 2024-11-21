@@ -69,7 +69,7 @@ export namespace Expr {
 
   export type Literal<Extend extends Extension = Extension> = {
     is: Is.Literal;
-    token: Token & { type: TokenType.Number | TokenType.String };
+    token: Omit<Token, "type"> & { type: TokenType.Number | TokenType.String };
   } & Extend["Expr.Literal"];
 
   export type Variable<Extend extends Extension = Extension> = {

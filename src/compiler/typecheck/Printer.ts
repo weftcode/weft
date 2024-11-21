@@ -3,6 +3,13 @@ import { QualType } from "./TypeClass";
 import { TypeScheme } from "./TypeScheme";
 
 import { asFnType } from "./BuiltIns";
+import { Substitution } from "./Substitution";
+
+export function printSubstitution(sub: Substitution) {
+  return Object.entries(sub)
+    .map(([tVar, type]) => `${tVar} |-> ${printType(type, true)}`)
+    .join("\n");
+}
 
 export function printQualType({ preds, type }: QualType) {
   if (preds.length === 0) {
