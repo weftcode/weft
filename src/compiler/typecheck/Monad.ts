@@ -41,9 +41,9 @@ export class TypeInf<A> {
     value: sub,
   }));
 
-  static extendSub(s2: Substitution) {
-    return new TypeInf((s1, num) => ({
-      sub: combine(s1, s2),
+  static extendSub(s1: Substitution) {
+    return new TypeInf((s, num) => ({
+      sub: combine(s1, s),
       num,
       value: null,
     }));

@@ -7,10 +7,15 @@ import {
   addBinding,
   BindingSpec,
 } from "../compiler/typecheck/environment";
+import { KFunc, KType } from "../compiler/typecheck/BuiltIns";
 
 export default (env: Environment) => {
-  env = addDataType(env, { name: "Pattern", dataCons: [] });
-  env = addDataType(env, { name: "Controls", dataCons: [] });
+  env = addDataType(env, {
+    name: "Pattern",
+    kind: KFunc(KType, KType),
+    dataCons: [],
+  });
+  env = addDataType(env, { name: "Controls", kind: KType, dataCons: [] });
 
   for (let [name, binding] of Object.entries(core)) {
     env = addBinding(env, { name, ...binding });

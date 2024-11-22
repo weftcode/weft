@@ -1,3 +1,4 @@
+import { eq } from "../../utils";
 import { Type } from "./Type";
 import { Predicate, QualType } from "./TypeClass";
 import { TypeScheme } from "./TypeScheme";
@@ -11,6 +12,20 @@ export function combine(s1: Substitution, s2: Substitution) {
       Object.entries(s2).map(([k, v]) => [k, applyToType(s1, v)])
     ),
   };
+}
+
+export function merge(s1: Substitution, s2: Substitution): Substitution {
+  // Filter to the intersection of variables in s1 and s2, and then check that they
+  // all substitute to equivalent types
+  const agree = Object.keys(s1)
+    .filter((k) => k in s2)
+    .every((k) => eq(s1[k], s2[k]));
+
+  if (agree) {
+    return { ...s1, ...s2 };
+  } else {
+    throw new Error("Merge fails");
+  }
 }
 
 export function applyToType(s: Substitution, t: Type): Type {

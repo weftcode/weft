@@ -1,5 +1,5 @@
 import { Type } from "./Type";
-import { QualType } from "./TypeClass";
+import { Predicate, QualType } from "./TypeClass";
 import { TypeScheme } from "./TypeScheme";
 
 import { asFnType } from "./BuiltIns";
@@ -11,19 +11,16 @@ export function printSubstitution(sub: Substitution) {
     .join("\n");
 }
 
+export function printPred({ isIn, type }: Predicate) {
+  return `${isIn} ${printType(type, true)}`;
+}
+
+export function printContext(preds: Predicate[]) {
+  return parens(preds.map(printPred).join(", "), preds.length > 1);
+}
+
 export function printQualType({ preds, type }: QualType) {
-  if (preds.length === 0) {
-    return printType(type);
-  }
-
-  const context = parens(
-    preds
-      .map(({ isIn, type }) => `${isIn} ${printType(type, true)}`)
-      .join(", "),
-    preds.length > 1
-  );
-
-  return `${context} => ${printType(type)}`;
+  return (preds.length ? `${printContext(preds)} => ` : "") + printType(type);
 }
 
 export function printType(type: Type, parenthesize = false): string {

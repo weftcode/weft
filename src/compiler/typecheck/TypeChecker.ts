@@ -8,8 +8,8 @@ import { Environment } from "./environment";
 import { TypeInf } from "./Monad";
 import { applyToExpr } from "./Annotations";
 import { applyToPred } from "./Substitution";
-import { printSubstitution } from "./Printer";
-// import { applyToExpr } from "./Annotations";
+import { printContext } from "./Printer";
+import { reduce } from "./TypeClass";
 
 export class TypeChecker {
   constructor(
@@ -27,6 +27,9 @@ export class TypeChecker {
           )
             .bind(([ps, expr]) =>
               TypeInf.getSub.bind((sub) => {
+                const qs = ps.map((p) => applyToPred(sub, p));
+                console.log(printContext(qs));
+                reduce(this.environment.typeClassEnv, qs);
                 return TypeInf.pure(applyToExpr(expr, sub));
               })
             )

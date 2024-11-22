@@ -1,20 +1,30 @@
+import { KFunc, KType } from "../compiler/typecheck/BuiltIns";
 import {
   BindingSpec,
   Environment,
   addDataType,
   addBinding,
+  addClass,
 } from "../compiler/typecheck/environment";
 
 export type BindingsSpec = { [name: string]: Omit<BindingSpec, "name"> };
 
 export default (env: Environment) => {
-  env = addDataType(env, { name: "Number", dataCons: [] });
-  env = addDataType(env, { name: "String", dataCons: [] });
+  env = addDataType(env, { name: "Number", kind: KType, dataCons: [] });
+  env = addDataType(env, { name: "String", kind: KType, dataCons: [] });
   env = addDataType(env, {
     name: "Bool",
+    kind: KType,
     dataCons: [{ name: "True" }, { name: "False" }],
   });
-  env = addDataType(env, { name: "IO", dataCons: [] });
+  env = addDataType(env, {
+    name: "IO",
+    kind: KFunc(KType, KType),
+    dataCons: [],
+  });
+
+  env = addClass(env, { name: "FromNumber", superClasses: [], methods: {} });
+  env = addClass(env, { name: "FromString", superClasses: [], methods: {} });
 
   for (let [name, binding] of Object.entries(standardLib)) {
     env = addBinding(env, { name, ...binding });
