@@ -20,11 +20,11 @@ export type HighlightHandler = (highlight: HighlightEvent) => void;
 
 export function highlighter(handlerSet: Set<HighlightHandler>): Extension {
   const highlighterPlugin = ViewPlugin.define((view) => {
-    let pendingHighlights: HighlightEvent[] = [];
+    const state: { pending: HighlightEvent[] } = { pending: [] };
 
     const handler: HighlightHandler = (highlight) => {
       // TODO: Filter out duplicate highlights
-      pendingHighlights.push(highlight);
+      state.pending.push(highlight);
     };
 
     handlerSet.add(handler);
@@ -38,7 +38,7 @@ export function highlighter(handlerSet: Set<HighlightHandler>): Extension {
       let stillPending: HighlightEvent[] = [];
 
       // Partition the pending events based on whether they're ready
-      for (let event of pendingHighlights) {
+      for (let event of state.pending) {
         if (event.time > time) {
           stillPending.push(event);
         } else {
@@ -49,6 +49,8 @@ export function highlighter(handlerSet: Set<HighlightHandler>): Extension {
           // are discarded
         }
       }
+
+      state.pending = stillPending;
 
       if (toAdd.length) {
         effects.push(highlightAddEffect.of(toAdd));

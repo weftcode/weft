@@ -43,7 +43,7 @@ async function onTrigger(hap, deadline, duration, cps) {
         from: start,
         to: end,
         miniID: id,
-        time: (getTime() + deadline) * 1000,
+        time: performance.now() + deadline * 1000,
         duration: duration * 1000,
       });
     }
