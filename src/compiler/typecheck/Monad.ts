@@ -70,9 +70,16 @@ export class TypeInf<A> {
 }
 
 export function unify(t1: Type, t2: Type) {
-  return TypeInf.getSub.bind((s) =>
-    TypeInf.extendSub(mgu(applyToType(s, t1), applyToType(s, t2)))
-  );
+  return TypeInf.getSub.bind((s) => {
+    const newT1 = applyToType(s, t1);
+    const newT2 = applyToType(s, t2);
+
+    try {
+      return TypeInf.extendSub(mgu(newT1, newT2));
+    } catch (e) {
+      return TypeInf.pure([newT1, newT2]);
+    }
+  });
 }
 
 export function freshInst({ forAll, qual }: TypeScheme) {

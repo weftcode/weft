@@ -5,7 +5,7 @@ import { Kind } from "./Type";
 import { TypeInf, freshInst, unify } from "./Monad";
 import { TypeEnv } from "./environment/TypeEnv";
 import { Predicate } from "./TypeClass";
-import { TypeInfo, getType } from "./Annotations";
+import { TypeInfo, UnificationError, getType } from "./Annotations";
 import { KType, KFunc, TConst, TFunc, TApp } from "./BuiltIns";
 import { TokenType } from "../scan/TokenType";
 
@@ -72,13 +72,30 @@ export function inferApp(
         let rType = getType(typedR);
 
         if (!lType || !rType) {
-          throw new Error("Type error!");
+          return TypeInf.pure<[Predicate[], Expr<TypeInfo>]>([
+            ps.concat(qs),
+            { ...expr, left: typedL, right: typedR, type: null },
+          ]);
         }
 
-        return unify(lType, TFunc(rType, typeResult)).then(
+        return unify(lType, TFunc(rType, typeResult)).bind((result) =>
           TypeInf.pure<[Predicate[], Expr<TypeInfo>]>([
             ps.concat(qs),
-            { ...expr, left: typedL, right: typedR, type: typeResult },
+            {
+              ...expr,
+              left: typedL,
+              right: typedR,
+              type: result === null ? typeResult : null,
+              ...(result === null
+                ? {}
+                : {
+                    typeAnnotation: new UnificationError(
+                      typedR,
+                      result[0],
+                      result[1]
+                    ),
+                  }),
+            },
           ])
         );
       })

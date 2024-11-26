@@ -185,7 +185,6 @@ export function collectTypeDiagnostics(expr: Expr<TypeInfo>): Diagnostic[] {
   // Now, check for a type annotation
   let { typeAnnotation } = expr;
   if (typeAnnotation) {
-    console.log("Found type error annotation");
     return [typeAnnotation];
   }
 
