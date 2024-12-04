@@ -49,7 +49,7 @@ function bySuper(ce: TypeClassEnv, p: Predicate): Predicate[] {
   ];
 }
 
-function byInst(ce: TypeClassEnv, pred: Predicate) {
+export function byInst(ce: TypeClassEnv, pred: Predicate) {
   let { isIn, type } = pred;
 
   const tryInst = ({ preds, inst }: Instance) => {

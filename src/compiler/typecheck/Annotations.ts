@@ -6,6 +6,7 @@ import { Type } from "./Type";
 import { Substitution, applyToType } from "./Substitution";
 
 import type { Diagnostic } from "@codemirror/lint";
+import { Predicate } from "./TypeClass";
 
 type Severity = "info" | "warning" | "error";
 
@@ -87,15 +88,24 @@ export class ApplicationError extends TypeAnnotation {
   apply() {}
 }
 
-export type NodeTypeInfo = {
+export interface NodeTypeInfo {
   type: Type | null;
   typeAnnotation?: TypeAnnotation;
+}
+
+export type NodeTypeClass = {
+  typeClasses: ClassConstraint[];
 };
+
+export interface ClassConstraint {
+  pred: Predicate;
+  dictionary?: { [method: string]: any };
+}
 
 export type TypeInfo = {
   "Stmt.Expression": NodeTypeInfo;
-  "Expr.Variable": NodeTypeInfo;
-  "Expr.Literal": NodeTypeInfo;
+  "Expr.Variable": NodeTypeInfo & NodeTypeClass;
+  "Expr.Literal": NodeTypeInfo & NodeTypeClass;
   "Expr.Application": NodeTypeInfo;
   "Expr.Binary": NodeTypeInfo;
   "Expr.Section": NodeTypeInfo;

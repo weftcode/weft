@@ -3,26 +3,37 @@ import { Expr } from "../parse/AST/Expr";
 import { Kind } from "./Type";
 
 import { TypeInf, freshInst, unify } from "./Monad";
-import { TypeEnv } from "./environment/TypeEnv";
-import { Predicate } from "./TypeClass";
-import { TypeInfo, UnificationError, getType } from "./Annotations";
-import { KType, KFunc, TConst, TFunc, TApp } from "./BuiltIns";
+import {
+  ClassConstraint,
+  TypeInfo,
+  UnificationError,
+  getType,
+} from "./Annotations";
+import { KType, TFunc } from "./BuiltIns";
 import { TokenType } from "../scan/TokenType";
+import { printPred } from "./Printer";
+import { applyToPred } from "./Substitution";
+import { byInst } from "./TypeClass";
+import { Environment, TypeClassEnv } from "./environment";
 
 export function inferLit(
   expr: Expr.Literal
-): TypeInf<[Predicate[], Expr<TypeInfo>]> {
+): TypeInf<[ClassConstraint[], Expr<TypeInfo>]> {
   const typeClass =
     expr.token.type === TokenType.String ? "FromString" : "FromNumber";
-  return TypeInf.newTVar(KType).bind((type) =>
-    TypeInf.pure([[{ isIn: typeClass, type }], { ...expr, type }])
-  );
+  return TypeInf.newTVar(KType).bind((type) => {
+    const constraint = { pred: { isIn: typeClass, type } };
+    return TypeInf.pure([
+      [constraint],
+      { ...expr, type, typeClasses: [constraint] },
+    ]);
+  });
 }
 
 export function inferExpr(
-  env: TypeEnv,
+  env: Environment,
   expr: Expr
-): TypeInf<[Predicate[], Expr<TypeInfo>]> {
+): TypeInf<[ClassConstraint[], Expr<TypeInfo>]> {
   switch (expr.is) {
     // Literals
     case Expr.Is.Literal:
@@ -30,10 +41,11 @@ export function inferExpr(
 
     // Variable
     case Expr.Is.Variable:
-      let scheme = env[expr.name.lexeme].type;
-      return freshInst(scheme).bind(({ preds, type }) =>
-        TypeInf.pure([preds, { ...expr, type }])
-      );
+      let scheme = env.typeEnv[expr.name.lexeme].type;
+      return freshInst(scheme).bind(({ preds, type }) => {
+        const typeClasses = preds.map((pred) => ({ pred }));
+        return TypeInf.pure([typeClasses, { ...expr, type, typeClasses }]);
+      });
 
     // Grouping
     case Expr.Is.Grouping:
@@ -61,7 +73,7 @@ export function inferExpr(
 }
 
 export function inferApp(
-  env: TypeEnv,
+  env: Environment,
   expr: Expr & { is: Expr.Is.Application }
 ) {
   let { left, right } = expr;
@@ -72,33 +84,47 @@ export function inferApp(
         let rType = getType(typedR);
 
         if (!lType || !rType) {
-          return TypeInf.pure<[Predicate[], Expr<TypeInfo>]>([
+          return TypeInf.pure<[ClassConstraint[], Expr<TypeInfo>]>([
             ps.concat(qs),
             { ...expr, left: typedL, right: typedR, type: null },
           ]);
         }
 
-        return unify(lType, TFunc(rType, typeResult)).bind((result) =>
-          TypeInf.pure<[Predicate[], Expr<TypeInfo>]>([
-            ps.concat(qs),
-            {
-              ...expr,
-              left: typedL,
-              right: typedR,
-              type: result === null ? typeResult : null,
-              ...(result === null
-                ? {}
-                : {
-                    typeAnnotation: new UnificationError(
-                      typedR,
-                      result[0],
-                      result[1]
-                    ),
-                  }),
-            },
-          ])
-        );
+        return unify(lType, TFunc(rType, typeResult)).bind((result) => {
+          let constraints = ps.concat(qs);
+
+          return checkConstraints(env.typeClassEnv, constraints).then(
+            TypeInf.pure<[ClassConstraint[], Expr<TypeInfo>]>([
+              constraints,
+              {
+                ...expr,
+                left: typedL,
+                right: typedR,
+                type: result === null ? typeResult : null,
+                ...(result === null
+                  ? {}
+                  : {
+                      typeAnnotation: new UnificationError(
+                        typedR,
+                        result[0],
+                        result[1]
+                      ),
+                    }),
+              },
+            ])
+          );
+        });
       })
     )
   );
 }
+
+const checkConstraints = (ce: TypeClassEnv, cs: ClassConstraint[]) =>
+  TypeInf.getSub.bind((sub) => {
+    for (let c of cs) {
+      console.log(printPred(c.pred));
+      console.log(printPred(applyToPred(sub, c.pred)));
+      byInst(ce, c.pred);
+    }
+    return TypeInf.pure(null);
+  });

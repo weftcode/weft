@@ -21,13 +21,10 @@ export class TypeChecker {
     try {
       switch (statement.is) {
         case Stmt.Is.Expression:
-          let expression = inferExpr(
-            this.environment.typeEnv,
-            statement.expression
-          )
+          let expression = inferExpr(this.environment, statement.expression)
             .bind(([ps, expr]) =>
               TypeInf.getSub.bind((sub) => {
-                const qs = ps.map((p) => applyToPred(sub, p));
+                const qs = ps.map(({ pred }) => applyToPred(sub, pred));
                 console.log(printContext(qs));
                 reduce(this.environment.typeClassEnv, qs);
                 return TypeInf.pure(applyToExpr(expr, sub));
