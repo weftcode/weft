@@ -3,8 +3,9 @@ import { TypeScheme, instQualType } from "../TypeScheme";
 
 import { Substitution, combine, applyToType } from "../Substitution";
 import { mgu } from "../Unification";
+import { KType } from "../BuiltIns";
 
-type Constraint = [string, Type];
+export type Constraint = [Type, Type];
 
 interface InferState<A> {
   num: number;
@@ -17,23 +18,15 @@ export class Inference<A> {
     return new Inference((constraints, num) => ({ constraints, num, value }));
   }
 
-  static fresh() {
-    return new Inference((constraints, num) => ({
+  static fresh(kind: Kind = KType) {
+    return new Inference<Type.Var>((constraints, num) => ({
       constraints,
       num: num + 1,
-      value: `tv${num}`,
+      value: { is: Type.Is.Var, id: `t${num}`, kind },
     }));
   }
 
-  // static newTVar(kind: Kind) {
-  //   return new Inference<Type>((sub, num) => ({
-  //     sub,
-  //     num: num + 1,
-  //     value: { is: Type.Is.Var, id: `t${num}`, kind },
-  //   }));
-  // }
-
-  static map<A, B>(func: (a: A) => Inference<B>, as: A[]): Inference<B[]> {
+  static mapList<A, B>(func: (a: A) => Inference<B>, as: A[]): Inference<B[]> {
     if (as.length === 0) {
       return Inference.pure([]);
     }
@@ -41,7 +34,7 @@ export class Inference<A> {
     let [x, ...xs] = as;
 
     return func(x).bind((y) =>
-      Inference.map(func, xs).bind((ys) => Inference.pure([y, ...ys]))
+      Inference.mapList(func, xs).bind((ys) => Inference.pure([y, ...ys]))
     );
   }
 
@@ -63,6 +56,13 @@ export class Inference<A> {
     readonly _run: (constraints: Constraint[], n: number) => InferState<A>
   ) {}
 
+  map<B>(func: (a: A) => B) {
+    return new Inference((constraintsA, numA) => {
+      const { constraints, num, value } = this._run(constraintsA, numA);
+      return { constraints, num, value: func(value) };
+    });
+  }
+
   bind<B>(func: (a: A) => Inference<B>) {
     return new Inference((subA, numA) => {
       const { constraints, num, value } = this._run(subA, numA);
@@ -79,12 +79,12 @@ export class Inference<A> {
   }
 }
 
-export function unify(t1: string, t2: Type) {
+export function unify(t1: Type, t2: Type) {
   return Inference.addConstraint([t1, t2]);
 }
 
-// export function freshInst({ forAll, qual }: TypeScheme) {
-//   return Inference.map(Inference.newTVar, forAll).bind((ts) =>
-//     Inference.pure(instQualType(ts, qual))
-//   );
-// }
+export function freshInst({ forAll, qual }: TypeScheme) {
+  return Inference.mapList(Inference.fresh, forAll).bind((ts) =>
+    Inference.pure(instQualType(ts, qual))
+  );
+}
