@@ -7,7 +7,7 @@ import { Pattern, parseMini } from "../strudel";
 import { TokenType } from "./scan/TokenType";
 import { Type } from "./typecheck/Type";
 import { TypeEnv } from "./typecheck/environment";
-import { TypeInfo } from "./typecheck/Annotations";
+import { TypeInfo } from "./typecheck/constraints/Generation";
 
 type Value = Value[] | ((input: Value) => Value);
 

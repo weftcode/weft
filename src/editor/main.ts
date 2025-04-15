@@ -22,7 +22,7 @@ import { hush } from "../strudel";
 import standardLib from "../standard-lib";
 
 import { makeEnv } from "../compiler/typecheck/environment";
-import { TypeChecker } from "../compiler/typecheck/TypeChecker";
+import { TypeChecker } from "../compiler/typecheck/constraints/TypeCheck";
 
 let env = standardLib(makeEnv());
 
@@ -130,7 +130,41 @@ const parseLinter = linter((view) => {
 import { renamer } from "../compiler/rename/Renamer";
 import { highlighter } from "../strudel/highlights";
 import { handlerSet } from "../strudel/boot";
-import { collectTypeDiagnostics } from "../compiler/typecheck/Annotations";
+
+import { Expr } from "../compiler/parse/AST/Expr";
+import { TypeInfo } from "../compiler/typecheck/constraints/Generation";
+import { expressionBounds } from "../compiler/parse/Utils";
+import { printType } from "../compiler/typecheck/Printer";
+
+export function collectTypeDiagnostics(expr: Expr<TypeInfo>): Diagnostic[] {
+  // Dispense with the simplest cases
+  switch (expr.is) {
+    case Expr.Is.Grouping:
+      return collectTypeDiagnostics(expr.expression);
+    case Expr.Is.Empty:
+      return [];
+  }
+
+  switch (expr.is) {
+    case Expr.Is.Variable:
+    case Expr.Is.Literal:
+      let type = expr.type;
+      let { from, to } = expressionBounds(expr);
+      return [{ severity: "info", from, to, message: printType(type) }];
+
+    case Expr.Is.Application:
+    case Expr.Is.Binary:
+      return collectTypeDiagnostics(expr.left).concat(
+        collectTypeDiagnostics(expr.right)
+      );
+    case Expr.Is.Section:
+      return collectTypeDiagnostics(expr.expression);
+    case Expr.Is.List:
+      return expr.items.flatMap((e) => collectTypeDiagnostics(e));
+    default:
+      return expr satisfies never;
+  }
+}
 
 window.addEventListener("load", async () => {
   let doc: string;

@@ -5,6 +5,7 @@ import { KType, TFunc } from "../BuiltIns";
 import { Environment } from "../environment";
 
 import { Type } from "../Type";
+import { Substitution, applyToType } from "../Substitution";
 import { Inference, freshInst, unify } from "./Monad";
 
 export interface NodeTypeInfo {
@@ -73,5 +74,62 @@ export function infer(env: Environment, expr: Expr): Inference<Expr<TypeInfo>> {
     default:
       throw new Error("Inference is incomplete");
     //return expr satisfies never;
+  }
+}
+
+export function applyToExpr<T extends Expr<TypeInfo>>(
+  expr: T,
+  sub: Substitution
+): T {
+  switch (expr.is) {
+    case Expr.Is.Empty:
+      return expr;
+    case Expr.Is.Literal:
+    case Expr.Is.Variable: {
+      const { type } = expr;
+      return { ...expr, type: type && applyToType(sub, type) };
+    }
+    case Expr.Is.Application: {
+      const { left, right, type } = expr;
+      return {
+        ...expr,
+        left: applyToExpr(left, sub),
+        right: applyToExpr(right, sub),
+        type: type && applyToType(sub, type),
+      };
+    }
+    case Expr.Is.Binary: {
+      const { left, right, operator, type } = expr;
+      return {
+        ...expr,
+        left: applyToExpr(left, sub),
+        right: applyToExpr(right, sub),
+        operator: applyToExpr(operator, sub),
+        type: type && applyToType(sub, type),
+      };
+    }
+    case Expr.Is.Grouping: {
+      const { expression } = expr;
+      return { ...expr, expression: applyToExpr(expression, sub) };
+    }
+    case Expr.Is.Section: {
+      const { expression, operator, type } = expr;
+      return {
+        ...expr,
+        expression: applyToExpr(expression, sub),
+        operator: applyToExpr(operator, sub),
+        type: type && applyToType(sub, type),
+      };
+    }
+    case Expr.Is.List: {
+      const { items, type } = expr;
+      return {
+        ...expr,
+        items: items.map((item) => applyToExpr(item, sub)),
+        type: type && applyToType(sub, type),
+      };
+    }
+    default:
+      return expr satisfies never;
   }
 }

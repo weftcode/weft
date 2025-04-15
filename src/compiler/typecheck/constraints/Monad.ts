@@ -1,8 +1,6 @@
 import { Kind, Type } from "../Type";
 import { TypeScheme, instQualType } from "../TypeScheme";
 
-import { Substitution, combine, applyToType } from "../Substitution";
-import { mgu } from "../Unification";
 import { KType } from "../BuiltIns";
 
 export type Constraint = [Type, Type];

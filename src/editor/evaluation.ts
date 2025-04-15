@@ -2,7 +2,7 @@ import { Scanner } from "../compiler/scan/Scanner";
 import { Parser } from "../compiler/parse/Parser";
 import { Stmt } from "../compiler/parse/AST/Stmt";
 import { renamer } from "../compiler/rename/Renamer";
-import { TypeChecker } from "../compiler/typecheck/TypeChecker";
+import { TypeChecker } from "../compiler/typecheck/constraints/TypeCheck";
 import { ErrorReporter } from "../compiler/parse/Reporter";
 import { Interpreter, Location } from "../compiler/Interpreter";
 
@@ -25,7 +25,7 @@ import {
 
 import { Environment } from "../compiler/typecheck/environment";
 import { expressionBounds } from "../compiler/parse/Utils";
-import { TypeInfo } from "../compiler/typecheck/Annotations";
+import { TypeInfo } from "../compiler/typecheck/constraints/Generation";
 
 export const evalTheme = EditorView.theme({
   "@keyframes cm-eval-flash": {
