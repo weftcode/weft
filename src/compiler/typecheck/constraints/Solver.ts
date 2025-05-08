@@ -8,7 +8,7 @@ export function solve(constraints: Constraint[]): Substitution {
   for (let constraint of constraints) {
     let [type1, type2] = constraint;
     let newSub = mgu(applyToType(sub, type1), applyToType(sub, type2));
-    sub = combine(sub, newSub);
+    sub = combine(newSub, sub);
   }
 
   return sub;
