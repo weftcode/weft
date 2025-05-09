@@ -59,20 +59,34 @@ export function infer(env: Environment, expr: Expr): Inference<Expr<TypeInfo>> {
         )
       );
 
-    // Special cases of function application
-    // case Expr.Is.Binary:
-    //   return inferApp(env, {
-    //     is: Expr.Is.Application,
-    //     left: {
-    //       is: Expr.Is.Application,
-    //       left: expr.operator,
-    //       right: expr.left,
-    //     },
-    //     right: expr.right,
-    //   });
+    // Infix binary operations
+    case Expr.Is.Binary:
+      return infer(env, expr.left).bind((left) =>
+        infer(env, expr.operator).bind((operator) =>
+          infer(env, expr.right).bind((right) =>
+            Inference.fresh().bind((resultType) =>
+              unify(
+                operator.type,
+                TFunc(left.type, TFunc(right.type, resultType))
+              ).then(
+                Inference.pure({
+                  ...expr,
+                  left,
+                  right,
+                  // TODO: The type of `infer` doesn't offer a guarantee that
+                  //   the type of the elaborated expression is preserved
+                  //   This cast is a stop-gap until I have a better solution.
+                  operator: operator as Expr.Variable<TypeInfo>,
+                  type: resultType,
+                })
+              )
+            )
+          )
+        )
+      );
 
     default:
-      throw new Error("Inference is incomplete");
+      throw new Error(`Constraint generation for expression type "${expr.is}"`);
     //return expr satisfies never;
   }
 }
