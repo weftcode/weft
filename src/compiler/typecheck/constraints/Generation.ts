@@ -1,6 +1,6 @@
 import { Expr } from "../../parse/AST/Expr";
 import { Stmt } from "../../parse/AST/Stmt";
-import { KType, TFunc } from "../BuiltIns";
+import { KType, TApp, TFunc, tList } from "../BuiltIns";
 
 import { Environment } from "../environment";
 
@@ -41,6 +41,24 @@ export function infer(env: Environment, expr: Expr): Inference<Expr<TypeInfo>> {
     // Grouping
     case Expr.Is.Grouping:
       return infer(env, expr.expression);
+
+    // List Literals
+    case Expr.Is.List:
+      return Inference.fresh().bind((itemType) =>
+        Inference.mapList(
+          (rawItem) =>
+            infer(env, rawItem).bind((item) =>
+              unify(itemType, item.type).then(Inference.pure(item))
+            ),
+          expr.items
+        ).bind((items) =>
+          Inference.pure({
+            ...expr,
+            items,
+            type: TApp(tList, itemType),
+          })
+        )
+      );
 
     // Function application
     case Expr.Is.Application:
@@ -85,9 +103,37 @@ export function infer(env: Environment, expr: Expr): Inference<Expr<TypeInfo>> {
         )
       );
 
+    // Sections
+    case Expr.Is.Section:
+      return infer(env, expr.expression).bind((expression) =>
+        infer(env, expr.operator).bind((operator) =>
+          Inference.fresh().bind((argType) =>
+            Inference.fresh().bind((resultType) =>
+              unify(
+                operator.type,
+                expr.side === "left"
+                  ? TFunc(argType, TFunc(expression.type, resultType))
+                  : TFunc(expression.type, TFunc(argType, resultType))
+              ).then(
+                Inference.pure({
+                  ...expr,
+                  expression,
+                  // See above
+                  operator: operator as Expr.Variable<TypeInfo>,
+                  type: TFunc(argType, resultType),
+                })
+              )
+            )
+          )
+        )
+      );
+
+    case Expr.Is.Empty:
+      // Treat this as an expression of totally unknown type
+      return Inference.fresh().map((type) => ({ ...expr, type }));
+
     default:
-      throw new Error(`Constraint generation for expression type "${expr.is}"`);
-    //return expr satisfies never;
+      return expr satisfies never;
   }
 }
 

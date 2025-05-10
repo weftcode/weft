@@ -2,8 +2,9 @@ import { Type } from "./Type";
 import { Predicate, QualType } from "./TypeClass";
 import { TypeScheme } from "./TypeScheme";
 
-import { asFnType } from "./BuiltIns";
+import { asFnType, tList } from "./BuiltIns";
 import { Substitution } from "./Substitution";
+import { eq } from "../../utils";
 
 export function printSubstitution(sub: Substitution) {
   return Object.entries(sub)
@@ -40,10 +41,14 @@ export function printType(type: Type, parenthesize = false): string {
         );
       } else {
         ({ left, right } = type);
-        return parens(
-          `${printType(left)} ${printType(right, true)}`,
-          parenthesize
-        );
+        if (eq(left, tList)) {
+          return `[${printType(right)}]`;
+        } else {
+          return parens(
+            `${printType(left)} ${printType(right, true)}`,
+            parenthesize
+          );
+        }
       }
     case Type.Is.Gen:
       return `<t${type.num}>`;
