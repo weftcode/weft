@@ -1,13 +1,13 @@
 import { applyToType, combine, Substitution } from "../Substitution";
 import { mgu } from "../Unification";
-import { Constraint } from "./Monad";
+import { Constraint } from "./Constraint";
 
 export function solve(constraints: Constraint[]): Substitution {
   let sub: Substitution = {};
 
   for (let constraint of constraints) {
-    let [type1, type2] = constraint;
-    let newSub = mgu(applyToType(sub, type1), applyToType(sub, type2));
+    let { left, right } = constraint;
+    let newSub = mgu(applyToType(sub, left), applyToType(sub, right));
     sub = combine(newSub, sub);
   }
 

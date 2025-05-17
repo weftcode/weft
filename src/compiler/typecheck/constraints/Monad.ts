@@ -3,7 +3,7 @@ import { TypeScheme, instQualType } from "../TypeScheme";
 
 import { KType } from "../BuiltIns";
 
-export type Constraint = [Type, Type];
+import { Constraint } from "./Constraint";
 
 interface InferState<A> {
   num: number;
@@ -77,8 +77,8 @@ export class Inference<A> {
   }
 }
 
-export function unify(t1: Type, t2: Type) {
-  return Inference.addConstraint([t1, t2]);
+export function unify(left: Type, right: Type) {
+  return Inference.addConstraint({ is: Constraint.Is.Equality, left, right });
 }
 
 export function freshInst({ forAll, qual }: TypeScheme) {

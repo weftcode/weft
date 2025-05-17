@@ -6,8 +6,9 @@ import { TypeScheme } from "../TypeScheme";
 // import { inferExpr } from "./Inference";
 // import { UnificationError } from "./Utilities";
 import { Environment } from "../environment";
+import { Constraint } from "./Constraint";
 import { infer, TypeInfo, applyToExpr } from "./Generation";
-import { Constraint, Inference } from "./Monad";
+import { Inference } from "./Monad";
 import { printConstraint } from "./Printer";
 import { solve } from "./Solver";
 
@@ -32,12 +33,7 @@ export class TypeChecker {
               ])
             )
             .run();
-          console.log("Constraints:");
-          for (let ct of constraints) {
-            console.log(printConstraint(ct));
-          }
           let substitution = solve(constraints);
-          console.log(substitution);
           expression = applyToExpr(expression, substitution);
           return { ...statement, expression };
         default:
