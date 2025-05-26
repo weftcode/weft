@@ -19,32 +19,24 @@ export class TypeChecker {
   ) {}
 
   check(statement: Stmt) {
-    try {
-      switch (statement.is) {
-        case Stmt.Is.Expression:
-          let [expression, constraints] = infer(
-            this.environment,
-            statement.expression
+    switch (statement.is) {
+      case Stmt.Is.Expression:
+        let [expression, constraints] = infer(
+          this.environment,
+          statement.expression
+        )
+          .bind<[Expr<TypeInfo>, Constraint[]]>((elaborated) =>
+            Inference.getConstraints.map((constraints) => [
+              elaborated,
+              constraints,
+            ])
           )
-            .bind<[Expr<TypeInfo>, Constraint[]]>((elaborated) =>
-              Inference.getConstraints.map((constraints) => [
-                elaborated,
-                constraints,
-              ])
-            )
-            .run();
-          let substitution = solve(constraints);
-          expression = applyToExpr(expression, substitution);
-          return { ...statement, expression };
-        default:
-          return statement.is satisfies never;
-      }
-    } catch (e) {
-      // if (e instanceof UnificationError && e.type2) {
-      //   this.reporter.error(0, 0, e.message);
-      // }
-
-      throw e;
+          .run();
+        let { substitution, errors } = solve(constraints);
+        expression = applyToExpr(expression, substitution);
+        return { ...statement, expression };
+      default:
+        return statement.is satisfies never;
     }
   }
 }
