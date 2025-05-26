@@ -1,5 +1,4 @@
 import { Stmt } from "../parse/AST/Stmt";
-import { ErrorReporter } from "../parse/Reporter";
 
 import { makeContext, PolyType } from "./Types";
 import { W } from "./Inference";
@@ -10,7 +9,7 @@ import { applyToExpr } from "./Annotations";
 export class TypeChecker {
   private environment: { [name: string]: PolyType };
 
-  constructor(private readonly reporter: ErrorReporter, env: Environment) {
+  constructor(env: Environment) {
     this.environment = Object.fromEntries(
       Object.entries(env.typeEnv).map(([key, { type }]) => [key, type])
     );
@@ -29,9 +28,9 @@ export class TypeChecker {
           return statement.is satisfies never;
       }
     } catch (e) {
-      if (e instanceof UnificationError && e.type2) {
-        this.reporter.error(0, 0, e.message);
-      }
+      // if (e instanceof UnificationError && e.type2) {
+      //   this.reporter.error(0, 0, e.message);
+      // }
 
       throw e;
     }

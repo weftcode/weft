@@ -1,4 +1,3 @@
-import { ErrorReporter } from "./parse/Reporter";
 import { Token, tokenBounds } from "./scan/Token";
 import { Expr } from "./parse/AST/Expr";
 import { Stmt } from "./parse/AST/Stmt";
@@ -13,10 +12,7 @@ type Value = Value[] | ((input: Value) => Value);
 export type Location = [string, { from: number; to: number }];
 
 export class Interpreter {
-  constructor(
-    private readonly reporter: ErrorReporter,
-    private bindings: TypeEnv
-  ) {}
+  constructor(private bindings: TypeEnv) {}
 
   private currentID: number = 0;
 
@@ -45,8 +41,8 @@ export class Interpreter {
       }
     } catch (error) {
       if (error instanceof RuntimeError) {
-        let { from, to } = tokenBounds(error.token);
-        this.reporter.error(from, to, error.message);
+        // let { from, to } = tokenBounds(error.token);
+        // this.reporter.error(from, to, error.message);
       } else {
         throw error;
       }

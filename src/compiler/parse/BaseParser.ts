@@ -1,4 +1,3 @@
-import { ErrorReporter } from "./Reporter";
 import { Token } from "../scan/Token";
 import { TokenType } from "../scan/TokenType";
 
@@ -11,7 +10,7 @@ export class ParseError extends Error {
 export abstract class BaseParser<T> {
   private current = 0;
 
-  constructor(private tokens: Token[], protected reporter: ErrorReporter) {}
+  constructor(private tokens: Token[]) {}
 
   abstract parse(): T;
 

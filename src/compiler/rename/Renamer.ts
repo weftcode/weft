@@ -1,68 +1,62 @@
-import { tokenBounds } from "../scan/Token";
 import { Expr } from "../parse/AST/Expr";
 import { Stmt } from "../parse/AST/Stmt";
-import { ErrorReporter } from "../parse/Reporter";
 import { TypeEnv } from "../environment";
+import { RenamerExt } from "./ASTExtensions";
 
-export function renamer(
-  stmts: Stmt[],
-  context: TypeEnv,
-  reporter: ErrorReporter
-) {
-  for (let stmt of stmts) {
-    switch (stmt.is) {
-      case Stmt.Is.Expression:
-        expressionRenamer(stmt.expression, context, reporter);
-        break;
-      default:
-        stmt.is satisfies never;
-    }
+export function renameStmt(stmt: Stmt, context: TypeEnv): Stmt<RenamerExt> {
+  switch (stmt.is) {
+    case Stmt.Is.Expression:
+      return {
+        ...stmt,
+        expression: renameExpr(stmt.expression, context),
+      };
+    default:
+      return stmt.is satisfies never;
   }
 }
 
-export function expressionRenamer(
-  expr: Expr,
-  context: TypeEnv,
-  reporter: ErrorReporter
-): void {
+export function renameExpr(expr: Expr, context: TypeEnv): Expr<RenamerExt> {
   switch (expr.is) {
     case Expr.Is.Literal:
     case Expr.Is.Empty:
-      return;
+      return expr;
 
     // The main case
     case Expr.Is.Variable:
-      if (!(expr.name.lexeme in context)) {
-        let { from, to } = tokenBounds(expr.name);
-        reporter.error(from, to, `Variable "${expr.name.lexeme}" is undefined`);
-      }
-      return;
+      return expr.name.lexeme in context ? expr : { ...expr, missing: true };
 
     case Expr.Is.Application:
-      expressionRenamer(expr.left, context, reporter);
-      expressionRenamer(expr.right, context, reporter);
-      return;
+      return {
+        ...expr,
+        left: renameExpr(expr.left, context),
+        right: renameExpr(expr.right, context),
+      };
 
     case Expr.Is.Binary:
-      expressionRenamer(expr.left, context, reporter);
-      expressionRenamer(expr.operator, context, reporter);
-      expressionRenamer(expr.right, context, reporter);
-      return;
+      return {
+        ...expr,
+        left: renameExpr(expr.left, context),
+        operator: renameExpr(expr.operator, context) as Expr.Variable,
+        right: renameExpr(expr.right, context),
+      };
 
-    case Expr.Is.Section:
-      expressionRenamer(expr.operator, context, reporter);
-      expressionRenamer(expr.expression, context, reporter);
-      return;
+    case Expr.Is.Section: {
+      const operator = renameExpr(expr.operator, context) as Expr.Variable;
+      const expression = renameExpr(expr.expression, context);
+      return { ...expr, operator, expression };
+    }
 
     case Expr.Is.Grouping:
-      expressionRenamer(expr.expression, context, reporter);
-      return;
+      return {
+        ...expr,
+        expression: renameExpr(expr.expression, context),
+      };
 
     case Expr.Is.List:
-      expr.items.forEach((item) => {
-        expressionRenamer(item, context, reporter);
-      });
-      return;
+      return {
+        ...expr,
+        items: expr.items.map((item) => renameExpr(item, context)),
+      };
 
     default:
       return expr satisfies never;

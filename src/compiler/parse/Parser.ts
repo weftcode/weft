@@ -5,17 +5,12 @@ import { TokenType } from "../scan/TokenType";
 
 import { Expr } from "./AST/Expr";
 import { Stmt } from "./AST/Stmt";
-import { ErrorReporter } from "./Reporter";
 
 import { TypeEnv } from "../environment";
 
 export class Parser extends BaseParser<Stmt[]> {
-  constructor(
-    tokens: Token[],
-    private environment: TypeEnv,
-    reporter: ErrorReporter
-  ) {
-    super(tokens, reporter);
+  constructor(tokens: Token[], private environment: TypeEnv) {
+    super(tokens);
   }
 
   parse() {
@@ -26,18 +21,7 @@ export class Parser extends BaseParser<Stmt[]> {
         // Ignore empty lines
         this.advance();
       } else {
-        try {
-          statements.push(this.expressionStatement());
-        } catch (error) {
-          if (error instanceof ParseError) {
-            let { from, to } = tokenBounds(error.token);
-            this.reporter.error(from, to, error.message);
-            this.synchronize();
-            break;
-          } else {
-            throw error;
-          }
-        }
+        statements.push(this.expressionStatement());
       }
     }
 

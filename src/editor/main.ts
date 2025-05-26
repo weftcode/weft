@@ -15,7 +15,6 @@ import { dracula } from "thememirror/dist/index.js";
 
 import { Scanner } from "../compiler/scan/Scanner";
 import { Parser } from "../compiler/parse/Parser";
-import { ErrorReporter } from "../compiler/parse/Reporter";
 
 import strudel from "../strudel";
 import { hush } from "../strudel";
@@ -91,19 +90,17 @@ const consoleComponent = editorConsole();
 
 const parseLinter = linter((view) => {
   try {
-    let reporter = new ErrorReporter();
-
     const scanner = new Scanner(view.state.doc.toString());
     const tokens = scanner.scanTokens();
-    const parser = new Parser(tokens, env.typeEnv, reporter);
+    const parser = new Parser(tokens, env.typeEnv);
     const stmts = parser.parse();
 
     let diagnostics: Diagnostic[] = [];
 
     // Run renamer to check for undefined variables
-    renamer(stmts, env.typeEnv, reporter);
+    let renamedStmts = stmts.map((s) => renameStmt(s, env.typeEnv));
 
-    const typechecker = new TypeChecker(reporter, env);
+    const typechecker = new TypeChecker(env);
 
     for (let stmt of stmts) {
       let { expression } = typechecker.check(stmt);
@@ -111,23 +108,25 @@ const parseLinter = linter((view) => {
       diagnostics = diagnostics.concat(collectTypeDiagnostics(expression));
     }
 
-    if (reporter.hasError) {
-      return reporter.errors.map(({ from, to, message }) => ({
-        from,
-        to,
-        message,
-        severity: "error",
-      }));
-    } else {
-      return diagnostics;
-    }
+    // if (reporter.hasError) {
+    //   return reporter.errors.map(({ from, to, message }) => ({
+    //     from,
+    //     to,
+    //     message,
+    //     severity: "error",
+    //   }));
+    // } else {
+    //   return diagnostics;
+    // }
+    // TODO: Skipping error reporting for now
+    return [];
   } catch (error) {
     console.log(error);
     return [];
   }
 });
 
-import { renamer } from "../compiler/rename/Renamer";
+import { renameStmt } from "../compiler/rename/Renamer";
 import { highlighter } from "../strudel/highlights";
 import { handlerSet } from "../strudel/boot";
 import { collectTypeDiagnostics } from "../compiler/typecheck/Annotations";
