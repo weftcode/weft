@@ -21,6 +21,7 @@ export namespace Expr {
     Literal = "Literal",
     Variable = "Variable",
     Empty = "Empty",
+    Error = "Error",
   }
 
   export interface Extension {

@@ -5,11 +5,13 @@ export type Stmt<Extend extends Stmt.Extension = Stmt.Extension> =
 
 export namespace Stmt {
   export enum Is {
-    Expression,
+    Expression = "Expression",
+    Error = "Error",
   }
 
   export type Extension = {
     "Stmt.Expression": object;
+    "Stmt.Error": object;
   } & Expr.Extension;
 
   export interface Expression<Extend extends Extension = Extension> {
