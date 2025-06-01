@@ -10,8 +10,10 @@ export function renameStmt(stmt: Stmt, context: TypeEnv): Stmt<RenamerExt> {
         ...stmt,
         expression: renameExpr(stmt.expression, context),
       };
+    case Stmt.Is.Error:
+      return stmt;
     default:
-      return stmt.is satisfies never;
+      return stmt satisfies never;
   }
 }
 

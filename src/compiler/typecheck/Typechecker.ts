@@ -4,7 +4,7 @@ import { makeContext, PolyType } from "./Types";
 import { W } from "./Inference";
 import { UnificationError } from "./Utilities";
 import { Environment } from "../environment";
-import { applyToExpr } from "./Annotations";
+import { TypeInfo, applyToExpr, getType } from "./Annotations";
 
 export class TypeChecker {
   private environment: { [name: string]: PolyType };
@@ -15,7 +15,7 @@ export class TypeChecker {
     );
   }
 
-  check(statement: Stmt) {
+  check(statement: Stmt): Stmt<TypeInfo> {
     try {
       switch (statement.is) {
         case Stmt.Is.Expression:
@@ -23,9 +23,12 @@ export class TypeChecker {
             makeContext(this.environment),
             statement.expression
           );
-          return { ...statement, expression: applyToExpr(expr, sub) };
+          let expression = applyToExpr(expr, sub);
+          return { ...statement, expression, type: getType(expression) };
+        case Stmt.Is.Error:
+          return { ...statement };
         default:
-          return statement.is satisfies never;
+          return statement satisfies never;
       }
     } catch (e) {
       // if (e instanceof UnificationError && e.type2) {

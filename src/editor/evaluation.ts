@@ -94,7 +94,7 @@ export function handleEvaluation(
     }
 
     values.forEach((text, i) => {
-      if (text !== "") {
+      if (text !== "" && stmts[i].is === Stmt.Is.Expression) {
         let { from, to } = expressionBounds(stmts[i].expression);
         results.push({
           input: code.slice(from, to),

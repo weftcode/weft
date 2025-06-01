@@ -1,3 +1,5 @@
+import { Stmt } from "../compiler/parse/AST/Stmt";
+
 import { EditorView, basicSetup } from "codemirror";
 import { Diagnostic, linter } from "@codemirror/lint";
 
@@ -103,9 +105,13 @@ const parseLinter = linter((view) => {
     const typechecker = new TypeChecker(env);
 
     for (let stmt of stmts) {
-      let { expression } = typechecker.check(stmt);
+      let checked = typechecker.check(stmt);
 
-      diagnostics = diagnostics.concat(collectTypeDiagnostics(expression));
+      if (checked.is === Stmt.Is.Expression) {
+        diagnostics = diagnostics.concat(
+          collectTypeDiagnostics(checked.expression)
+        );
+      }
     }
 
     // if (reporter.hasError) {
