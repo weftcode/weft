@@ -8,6 +8,9 @@
     "test-update": "jest --updateSnapshot"
   },
   "type": "module",
+  "workspaces": [
+    "src/*"
+  ],
   "devDependencies": {
     "@jest/globals": "^29.7.0",
     "@lezer/generator": "^1.7.0",
