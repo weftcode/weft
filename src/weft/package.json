@@ -1,9 +1,16 @@
 {
   "name": "@weftcode/weft",
   "version": "0.0.1",
-  "main": "index.js",
+  "type": "module",
+  "main": "dist/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "parcel build src/index.ts"
+  },
+  "targets": {
+    "main": {
+      "includeNodeModules": true
+    }
   },
   "author": "Matthew Kaney",
   "license": "GPL-3.0",
