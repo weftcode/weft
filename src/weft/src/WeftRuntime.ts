@@ -10,7 +10,12 @@ import { Interpreter } from "../../compiler/Interpreter";
 import { ErrorReporter } from "../../compiler/parse/Reporter";
 import { makeEnv } from "../../compiler/environment";
 import { Evaluation } from "../../editor/console";
-import type { TypeInfo } from "../../compiler/typecheck/Annotations";
+import {
+  TypeInfo,
+  collectTypeDiagnostics,
+} from "../../compiler/typecheck/Annotations";
+
+import { Diagnostic } from "@codemirror/lint";
 
 import preludeLib from "../../standard-lib";
 
@@ -26,6 +31,59 @@ export class WeftRuntime {
 
   constructor() {
     this.env = preludeLib(this.env);
+  }
+
+  async parse(code: string): Promise<Diagnostic[]> {
+    let reporter = new ErrorReporter();
+
+    let results: Evaluation[] = [];
+
+    try {
+      const scanner = new Scanner(code);
+      const tokens = scanner.scanTokens();
+      const parser = new Parser(tokens, this.env.typeEnv, reporter);
+      const stmts = parser.parse();
+
+      renamer(stmts, this.env.typeEnv, reporter);
+
+      let typedStmts: Stmt<TypeInfo>[] = [];
+
+      if (!reporter.hasError) {
+        let typechecker = new TypeChecker(reporter, this.env);
+
+        for (let stmt of stmts) {
+          let typedStmt = typechecker.check(stmt);
+          typedStmts.push(typedStmt);
+          // generateTypeDiagnostics(sub, expr).forEach((annotation) => {
+          //   if (annotation.severity === "error") {
+          //     reporter.error(
+          //       annotation.from,
+          //       annotation.to,
+          //       annotation.message
+          //     );
+          //   }
+          // });
+        }
+      }
+
+      let diagnostics: Diagnostic[] = [];
+
+      for (let stmt of typedStmts) {
+        diagnostics.push(...collectTypeDiagnostics(stmt.expression));
+      }
+
+      return diagnostics;
+    } catch (error) {
+      if (error instanceof Error) {
+        results.push({
+          input: code,
+          success: false,
+          text: "Error: " + error.message,
+        });
+      }
+
+      throw error;
+    }
   }
 
   async evaluate(code: string, offset = 0): Promise<EvaluationResults> {
