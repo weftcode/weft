@@ -27,7 +27,7 @@ let env = standardLib(makeEnv());
 // @ts-ignore
 env = strudel(env);
 
-const runtime = new WeftRuntime();
+const runtime = new WeftRuntime(env);
 
 async function updateURLField(input: HTMLInputElement, doc: string) {
   const stream = new ReadableStream({

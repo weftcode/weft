@@ -17,26 +17,20 @@ import {
 
 import { Diagnostic } from "@codemirror/lint";
 
-import preludeLib from "../../standard-lib";
-
 interface EvaluationResults {
   results: Evaluation[];
   miniLocations?: Location[];
 }
 
 export class WeftRuntime {
-  private env = makeEnv();
-
   private evalCounter = 0;
 
-  constructor() {
-    this.env = preludeLib(this.env);
-  }
+  constructor(private env = makeEnv()) {}
 
   async parse(code: string): Promise<Diagnostic[]> {
     let reporter = new ErrorReporter();
 
-    let results: Evaluation[] = [];
+    let diagnostics: Diagnostic[] = [];
 
     try {
       const scanner = new Scanner(code);
@@ -46,44 +40,37 @@ export class WeftRuntime {
 
       renamer(stmts, this.env.typeEnv, reporter);
 
-      let typedStmts: Stmt<TypeInfo>[] = [];
-
       if (!reporter.hasError) {
         let typechecker = new TypeChecker(reporter, this.env);
 
         for (let stmt of stmts) {
           let typedStmt = typechecker.check(stmt);
-          typedStmts.push(typedStmt);
-          // generateTypeDiagnostics(sub, expr).forEach((annotation) => {
-          //   if (annotation.severity === "error") {
-          //     reporter.error(
-          //       annotation.from,
-          //       annotation.to,
-          //       annotation.message
-          //     );
-          //   }
-          // });
+          diagnostics.push(...collectTypeDiagnostics(typedStmt.expression));
         }
       }
 
-      let diagnostics: Diagnostic[] = [];
-
-      for (let stmt of typedStmts) {
-        diagnostics.push(...collectTypeDiagnostics(stmt.expression));
+      if (reporter.hasError) {
+        diagnostics.push(
+          ...reporter.errors.map<Diagnostic>((error) => ({
+            ...error,
+            severity: "error",
+          }))
+        );
       }
-
-      return diagnostics;
     } catch (error) {
       if (error instanceof Error) {
-        results.push({
-          input: code,
-          success: false,
-          text: "Error: " + error.message,
+        diagnostics.push({
+          severity: "error",
+          message: "Error: " + error.message,
+          from: 0,
+          to: code.length,
         });
       }
 
       throw error;
     }
+
+    return diagnostics;
   }
 
   async evaluate(code: string, offset = 0): Promise<EvaluationResults> {
