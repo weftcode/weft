@@ -119,7 +119,7 @@ window.addEventListener("load", async () => {
   new EditorView({
     doc,
     extensions: [
-      evaluation(env, consoleComponent),
+      evaluation(runtime, consoleComponent),
       basicSetup,
       StreamLanguage.define(haskell),
       parseLinter(runtime),

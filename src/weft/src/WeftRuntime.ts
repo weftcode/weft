@@ -5,7 +5,7 @@ import { Scanner } from "../../compiler/scan/Scanner";
 import { Parser } from "../../compiler/parse/Parser";
 import { renamer } from "../../compiler/rename/Renamer";
 import { TypeChecker } from "../../compiler/typecheck/Typechecker";
-import { Interpreter } from "../../compiler/Interpreter";
+import { Interpreter, Location } from "../../compiler/Interpreter";
 
 import { ErrorReporter } from "../../compiler/parse/Reporter";
 import { makeEnv } from "../../compiler/environment";
@@ -73,7 +73,7 @@ export class WeftRuntime {
     return diagnostics;
   }
 
-  async evaluate(code: string, offset = 0): Promise<EvaluationResults> {
+  evaluate(code: string, offset = 0): EvaluationResults {
     let reporter = new ErrorReporter();
 
     let results: Evaluation[] = [];
@@ -95,11 +95,15 @@ export class WeftRuntime {
         for (let stmt of stmts) {
           let typedStmt = typechecker.check(stmt);
           typedStmts.push(typedStmt);
-          // generateTypeDiagnostics(sub, expr).forEach((annotation) => {
-          //   if (annotation.severity === "error") {
-          //     reporter.error(annotation.from, annotation.to, annotation.message);
-          //   }
-          // });
+          collectTypeDiagnostics(typedStmt.expression).forEach((annotation) => {
+            if (annotation.severity === "error") {
+              reporter.error(
+                annotation.from,
+                annotation.to,
+                annotation.message
+              );
+            }
+          });
         }
       }
 
@@ -115,7 +119,6 @@ export class WeftRuntime {
         const interpreter = new Interpreter(reporter, this.env.typeEnv);
 
         let values: string[];
-        let miniLocations;
         [values, miniLocations] = interpreter.interpret(
           typedStmts,
           this.evalCounter++
