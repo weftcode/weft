@@ -1,7 +1,4 @@
-import { Stmt } from "../compiler/parse/AST/Stmt";
-
 import { EditorView, basicSetup } from "codemirror";
-import { Diagnostic, linter } from "@codemirror/lint";
 
 import { StreamLanguage } from "@codemirror/language";
 import { haskell } from "@codemirror/legacy-modes/mode/haskell";
@@ -15,20 +12,22 @@ import { editorTheme } from "./theme";
 // @ts-ignore
 import { dracula } from "thememirror/dist/index.js";
 
-import { Scanner } from "../compiler/scan/Scanner";
-import { Parser } from "../compiler/parse/Parser";
+import { WeftRuntime } from "../weft/src";
+
+import { parseLinter } from "./linter";
 
 import strudel from "../strudel";
 import { hush } from "../strudel";
 import standardLib from "../standard-lib";
 
 import { makeEnv } from "../compiler/environment";
-import { TypeChecker } from "../compiler/typecheck/Typechecker";
 
 let env = standardLib(makeEnv());
 
 // @ts-ignore
 env = strudel(env);
+
+const runtime = new WeftRuntime(env);
 
 async function updateURLField(input: HTMLInputElement, doc: string) {
   const stream = new ReadableStream({
@@ -90,52 +89,8 @@ const autosave = EditorView.updateListener.of((update) => {
 
 const consoleComponent = editorConsole();
 
-const parseLinter = linter((view) => {
-  try {
-    const scanner = new Scanner(view.state.doc.toString());
-    const tokens = scanner.scanTokens();
-    const parser = new Parser(tokens, env.typeEnv);
-    const stmts = parser.parse();
-
-    let diagnostics: Diagnostic[] = [];
-
-    // Run renamer to check for undefined variables
-    let renamedStmts = stmts.map((s) => renameStmt(s, env.typeEnv));
-
-    const typechecker = new TypeChecker(env);
-
-    for (let stmt of stmts) {
-      let checked = typechecker.check(stmt);
-
-      if (checked.is === Stmt.Is.Expression) {
-        diagnostics = diagnostics.concat(
-          collectTypeDiagnostics(checked.expression)
-        );
-      }
-    }
-
-    // if (reporter.hasError) {
-    //   return reporter.errors.map(({ from, to, message }) => ({
-    //     from,
-    //     to,
-    //     message,
-    //     severity: "error",
-    //   }));
-    // } else {
-    //   return diagnostics;
-    // }
-    // TODO: Skipping error reporting for now
-    return [];
-  } catch (error) {
-    console.log(error);
-    return [];
-  }
-});
-
-import { renameStmt } from "../compiler/rename/Renamer";
 import { highlighter } from "../strudel/highlights";
 import { handlerSet } from "../strudel/boot";
-import { collectTypeDiagnostics } from "../compiler/typecheck/Annotations";
 
 window.addEventListener("load", async () => {
   let doc: string;
@@ -164,10 +119,10 @@ window.addEventListener("load", async () => {
   new EditorView({
     doc,
     extensions: [
-      evaluation(env, consoleComponent),
+      evaluation(runtime, consoleComponent),
       basicSetup,
       StreamLanguage.define(haskell),
-      parseLinter,
+      parseLinter(runtime),
       autosave,
       dracula,
       editorTheme,

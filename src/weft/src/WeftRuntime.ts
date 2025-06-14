@@ -1,17 +1,20 @@
-import type { Stmt } from "../../compiler/parse/AST/Stmt";
+import { Stmt } from "../../compiler/parse/AST/Stmt";
 import { expressionBounds } from "../../compiler/parse/Utils";
 
 import { Scanner } from "../../compiler/scan/Scanner";
 import { Parser } from "../../compiler/parse/Parser";
 import { renameStmt } from "../../compiler/rename/Renamer";
 import { TypeChecker } from "../../compiler/typecheck/Typechecker";
-import { Interpreter } from "../../compiler/Interpreter";
+import { Interpreter, Location } from "../../compiler/Interpreter";
 
 import { makeEnv } from "../../compiler/environment";
 import { Evaluation } from "../../editor/console";
-import type { TypeInfo } from "../../compiler/typecheck/Annotations";
+import {
+  TypeInfo,
+  collectTypeDiagnostics,
+} from "../../compiler/typecheck/Annotations";
 
-import preludeLib from "../../standard-lib";
+import { Diagnostic } from "@codemirror/lint";
 
 interface EvaluationResults {
   results: Evaluation[];
@@ -19,15 +22,48 @@ interface EvaluationResults {
 }
 
 export class WeftRuntime {
-  private env = makeEnv();
-
   private evalCounter = 0;
 
-  constructor() {
-    this.env = preludeLib(this.env);
+  constructor(private env = makeEnv()) {}
+
+  async parse(code: string): Promise<Diagnostic[]> {
+    let diagnostics: Diagnostic[] = [];
+
+    try {
+      const scanner = new Scanner(code);
+      const tokens = scanner.scanTokens();
+      const parser = new Parser(tokens, this.env.typeEnv);
+      const stmts = parser.parse();
+
+      // Run renamer to check for undefined variables
+      let renamedStmts = stmts.map((s) => renameStmt(s, this.env.typeEnv));
+
+      const typechecker = new TypeChecker(this.env);
+
+      for (let stmt of renamedStmts) {
+        let checked = typechecker.check(stmt);
+
+        if (checked.is === Stmt.Is.Expression) {
+          diagnostics.push(...collectTypeDiagnostics(checked.expression));
+        }
+      }
+    } catch (error) {
+      if (error instanceof Error) {
+        diagnostics.push({
+          severity: "error",
+          message: "Error: " + error.message,
+          from: 0,
+          to: code.length,
+        });
+      }
+
+      throw error;
+    }
+
+    return diagnostics;
   }
 
-  async evaluate(code: string, offset = 0): Promise<EvaluationResults> {
+  evaluate(code: string, offset = 0): EvaluationResults {
     let results: Evaluation[] = [];
     let miniLocations: Location[] | undefined;
 
@@ -48,7 +84,6 @@ export class WeftRuntime {
       const interpreter = new Interpreter(this.env.typeEnv);
 
       let values: string[];
-      let miniLocations;
       [values, miniLocations] = interpreter.interpret(
         typedStmts,
         this.evalCounter++
@@ -62,7 +97,7 @@ export class WeftRuntime {
       }
 
       values.forEach((text, i) => {
-        if (text !== "") {
+        if (text !== "" && stmts[i].is === Stmt.Is.Expression) {
           let { from, to } = expressionBounds(stmts[i].expression);
           results.push({
             input: code.slice(from, to),
@@ -72,12 +107,12 @@ export class WeftRuntime {
         }
       });
 
-      results.push({
-        input: code,
-        success: false,
-        text:
-          "Error: " + reporter.errors.map((error) => error.message).join("\n"),
-      });
+      // results.push({
+      //   input: code,
+      //   success: false,
+      //   text:
+      //     "Error: " + reporter.errors.map((error) => error.message).join("\n"),
+      // });
     } catch (error) {
       if (error instanceof Error) {
         results.push({
