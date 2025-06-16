@@ -151,6 +151,7 @@ export const W = (
         )
       );
 
+    case Expr.Is.Error:
     case Expr.Is.Empty:
       throw new Error(`Unhandled expression type: ${expr.is}`);
 

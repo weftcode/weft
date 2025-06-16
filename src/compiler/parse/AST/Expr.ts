@@ -9,7 +9,8 @@ export type Expr<Extend extends Expr.Extension = Expr.Extension> =
   | Expr.List<Extend>
   | Expr.Literal<Extend>
   | Expr.Variable<Extend>
-  | Expr.Empty<Extend>;
+  | Expr.Empty<Extend>
+  | Expr.Error<Extend>;
 
 export namespace Expr {
   export enum Is {
@@ -33,11 +34,19 @@ export namespace Expr {
     "Expr.Literal": object;
     "Expr.Variable": object;
     "Expr.Empty": object;
+    "Expr.Error": object;
   }
 
   export type Empty<Extend extends Extension = Extension> = {
     is: Is.Empty;
   } & Extend["Expr.Empty"];
+
+  type ErrorItem = { is: "Token"; item: Token } | { is: "Expr"; item: Expr };
+
+  export type Error<Extend extends Extension = Extension> = {
+    is: Is.Error;
+    contents: ErrorItem[];
+  } & Extend["Expr.Error"];
 
   export type Binary<Extend extends Extension = Extension> = {
     is: Is.Binary;

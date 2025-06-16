@@ -60,6 +60,16 @@ export function renameExpr(expr: Expr, context: TypeEnv): Expr<RenamerExt> {
         items: expr.items.map((item) => renameExpr(item, context)),
       };
 
+    case Expr.Is.Error:
+      return {
+        ...expr,
+        contents: expr.contents.map((item) =>
+          item.is === "Token"
+            ? item
+            : { ...item, item: renameExpr(item.item, context) }
+        ),
+      };
+
     default:
       return expr satisfies never;
   }

@@ -26,10 +26,12 @@ export function collectExprErrors(expr: Expr): Diagnostic[] {
     case Expr.Is.Variable:
     case Expr.Is.Literal:
       return [];
-    case Expr.Is.Application:{
-      let {left, right} = expr;
-      return [...collectExprErrors(left), ...collectExprErrors(right)]
-    //TODO: Fix this
-    return [];
+    case Expr.Is.Application: {
+      let { left, right } = expr;
+      return [...collectExprErrors(left), ...collectExprErrors(right)];
+    }
+    default:
+      //TODO: Fix this
+      return [];
   }
 }
