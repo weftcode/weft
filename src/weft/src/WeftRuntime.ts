@@ -6,13 +6,11 @@ import { Parser } from "../../compiler/parse/Parser";
 import { renameStmt } from "../../compiler/rename/Renamer";
 import { TypeChecker } from "../../compiler/typecheck/Typechecker";
 import { Interpreter, Location } from "../../compiler/Interpreter";
+import { collectErrors } from "../../compiler/errors/Errors";
 
 import { makeEnv } from "../../compiler/environment";
 import { Evaluation } from "../../editor/console";
-import {
-  TypeInfo,
-  collectTypeDiagnostics,
-} from "../../compiler/typecheck/Annotations";
+import { collectTypeDiagnostics } from "../../compiler/typecheck/Annotations";
 
 import { Diagnostic } from "@codemirror/lint";
 
@@ -34,6 +32,8 @@ export class WeftRuntime {
       const tokens = scanner.scanTokens();
       const parser = new Parser(tokens, this.env.typeEnv);
       const stmts = parser.parse();
+
+      diagnostics.push(...collectErrors(stmts));
 
       // Run renamer to check for undefined variables
       let renamedStmts = stmts.map((s) => renameStmt(s, this.env.typeEnv));
@@ -106,13 +106,6 @@ export class WeftRuntime {
           });
         }
       });
-
-      // results.push({
-      //   input: code,
-      //   success: false,
-      //   text:
-      //     "Error: " + reporter.errors.map((error) => error.message).join("\n"),
-      // });
     } catch (error) {
       if (error instanceof Error) {
         results.push({

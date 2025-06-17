@@ -21,7 +21,17 @@ export class Parser extends BaseParser<Stmt[]> {
         // Ignore empty lines
         this.advance();
       } else {
-        statements.push(this.expressionStatement());
+        try {
+          statements.push(this.expressionStatement());
+        } catch (error) {
+          if (error instanceof ParseError) {
+            let { token, message } = error;
+            let { from, to } = tokenBounds(token);
+            statements.push({ is: Stmt.Is.Error, message, from, to });
+          } else {
+            throw error;
+          }
+        }
       }
     }
 
@@ -29,32 +39,19 @@ export class Parser extends BaseParser<Stmt[]> {
   }
 
   private expressionStatement(): Stmt {
-    try {
-      const expression = this.expression(0);
+    const expression = this.expression(0);
 
-      if (!this.isAtEnd()) {
-        // This surely means we've encountered an error
-        if (expression.is === Expr.Is.Empty) {
-          let next = this.advance();
-          throw new ParseError(next, `Unexpected token "${next.lexeme}"`);
-        }
-
-        this.consume(TokenType.LineBreak, "Expect new line after expression.");
+    if (!this.isAtEnd()) {
+      // This surely means we've encountered an error
+      if (expression.is === Expr.Is.Empty) {
+        let next = this.advance();
+        throw new ParseError(next, `Unexpected token "${next.lexeme}"`);
       }
 
-      return { is: Stmt.Is.Expression, expression };
-    } catch (e) {
-      if (
-        typeof e === "object" &&
-        e !== null &&
-        "message" in e &&
-        typeof e.message === "string"
-      ) {
-        return { is: Stmt.Is.Error, message: e.message };
-      } else {
-        throw e;
-      }
+      this.consume(TokenType.LineBreak, "Expect new line after expression.");
     }
+
+    return { is: Stmt.Is.Expression, expression };
   }
 
   private expression(precedence: number): Expr {

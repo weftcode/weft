@@ -13,9 +13,7 @@ export function collectStmtErrors(stmt: Stmt): Diagnostic[] {
     case Stmt.Is.Expression:
       return collectExprErrors(stmt.expression);
     case Stmt.Is.Error:
-      let { message } = stmt;
-      let from = 0;
-      let to = 0;
+      let { message, from, to } = stmt;
       return [{ severity: "error", message, from, to }];
   }
 }

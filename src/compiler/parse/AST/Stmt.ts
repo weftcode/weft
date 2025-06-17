@@ -23,5 +23,7 @@ export namespace Stmt {
   export type Error<Extend extends Extension = Extension> = {
     is: Is.Error;
     message: string;
+    from: number;
+    to: number;
   } & Extend["Stmt.Error"];
 }
