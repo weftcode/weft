@@ -20,14 +20,9 @@ import strudel from "../strudel";
 import { hush } from "../strudel";
 import standardLib from "../standard-lib";
 
-import { makeEnv } from "../compiler/environment";
-
-let env = standardLib(makeEnv());
-
-// @ts-ignore
-env = strudel(env);
-
-const runtime = new WeftRuntime(env);
+const runtime = new WeftRuntime();
+runtime.loadLibrary(standardLib);
+runtime.loadLibrary(strudel);
 
 async function updateURLField(input: HTMLInputElement, doc: string) {
   const stream = new ReadableStream({

@@ -8,7 +8,7 @@ import { TypeChecker } from "../../compiler/typecheck/Typechecker";
 import { Interpreter, Location } from "../../compiler/Interpreter";
 
 import { ErrorReporter } from "../../compiler/parse/Reporter";
-import { makeEnv } from "../../compiler/environment";
+import { Environment, makeEnv } from "../../compiler/environment";
 import { Evaluation } from "../../editor/console";
 import {
   TypeInfo,
@@ -25,7 +25,13 @@ interface EvaluationResults {
 export class WeftRuntime {
   private evalCounter = 0;
 
-  constructor(private env = makeEnv()) {}
+  private env = makeEnv();
+
+  constructor() {}
+
+  loadLibrary(lib: (env: Environment) => Environment) {
+    this.env = lib(this.env);
+  }
 
   async parse(code: string): Promise<Diagnostic[]> {
     let reporter = new ErrorReporter();

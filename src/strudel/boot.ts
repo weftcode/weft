@@ -1,8 +1,8 @@
 // @ts-nocheck
 
 import { reify, Cyclist, silence, stack } from "@strudel/core";
-import { registerVoicings } from "@strudel/tonal";
-import { simple } from "@strudel/tonal/ireal.mjs";
+// import { registerVoicings } from "@strudel/tonal";
+// import { simple } from "@strudel/tonal/ireal.mjs";
 
 import {
   initAudioOnFirstClick,
@@ -20,7 +20,7 @@ const ctx = getAudioContext();
 registerSynthSounds();
 
 // Load default voicings
-registerVoicings("default", simple);
+// registerVoicings("default", simple);
 
 // Default Strudel samples
 const ds = "https://raw.githubusercontent.com/felixroos/dough-samples/main";
