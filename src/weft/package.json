@@ -8,16 +8,17 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "parcel build --target main"
+    "build": "parcel build"
   },
   "targets": {
-    "main": {
+    "default": {
       "source": [
         "src/index.ts",
         "src/strudel.ts"
       ],
-      "includeNodeModules": true,
-      "distDir": "dist"
+      "isLibrary": true,
+      "outputFormat": "esmodule",
+      "includeNodeModules": true
     }
   },
   "author": "Matthew Kaney",

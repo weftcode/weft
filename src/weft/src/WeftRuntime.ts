@@ -8,7 +8,12 @@ import { TypeChecker } from "../../compiler/typecheck/Typechecker";
 import { Interpreter, Location } from "../../compiler/Interpreter";
 
 import { ErrorReporter } from "../../compiler/parse/Reporter";
-import { Environment, makeEnv } from "../../compiler/environment";
+import {
+  addBinding,
+  BindingSpec,
+  Environment,
+  makeEnv,
+} from "../../compiler/environment";
 import { Evaluation } from "../../editor/console";
 import {
   TypeInfo,
@@ -31,6 +36,10 @@ export class WeftRuntime {
 
   loadLibrary(lib: (env: Environment) => Environment) {
     this.env = lib(this.env);
+  }
+
+  addBinding(spec: BindingSpec) {
+    this.env = addBinding(this.env, spec);
   }
 
   async parse(code: string): Promise<Diagnostic[]> {

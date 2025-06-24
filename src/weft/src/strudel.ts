@@ -1,2 +1,2 @@
-import libStrudel from "../../strudel";
-export const strudel = libStrudel;
+export * from "../../strudel";
+export { core, operators, controls, boot } from "../../strudel";
