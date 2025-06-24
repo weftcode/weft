@@ -22,3 +22,5 @@ export default (env: Environment) => {
 
   return env;
 };
+
+export { boot, core, operators, controls };

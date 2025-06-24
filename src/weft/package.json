@@ -2,17 +2,25 @@
   "name": "@weftcode/weft",
   "version": "0.0.1",
   "type": "module",
-  "main": "dist/index.js",
+  "exports": {
+    ".": "./dist/index.js",
+    "./strudel": "./dist/strudel.js"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "parcel build src/index.ts"
+    "build": "parcel build --target main"
   },
   "targets": {
     "main": {
-      "includeNodeModules": true
+      "source": [
+        "src/index.ts",
+        "src/strudel.ts"
+      ],
+      "includeNodeModules": true,
+      "distDir": "dist"
     }
   },
   "author": "Matthew Kaney",
   "license": "AGPL-3.0-or-later",
-  "description": ""
+  "description": "Live functional programming in the browser"
 }
