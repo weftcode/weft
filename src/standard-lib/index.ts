@@ -56,29 +56,29 @@ const standardLib: BindingsSpec = {
   },
 
   // Arithmetic
-  "+": {
-    type: "Number -> Number -> Number",
-    value: (a: number, b: number) => a + b,
-    prec: [6, "left"],
-  },
+  // "+": {
+  //   type: "Number -> Number -> Number",
+  //   value: (a: number, b: number) => a + b,
+  //   prec: [6, "left"],
+  // },
 
-  "-": {
-    type: "Number -> Number -> Number",
-    value: (a: number, b: number) => a - b,
-    prec: [6, "left"],
-  },
+  // "-": {
+  //   type: "Number -> Number -> Number",
+  //   value: (a: number, b: number) => a - b,
+  //   prec: [6, "left"],
+  // },
 
-  "*": {
-    type: "Number -> Number -> Number",
-    value: (a: number, b: number) => a * b,
-    prec: [7, "left"],
-  },
+  // "*": {
+  //   type: "Number -> Number -> Number",
+  //   value: (a: number, b: number) => a * b,
+  //   prec: [7, "left"],
+  // },
 
-  "/": {
-    type: "Number -> Number -> Number",
-    value: (a: number, b: number) => a / b,
-    prec: [7, "left"],
-  },
+  // "/": {
+  //   type: "Number -> Number -> Number",
+  //   value: (a: number, b: number) => a / b,
+  //   prec: [7, "left"],
+  // },
 
   id: {
     type: "a -> a",
