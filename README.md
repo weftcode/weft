@@ -1,4 +1,4 @@
-# Web Tidal
+# Weft
 
 This is an expermental port of a [Tidalcycles](https://tidalcycles.org/)-like language to the web. Specifically, it combines a custom interpreter for a tiny subset of Haskell syntax with a set of bindings to the [Strudel library](https://strudel.cc/workshop/getting-started/).
 

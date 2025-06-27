@@ -1,6 +1,6 @@
 import { PolyType } from "./Types";
 
-export function printType(type: PolyType, parenthesize = false) {
+export function printType(type: PolyType, parenthesize = false): string {
   switch (type.type) {
     case "ty-var":
       return type.a;
@@ -26,6 +26,8 @@ export function printType(type: PolyType, parenthesize = false) {
       }
     case "ty-quantifier":
       return parens(`forall ${type.a}. ${printType(type.sigma)}`, parenthesize);
+    case "ty-lit":
+      return `<${type.litType === "string" ? "String" : "Numeric"} Literal>`;
   }
 }
 

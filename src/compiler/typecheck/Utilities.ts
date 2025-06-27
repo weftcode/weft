@@ -2,6 +2,7 @@ import { printType } from "./Printer";
 import {
   Context,
   isContext,
+  LiteralType,
   makeContext,
   MonoType,
   PolyType,
@@ -66,6 +67,11 @@ function apply(
     };
   }
 
+  if (value.type === "ty-lit") {
+    if (s.raw[value.name]) return s.raw[value.name];
+    return value;
+  }
+
   throw new Error("Unknown argument passed to substitution");
 }
 
@@ -82,6 +88,14 @@ export const newTypeVar = (): TypeVariable => ({
   type: "ty-var",
   a: `t${currentTypeVar++}`,
 });
+
+export function newLiteral(litType: "string" | "number"): LiteralType {
+  return {
+    type: "ty-lit",
+    name: `t${currentTypeVar++}`,
+    litType,
+  };
+}
 
 // instantiate
 // mappings = { a |-> t0, b |-> t1 }
@@ -139,6 +153,10 @@ const freeVars = (value: PolyType | Context): string[] => {
     return freeVars(value.sigma).filter((v) => v !== value.a);
   }
 
+  if (value.type === "ty-lit") {
+    return [];
+  }
+
   throw new Error("Unknown argument passed to substitution");
 };
 
@@ -188,6 +206,15 @@ export function unify(type1: MonoType, type2: MonoType): Substitution | null {
     return unify(type2, type1);
   }
 
+  // Special-casing literals
+  if (type1.type === "ty-lit") {
+    return unifyLiteral(type1, type2);
+  }
+
+  if (type2.type === "ty-lit") {
+    return unifyLiteral(type2, type1);
+  }
+
   if (type1.C !== type2.C) {
     return null;
   }
@@ -208,6 +235,45 @@ export function unify(type1: MonoType, type2: MonoType): Substitution | null {
   return s;
 }
 
+function unifyLiteral(type1: LiteralType, type2: MonoType) {
+  if (type1.litType === "string") {
+    // Two possible substitutions for string literals: String and Pattern a
+    const stringSub = makeSubstitution({
+      [type1.name]: { type: "ty-app", C: "String", mus: [] },
+    });
+    const patSub = makeSubstitution({
+      [type1.name]: {
+        type: "ty-app",
+        C: "Pattern",
+        mus: [newTypeVar()],
+      },
+    });
+
+    return (
+      unify(stringSub(type1), type2)?.(stringSub) ??
+      unify(patSub(type1), type2)?.(patSub) ??
+      null
+    );
+  } else {
+    // Two possible substitutions for numeric literals: Number and Pattern Number
+    const numberSub = makeSubstitution({
+      [type1.name]: { type: "ty-app", C: "Number", mus: [] },
+    });
+    const patSub = makeSubstitution({
+      [type1.name]: {
+        type: "ty-app",
+        C: "Pattern",
+        mus: [{ type: "ty-app", C: "Number", mus: [] }],
+      },
+    });
+    return (
+      unify(numberSub(type1), type2)?.(numberSub) ??
+      unify(patSub(type1), type2)?.(patSub) ??
+      null
+    );
+  }
+}
+
 const contains = (value: MonoType, type2: TypeVariable): boolean => {
   if (value.type === "ty-var") {
     return value.a === type2.a;
@@ -215,6 +281,10 @@ const contains = (value: MonoType, type2: TypeVariable): boolean => {
 
   if (value.type === "ty-app") {
     return value.mus.some((t) => contains(t, type2));
+  }
+
+  if (value.type === "ty-lit") {
+    return false;
   }
 
   throw new Error("Unknown argument passed to substitution");

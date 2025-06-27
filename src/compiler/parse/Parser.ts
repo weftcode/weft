@@ -1,18 +1,19 @@
 import { BaseParser } from "./BaseParser";
 
-import { Operators } from "./API";
-
-import { Token } from "../scan/Token";
+import { Token, tokenBounds } from "../scan/Token";
 import { TokenType } from "../scan/TokenType";
 
-import { Expr, expressionBounds } from "./Expr";
-import { Stmt } from "./Stmt";
+import { Expr } from "./AST/Expr";
+import { Stmt } from "./AST/Stmt";
+import { ParseError } from "./BaseParser";
 import { ErrorReporter } from "./Reporter";
+
+import { TypeEnv } from "../environment";
 
 export class Parser extends BaseParser<Stmt[]> {
   constructor(
     tokens: Token[],
-    private operators: Operators,
+    private environment: TypeEnv,
     reporter: ErrorReporter
   ) {
     super(tokens, reporter);
@@ -30,12 +31,8 @@ export class Parser extends BaseParser<Stmt[]> {
           statements.push(this.statement());
         } catch (error) {
           if (error instanceof ParseError) {
-            if ("from" in error.source) {
-              this.reporter.error(error.source, error.message);
-            } else {
-              let { from, to } = expressionBounds(error.source);
-              this.reporter.error(from, to, error.message);
-            }
+            let { from, to } = tokenBounds(error.source);
+            this.reporter.error(from, to, error.message);
             this.synchronize();
             break;
           } else {
@@ -58,7 +55,7 @@ export class Parser extends BaseParser<Stmt[]> {
     return statement;
   }
 
-  private declaration() {
+  private declaration(): Stmt {
     const expression = this.expression(0);
 
     if (this.peek().type === TokenType.ColonColon) {
@@ -84,15 +81,15 @@ export class Parser extends BaseParser<Stmt[]> {
         "Right-hand sign of an assignment variable must be foreign Javascript block"
       );
 
-      return Stmt.Binding(name, args, initializer);
+      return { is: Stmt.Is.Binding, name, args, initializer };
     }
 
-    return Stmt.Expression(expression);
+    return { is: Stmt.Is.Expression, expression };
   }
 
   private parseFunlhs(expr: Expr): Token[] {
     function variable(varExp: Expr): Token {
-      if (varExp.type === Expr.Type.Variable) {
+      if (varExp.is === Expr.Is.Variable) {
         return varExp.name;
       }
 
@@ -102,10 +99,10 @@ export class Parser extends BaseParser<Stmt[]> {
       );
     }
 
-    switch (expr.type) {
-      case Expr.Type.Application:
+    switch (expr.is) {
+      case Expr.Is.Application:
         return [...this.parseFunlhs(expr.left), variable(expr.right)];
-      case Expr.Type.Binary:
+      case Expr.Is.Binary:
       // TODO
       default:
         return [variable(expr)];
@@ -116,14 +113,14 @@ export class Parser extends BaseParser<Stmt[]> {
     let left = this.application();
 
     while (this.peek().type === TokenType.Operator) {
-      let op = this.operators.get(this.peek().lexeme);
+      let op = this.environment[this.peek().lexeme];
       if (!op) {
         throw new ParseError(
           this.peek(),
           `Undefined operator "${this.peek().lexeme}"`
         );
       }
-      let [opPrecedence, opAssociativity] = op;
+      let [opPrecedence, opAssociativity] = op.prec ?? [9, "left"];
 
       // If we encounter a lower-precedence operator, stop consuming tokens
       if (opPrecedence < precedence) break;
@@ -132,38 +129,36 @@ export class Parser extends BaseParser<Stmt[]> {
       if (this.peekNext().type === TokenType.RightParen) break;
 
       // Consume operator
-      let operator = this.advance();
+      let operator = { is: Expr.Is.Variable, name: this.advance() } as const;
       let right = this.expression(
         opAssociativity === "left" ? opPrecedence + 1 : opPrecedence
       );
 
       // Check for empty expressions
-      let lNull = left.type === Expr.Type.Empty;
-      let rNull = right.type === Expr.Type.Empty;
+      let lNull = left.is === Expr.Is.Empty;
+      let rNull = right.is === Expr.Is.Empty;
       if (lNull || rNull) {
-        console.log("Parse Error");
-        console.log(JSON.stringify(operator));
         throw new ParseError(
-          operator,
+          operator.name,
           `Missing expression ${lNull ? "before" : ""}${
             lNull && rNull ? " and " : ""
-          }${rNull ? "after" : ""} the "${operator.lexeme}" operator`
+          }${rNull ? "after" : ""} the "${operator.name.lexeme}" operator`
         );
       }
 
       // Associate operator
-      left = Expr.Binary(left, operator, right, opPrecedence);
+      left = { is: Expr.Is.Binary, left, operator, right, precedence };
     }
 
     return left;
   }
 
-  private application() {
+  private application(): Expr {
     let expr = this.grouping();
 
     while (this.peekFunctionTerm()) {
       let right = this.grouping();
-      expr = Expr.Application(expr, right);
+      expr = { is: Expr.Is.Application, left: expr, right };
     }
 
     return expr;
@@ -184,28 +179,28 @@ export class Parser extends BaseParser<Stmt[]> {
   private grouping(): Expr {
     if (this.match(TokenType.LeftParen)) {
       let leftParen = this.previous();
-      let leftOp: Token | null = null;
-      let rightOp: Token | null = null;
+      let leftOp: Expr.Variable | null = null;
+      let rightOp: Expr.Variable | null = null;
 
       // Check for an initial operator
       if (this.peek().type === TokenType.Operator) {
-        leftOp = this.advance();
+        leftOp = { is: Expr.Is.Variable, name: this.advance() };
       }
 
       // This is kind of a hacky way to attempt this
       if (this.match(TokenType.RightParen)) {
         if (leftOp) {
-          return { type: Expr.Type.Variable, name: leftOp };
+          return leftOp;
         } else {
           throw "Encountered unit literal, but unit isn't supported yet";
         }
       }
 
-      let expr = this.expression(0);
+      let expression = this.expression(0);
 
       // Check for a trailing operator
       if (this.peek().type === TokenType.Operator) {
-        rightOp = this.advance();
+        rightOp = { is: Expr.Is.Variable, name: this.advance() };
       }
 
       let rightParen = this.consume(
@@ -213,49 +208,77 @@ export class Parser extends BaseParser<Stmt[]> {
         "Expect ')' after expression."
       );
 
-      if (leftOp || rightOp) {
-        if (leftOp && rightOp) {
+      let sectionOp: Pick<Expr.Section, "operator" | "side"> | null = null;
+
+      if (leftOp) {
+        // Operator on both sides of a parenthesized expression: (+ 1 +)
+        if (rightOp) {
           throw new ParseError(rightParen, "Expect expression.");
         }
 
-        let operator = leftOp ?? rightOp;
-        let side: "left" | "right" = leftOp ? "left" : "right";
+        sectionOp = { operator: leftOp, side: "left" };
+      } else if (rightOp) {
+        sectionOp = { operator: rightOp, side: "right" };
+      }
 
-        let op = this.operators.get(operator.lexeme);
+      if (sectionOp) {
+        let { operator, side } = sectionOp;
+        let op = this.environment[operator.name.lexeme];
+
         if (!op) {
           throw new ParseError(
             this.peek(),
             `Undefined operator "${this.peek().lexeme}"`
           );
         }
-        let [precedence] = op;
+        let [precedence] = op.prec ?? [9];
 
-        if (expr.type === Expr.Type.Binary && expr.precedence < precedence) {
+        if (
+          expression.is === Expr.Is.Binary &&
+          expression.precedence < precedence
+        ) {
           throw new ParseError(
-            operator,
+            operator.name,
             "Section operator must have lower precedence than expression"
           );
         }
 
-        expr = Expr.Section(operator, expr, side);
+        expression = { is: Expr.Is.Section, operator, expression, side };
       }
 
-      return Expr.Grouping(leftParen, expr, rightParen);
+      return { is: Expr.Is.Grouping, expression, leftParen, rightParen };
     } else {
       return this.functionTerm();
     }
   }
 
-  private functionTerm() {
+  private functionTerm(): Expr {
     if (this.match(TokenType.Number, TokenType.String)) {
-      return Expr.Literal(this.previous().literal, this.previous());
+      let token = this.previous();
+
+      const checkLiteralToken = (
+        t: Token
+      ): t is Token & { type: TokenType.Number | TokenType.String } =>
+        t.type === TokenType.Number || t.type === TokenType.String;
+
+      // This is only necessary because `this.match` doesn't provide enough guarantees
+      // to TS that the token is of the requested type
+      if (checkLiteralToken(token)) {
+        return {
+          is: Expr.Is.Literal,
+          token,
+        };
+      } else {
+        throw new Error(`Matched with incorrect literal token: ${token.type}`);
+      }
     }
 
     if (this.match(TokenType.Identifier)) {
-      return Expr.Variable(this.previous());
+      return { is: Expr.Is.Variable, name: this.previous() };
     }
 
     if (this.match(TokenType.LeftBracket)) {
+      let leftBracket = this.previous();
       let items: Expr[] = [];
 
       while (!this.match(TokenType.RightBracket)) {
@@ -270,11 +293,11 @@ export class Parser extends BaseParser<Stmt[]> {
         items.push(this.expression(0));
       }
 
-      return Expr.List(items);
+      let rightBracket = this.previous();
+
+      return { is: Expr.Is.List, items, leftBracket, rightBracket };
     }
 
-    return Expr.Empty();
+    return { is: Expr.Is.Empty };
   }
 }
-
-import { ParseError } from "./BaseParser";

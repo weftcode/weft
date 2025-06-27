@@ -1,42 +1,47 @@
-import { Bindings } from "../compiler/parse/API";
+// @ts-nocheck
+
 import { TokenType } from "../compiler/scan/TokenType";
+import { addBinding, BindingSpec } from "../compiler/environment";
 
 import { reify } from "@strudel/core";
 
-export const operators: Bindings = {
-  // Haskell Operators
-  $: {
-    // Function application
-    type: "(a -> b) -> a -> b",
-    value: (a, b) => a(b),
-    prec: [0, "right"],
-  },
-  ".": {
-    // Function composition
-    type: "(b -> c) -> (a -> b) -> a -> c",
-    value: (a, b) => (c) => a(b(c)),
-    prec: [9, "right"],
-  },
-  ":": {
-    // Cons operator
-    // TODO: this isn't actually parseable yet, it's only used for
-    // typechecking list literals
-    type: "a -> [a] -> [a]",
-    value: (a, as) => [a, ...as],
-    prec: [5, "right"],
-  },
-  "[]": {
-    // Empty list constructor
-    type: "[a]",
-    value: [],
-  },
+export default (env: Environment) => {
+  for (let [name, binding] of Object.entries(operators)) {
+    env = addBinding(env, { name, ...binding });
+  }
 
-  // Addition/subtration (and pattern variants)
+  return env;
+};
+
+const operators: BindingSpec = {
+  // Plain arithmetic operators
+  // These should be overloaded eventually, but we're assuming
+  // patterns right now
   "+": {
     type: "Pattern a -> Pattern a -> Pattern a",
-    value: (a, b) => reify(a).add.mix(reify(b)),
+    value: (a: number, b: number) => reify(a).add.in(reify(b)),
     prec: [6, "left"],
   },
+
+  "-": {
+    type: "Pattern a -> Pattern a -> Pattern a",
+    value: (a: number, b: number) => reify(a).sub.in(reify(b)),
+    prec: [6, "left"],
+  },
+
+  "*": {
+    type: "Pattern a -> Pattern a -> Pattern a",
+    value: (a: number, b: number) => reify(a).mul.in(reify(b)),
+    prec: [7, "left"],
+  },
+
+  "/": {
+    type: "Pattern a -> Pattern a -> Pattern a",
+    value: (a: number, b: number) => reify(a).div.in(reify(b)),
+    prec: [7, "left"],
+  },
+
+  // Addition/subtration
   "|+": {
     type: "Pattern a -> Pattern a -> Pattern a",
     value: (a, b) => reify(a).add.in(reify(b)),
@@ -50,11 +55,6 @@ export const operators: Bindings = {
   "+|": {
     type: "Pattern a -> Pattern a -> Pattern a",
     value: (a, b) => reify(a).add.out(reify(b)),
-    prec: [6, "left"],
-  },
-  "-": {
-    type: "Pattern a -> Pattern a -> Pattern a",
-    value: (a, b) => reify(a).sub.mix(reify(b)),
     prec: [6, "left"],
   },
   "|-": {
@@ -74,13 +74,7 @@ export const operators: Bindings = {
     prec: [6, "left"],
   },
 
-  // Multiplication/division (and pattern variants)
-  "*": {
-    type: "Pattern a -> Pattern a -> Pattern a",
-    value: (a, b) => reify(a).mul.mix(reify(b)),
-
-    prec: [7, "left"],
-  },
+  // Multiplication/division
   "|*": {
     type: "Pattern a -> Pattern a -> Pattern a",
     value: (a, b) => reify(a).mul.in(reify(b)),
@@ -96,12 +90,6 @@ export const operators: Bindings = {
   "*|": {
     type: "Pattern a -> Pattern a -> Pattern a",
     value: (a, b) => reify(a).mul.out(reify(b)),
-
-    prec: [7, "left"],
-  },
-  "/": {
-    type: "Pattern a -> Pattern a -> Pattern a",
-    value: (a, b) => reify(a).div.mix(reify(b)),
 
     prec: [7, "left"],
   },
@@ -148,7 +136,12 @@ export const operators: Bindings = {
     value: (a, b) => reify(a).set.in(reify(b)),
 
     prec: [8, "left"],
-    synonyms: ["#"],
+  },
+  "#": {
+    type: "Pattern a -> Pattern a -> Pattern a",
+    value: (a, b) => reify(a).set.in(reify(b)),
+
+    prec: [8, "left"],
   },
   "|>|": {
     type: "Pattern a -> Pattern a -> Pattern a",

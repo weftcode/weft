@@ -1,21 +1,32 @@
 import { ErrorReporter } from "./parse/Reporter";
-import { Primitive, Token } from "./scan/Token";
-import { Expr } from "./parse/Expr";
-import { Stmt } from "./parse/Stmt";
-import { Bindings } from "./parse/API";
+import { Token, tokenBounds } from "./scan/Token";
+import { Expr } from "./parse/AST/Expr";
+import { Stmt } from "./parse/AST/Stmt";
 
-import { Pattern } from "../strudel";
+import { Pattern, parseMini } from "../strudel";
+import { TokenType } from "./scan/TokenType";
+import { TypeEnv } from "./environment";
+import { TypeInfo } from "./typecheck/Annotations";
 
-type Value = Primitive | Value[] | ((input: Value) => Value);
+type Value = Value[] | ((input: Value) => Value);
+
+export type Location = [string, { from: number; to: number }];
 
 export class Interpreter {
   constructor(
     private readonly reporter: ErrorReporter,
-    private bindings: Bindings
+    private bindings: TypeEnv
   ) {}
 
-  interpret(statements: Stmt[]) {
+  private currentID: number = 0;
+
+  private miniNotationLocations: Location[] = [];
+
+  interpret(statements: Stmt<TypeInfo>[], id: number): [string[], Location[]] {
     let results: string[] = [];
+
+    this.currentID = id;
+    this.miniNotationLocations = [];
 
     try {
       for (let statement of statements) {
@@ -34,21 +45,22 @@ export class Interpreter {
       }
     } catch (error) {
       if (error instanceof RuntimeError) {
-        this.reporter.error(error.token.from, error.token.to, error.message);
+        let { from, to } = tokenBounds(error.token);
+        this.reporter.error(from, to, error.message);
       } else {
         throw error;
       }
     }
 
-    return results;
+    return [results, this.miniNotationLocations];
   }
 
-  private stringify(object: Primitive) {
+  private stringify(object: any) {
     // @ts-ignore
     if (object instanceof Pattern) {
       return (object as Pattern)
         .firstCycle()
-        .map((hap) => hap.show(true))
+        .map((hap: any) => hap.show(true))
         .join(", ");
     }
 
@@ -57,51 +69,48 @@ export class Interpreter {
     return object.toString();
   }
 
-  private execute(stmt: Stmt) {
-    switch (stmt.type) {
-      case Stmt.Type.Expression:
+  private execute(stmt: Stmt<TypeInfo>) {
+    switch (stmt.is) {
+      case Stmt.Is.Expression:
         return this.evaluate(stmt.expression) as any;
-      case Stmt.Type.Binding:
+      case Stmt.Is.Binding:
         let { name, args, initializer } = stmt;
         let argNames = args.map(({ lexeme }) => lexeme);
 
-        if (typeof initializer.literal !== "string") {
-          throw new Error("Initializer doesn't contain a source code string");
-        }
+        // if (typeof initializer.literal !== "string") {
+        //   throw new Error("Initializer doesn't contain a source code string");
+        // }
 
-        let func = new Function(...argNames, initializer.literal);
+        // let func = new Function(...argNames, initializer.literal);
 
         // For now, use a mutable binding environment
-        this.bindings[name.lexeme] = {
-          type: "",
-          value: args.length > 0 ? func : func(),
-        };
+        // this.bindings[name.lexeme] = {
+        //   type: "",
+        //   value: args.length > 0 ? func : func(),
+        // };
 
         return;
     }
   }
 
-  private evaluate(expr: Expr): Value | null {
-    switch (expr.type) {
-      case Expr.Type.Literal:
-        return expr.value;
-      case Expr.Type.List:
+  private evaluate(expr: Expr<TypeInfo>): any {
+    switch (expr.is) {
+      case Expr.Is.Literal:
+        return this.evaluateLiteral(expr);
+      case Expr.Is.List:
         return expr.items.map((e) => this.evaluate(e));
-      case Expr.Type.Grouping:
+      case Expr.Is.Grouping:
         return this.evaluate(expr.expression);
-      case Expr.Type.Binary: {
+      case Expr.Is.Binary: {
         const left = this.evaluate(expr.left);
+        const opFunc = this.evaluate(expr.operator);
         const right = this.evaluate(expr.right);
 
-        if (expr.operator.lexeme in this.bindings) {
-          return this.bindings[expr.operator.lexeme].value(left, right);
-        }
-
-        throw new RuntimeError(expr.operator, "Operator isn't implemented");
+        return opFunc(left, right);
       }
-      case Expr.Type.Section: {
+      case Expr.Is.Section: {
         return (input: Value) => {
-          const opFunc = this.bindings[expr.operator.lexeme].value;
+          const opFunc = this.evaluate(expr.operator);
           const operand = this.evaluate(expr.expression);
 
           return expr.side === "left"
@@ -109,16 +118,9 @@ export class Interpreter {
             : opFunc(operand, input);
         };
       }
-      case Expr.Type.Variable:
-        if (expr.name.lexeme in this.bindings) {
-          return this.bindings[expr.name.lexeme].value;
-        } else {
-          throw new RuntimeError(
-            expr.name,
-            `Variable "${expr.name.lexeme}" is undefined`
-          );
-        }
-      case Expr.Type.Application: {
+      case Expr.Is.Variable:
+        return this.bindings[expr.name.lexeme].value;
+      case Expr.Is.Application: {
         const left = this.curry(expr.left);
         const right = this.evaluate(expr.right);
         return left(right);
@@ -126,12 +128,47 @@ export class Interpreter {
     }
   }
 
-  private curry(func: Expr): Function {
-    if (func.type === Expr.Type.Variable || func.type === Expr.Type.Section) {
+  private evaluateLiteral({
+    token,
+    type,
+  }: Expr.Literal<TypeInfo>): string | number | any {
+    switch (token.type) {
+      case TokenType.Number:
+        // Parse number
+        return parseFloat(token.lexeme);
+      case TokenType.String:
+        // Trim surrounding quotes
+        const stringValue = token.lexeme.substring(1, token.lexeme.length - 1);
+
+        if (!type) {
+          throw new Error(
+            `Discovered a type error while trying to evaluate string literal "${stringValue}"`
+          );
+        }
+
+        if (type.type === "ty-app" && type.C === "Pattern") {
+          let id = `${this.currentID}-${this.miniNotationLocations.length}`;
+          let { from, to } = tokenBounds(token);
+          this.miniNotationLocations.push([id, { from, to }]);
+
+          return parseMini(stringValue).withContext(
+            ({ locations, ...ctx }: any) => ({
+              locations: locations.map((loc: any) => ({ ...loc, id })),
+              ...ctx,
+            })
+          );
+        } else {
+          return stringValue;
+        }
+    }
+  }
+
+  private curry(func: Expr<TypeInfo>): Function {
+    if (func.is === Expr.Is.Variable || func.is === Expr.Is.Section) {
       return this.evaluate(func) as any;
-    } else if (func.type === Expr.Type.Grouping) {
+    } else if (func.is === Expr.Is.Grouping) {
       return this.curry(func.expression);
-    } else if (func.type === Expr.Type.Application) {
+    } else if (func.is === Expr.Is.Application) {
       const arg = this.evaluate(func.right);
       return (...args: any[]) => this.curry(func.left)(arg, ...args);
     }

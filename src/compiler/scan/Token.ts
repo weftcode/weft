@@ -1,26 +1,28 @@
 import { TokenType } from "./TokenType";
 
-export type Primitive = boolean | number | string;
+export type Token = Token.Source | Token.Error;
 
-export class Token {
-  constructor(
-    readonly type: TokenType,
-    readonly lexeme: string,
-    readonly literal: Primitive,
-    readonly from: number
-  ) {}
-
-  get to() {
-    return this.from + this.lexeme.length;
+export namespace Token {
+  export interface Source {
+    type: Exclude<TokenType, TokenType.Error>;
+    lexeme: string;
+    from: number;
   }
 
-  toString() {
-    return `${this.type} ${this.lexeme.replace("\n", "\\n")} ${this.literal}`;
+  export interface Error {
+    type: TokenType.Error;
+    lexeme: string;
+    from: number;
+    message: string;
   }
 }
 
-export class ErrorToken extends Token {
-  constructor(lexeme: string, from: number, readonly message: string) {
-    super(TokenType.Error, lexeme, null, from);
-  }
+export function tokenBounds(token: Token) {
+  let { from } = token;
+  let lexeme = "lexeme" in token ? token.lexeme : "";
+
+  return {
+    from,
+    to: from + lexeme.length,
+  };
 }

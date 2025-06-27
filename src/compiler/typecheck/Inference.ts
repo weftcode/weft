@@ -1,10 +1,9 @@
-import { Token } from "../scan/Token";
-import { Expr } from "../parse/Expr";
+import { Expr } from "../parse/AST/Expr";
 
 import {
-  generalise,
   instantiate,
   makeSubstitution,
+  newLiteral,
   newTypeVar,
   Substitution,
   unify,
@@ -13,90 +12,89 @@ import { Context, makeContext, MonoType } from "./Types";
 import { TokenType } from "../scan/TokenType";
 import {
   TypeAnnotation,
-  TypeInfo,
   MissingTypeWarning,
   UnificationError,
   ApplicationError,
+  TypeInfo,
+  getType,
+  NodeTypeInfo,
 } from "./Annotations";
 
 export const W = (
   typEnv: Context,
   expr: Expr
-): [Substitution, MonoType | null, TypeAnnotation[]] => {
-  switch (expr.type) {
-    case Expr.Type.Variable: {
+): [Substitution, Expr<TypeInfo>] => {
+  switch (expr.is) {
+    case Expr.Is.Variable: {
       const value = typEnv[expr.name.lexeme];
+      let type: MonoType;
       if (value === undefined) {
         // TODO: attach source position to this
-        //throw new Error(`Undefined variable: ${expr.name.lexeme}`);
-        let newType = newTypeVar();
+        type = newTypeVar();
         return [
           makeSubstitution({}),
-          newType,
-          [new MissingTypeWarning(expr, newType)],
+          {
+            ...expr,
+            type,
+            typeAnnotation: new MissingTypeWarning(expr, type),
+          },
         ];
       }
-      const type = instantiate(value);
-      return [makeSubstitution({}), type, [new TypeInfo(expr, type)]];
+      type = instantiate(value);
+      return [makeSubstitution({}), { ...expr, type }];
     }
-    case Expr.Type.Literal:
-      switch (typeof expr.value) {
-        case "string": {
-          const type: MonoType = {
-            type: "ty-app",
-            C: "Pattern",
-            mus: [newTypeVar()],
-          };
-          return [makeSubstitution({}), type, [new TypeInfo(expr, type)]];
-        }
-        case "number": {
-          const type: MonoType = {
-            type: "ty-app",
-            C: "Pattern",
-            mus: [{ type: "ty-app", C: "Number", mus: [] }],
-          };
-          return [makeSubstitution({}), type, [new TypeInfo(expr, type)]];
-        }
-        case "boolean": {
-          const type: MonoType = { type: "ty-app", C: "Boolean", mus: [] };
-          return [makeSubstitution({}), type, [new TypeInfo(expr, type)]];
-        }
-      }
-    case Expr.Type.Grouping:
-      return W(typEnv, expr.expression);
 
-    case Expr.Type.Application: {
-      const [substitution, type, annotations] = InferTypeApp(
+    case Expr.Is.Literal:
+      const litType =
+        expr.token.type === TokenType.Number ? "number" : "string";
+      return [makeSubstitution({}), { ...expr, type: newLiteral(litType) }];
+
+    case Expr.Is.Grouping: {
+      const [sub, expression] = W(typEnv, expr.expression);
+      return [sub, { ...expr, expression }];
+    }
+
+    case Expr.Is.Application: {
+      const [substitution, typeInfo, left, right] = InferTypeApp(
         typEnv,
         expr.left,
         expr.right
       );
-      return [
-        substitution,
-        type,
-        annotations.concat([new TypeInfo(expr, type)]),
-      ];
+      return [substitution, { ...expr, left, right, ...typeInfo }];
     }
 
-    case Expr.Type.Binary: {
-      const [substitution, type, annotations] = InferTypeApp(
+    case Expr.Is.Binary: {
+      const [substitution, typeInfo, opApp, right] = InferTypeApp(
         typEnv,
-        Expr.Application(Expr.Variable(expr.operator), expr.left),
+        {
+          is: Expr.Is.Application,
+          left: expr.operator,
+          right: expr.left,
+        },
         expr.right
       );
 
-      return [
-        substitution,
-        type,
-        annotations.concat([new TypeInfo(expr, type)]),
-      ];
+      if (opApp.is !== Expr.Is.Application) {
+        throw new Error("Error with binary op inference: No application");
+      }
+
+      let { left: operator, right: left } = opApp;
+
+      if (operator.is !== Expr.Is.Variable) {
+        throw new Error("Error with binary op inference: No variable operator");
+      }
+
+      return [substitution, { ...expr, left, operator, right, ...typeInfo }];
     }
 
-    case Expr.Type.Section: {
+    case Expr.Is.Section: {
       // TODO: This is likely, but not necessarily, a unique name. A better
       //       implementation would use a separate renaming step like GHC.
-      const x = (Math.random() + 1).toString(36).substring(7);
-      const xExp = Expr.Variable(new Token(TokenType.Identifier, x, null, 0));
+      const lexeme = (Math.random() + 1).toString(36).substring(7);
+      const xExp: Expr = {
+        is: Expr.Is.Variable,
+        name: { type: TokenType.Identifier, lexeme, from: 0 },
+      };
 
       // A section is just a binary operation wrapped in a function abstraction. One of the
       // sides of the operator is the variable from the abstraction
@@ -104,38 +102,59 @@ export const W = (
       let right = expr.side === "right" ? xExp : expr.expression;
 
       // TODO: Does it matter that this binary expression has a made-up precedence?
-      const [substitution, type, annotations] = InferTypeAbs(
-        typEnv,
-        x,
-        Expr.Binary(left, expr.operator, right, 0)
-      );
+      const [substitution, typeInfo, absExpr] = InferTypeAbs(typEnv, lexeme, {
+        is: Expr.Is.Binary,
+        left,
+        operator: expr.operator,
+        right,
+        precedence: 0,
+      });
+
+      // We expect that the typed expression we got back is still a binary expression
+      if (absExpr.is !== Expr.Is.Binary) {
+        throw new Error(
+          `Unexpected expression in section inference: ${absExpr.is}`
+        );
+      }
+
       return [
         substitution,
-        type,
-        annotations.concat([new TypeInfo(expr, type)]),
+        {
+          is: Expr.Is.Section,
+          operator: absExpr.operator,
+          expression: expr.side === "left" ? absExpr.right : absExpr.left,
+          side: expr.side,
+          type: typeInfo.type,
+          // If the binary expression has an error, copy that to the section
+          typeAnnotation: absExpr.typeAnnotation,
+        },
       ];
     }
 
-    case Expr.Type.List:
+    case Expr.Is.List:
       // Desugar to a right-associative set of cons operators
       return W(
         typEnv,
         expr.items.reduceRight(
-          (prev, item) =>
-            Expr.Binary(
-              item,
-              new Token(TokenType.Identifier, ":", null, 0),
-              prev,
-              0
-            ),
-          Expr.Variable(new Token(TokenType.Identifier, "[]", null, 0))
+          (right, left) => ({
+            is: Expr.Is.Binary,
+            left,
+            operator: {
+              is: Expr.Is.Variable,
+              name: { type: TokenType.Identifier, lexeme: ":", from: 0 },
+            },
+            right,
+            precedence: 0,
+          }),
+          {
+            is: Expr.Is.Variable,
+            name: { type: TokenType.Identifier, lexeme: "[]", from: 0 },
+          }
         )
       );
 
-    case Expr.Type.Assignment:
-    case Expr.Type.Unary:
-    case Expr.Type.Empty:
-      throw new Error(`Unhandled expression type: ${expr.type}`);
+    case Expr.Is.Empty:
+      throw new Error(`Unhandled expression type: ${expr.is}`);
 
     default:
       return expr satisfies never;
@@ -146,9 +165,9 @@ function InferTypeAbs(
   typeEnv: Context,
   x: string,
   expr: Expr
-): [Substitution, MonoType | null, TypeAnnotation[]] {
+): [Substitution, NodeTypeInfo, Expr<TypeInfo>] {
   const beta = newTypeVar();
-  const [s1, t1, a1] = W(
+  const [s1, e1] = W(
     makeContext({
       ...typeEnv,
       [x]: beta,
@@ -156,68 +175,49 @@ function InferTypeAbs(
     expr
   );
 
-  return [
-    s1,
-    t1
-      ? s1({
-          type: "ty-app",
-          C: "->",
-          mus: [beta, t1],
-        })
-      : null,
-    a1,
-  ];
+  let t1 = getType(e1);
+  let type = t1 && s1({ type: "ty-app", C: "->", mus: [beta, t1] });
+
+  return [s1, { type }, e1];
 }
 
 function InferTypeApp(
   typeEnv: Context,
-  expr1: Expr,
-  expr2: Expr
-): [Substitution, MonoType | null, TypeAnnotation[]] {
-  const [s1, t1, a1] = W(typeEnv, expr1);
-  const [s2, t2, a2] = W(s1(typeEnv), expr2);
+  left0: Expr,
+  right0: Expr
+): [Substitution, NodeTypeInfo, Expr<TypeInfo>, Expr<TypeInfo>] {
+  const [sLeft, left] = W(typeEnv, left0);
+  const [sRight, right] = W(sLeft(typeEnv), right0);
   const beta = newTypeVar();
 
-  const a3 = a1.concat(a2);
+  // const a3 = a1.concat(a2);
 
-  if (t1 && t2) {
-    const s3 = unify(s2(t1), {
+  let tLeft = getType(left);
+  let tRight = getType(right);
+
+  if (tLeft && tRight) {
+    const sub = unify(sRight(tLeft), {
       type: "ty-app",
       C: "->",
-      mus: [t2, beta],
+      mus: [tRight, beta],
     });
 
-    if (s3) {
-      a3.forEach((annotation) => {
-        annotation.apply(s3);
-      });
-
-      return [s3(s2(s1)), s3(beta), a3];
+    if (sub) {
+      return [sub(sRight(sLeft)), { type: sub(beta) }, left, right];
     } else {
-      let fType = s2(t1);
+      let fType = sRight(tLeft);
+
+      let typeAnnotation: TypeAnnotation;
 
       if (fType.type === "ty-app" && fType.C === "->") {
-        a3.push(new UnificationError(expr2, fType.mus[0], t2));
+        typeAnnotation = new UnificationError(right0, fType.mus[0], tRight);
       } else {
-        a3.push(new ApplicationError(expr2));
+        typeAnnotation = new ApplicationError(right0);
       }
 
-      return [s2(s1), null, a3];
+      return [sRight(sLeft), { type: null, typeAnnotation }, left, right];
     }
   }
 
-  return [s1, null, a3];
+  return [sLeft, { type: null }, left, right];
 }
-
-// TODO: Implement Let
-// case "Core_Let": {
-//   const [s1, t1] = W(typEnv, expr.e1);
-//   const [s2, t2] = W(
-//     makeContext({
-//       ...s1(typEnv),
-//       [expr.x]: generalise(typEnv, t1),
-//     }),
-//     expr.e2
-//   );
-//   return [s2(s1), t2];
-// }
