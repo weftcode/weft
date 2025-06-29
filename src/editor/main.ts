@@ -16,13 +16,16 @@ import { WeftRuntime } from "../weft/src";
 
 import { parseLinter } from "./linter";
 
-import strudel from "../strudel";
+import { core, boot, operators, controls } from "../strudel";
 import { hush } from "../strudel";
 import standardLib from "../standard-lib";
 
 const runtime = new WeftRuntime();
 runtime.loadLibrary(standardLib);
-runtime.loadLibrary(strudel);
+runtime.loadLibrary(core);
+runtime.loadLibrary(boot);
+runtime.loadLibrary(operators);
+runtime.loadLibrary(controls);
 
 async function updateURLField(input: HTMLInputElement, doc: string) {
   const stream = new ReadableStream({
