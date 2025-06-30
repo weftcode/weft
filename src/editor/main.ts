@@ -9,9 +9,6 @@ import { console as editorConsole } from "./console";
 
 import { editorTheme } from "./theme";
 
-// @ts-ignore
-import { dracula } from "thememirror/dist/index.js";
-
 import { WeftRuntime } from "../weft/src";
 
 import { parseLinter } from "./linter";
@@ -122,7 +119,6 @@ window.addEventListener("load", async () => {
       StreamLanguage.define(haskell),
       parseLinter(runtime),
       autosave,
-      dracula,
       editorTheme,
       highlighter(handlerSet),
     ],

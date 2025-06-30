@@ -55,7 +55,7 @@ export function evaluation(
     listener,
     evalTheme,
     keymap.of(evalKeymap),
-    evalDecoration(),
+    // evalDecoration(),
     mininotationStringField,
   ];
 }
