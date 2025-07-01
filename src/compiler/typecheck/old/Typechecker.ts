@@ -1,22 +1,21 @@
 import { Stmt } from "../../parse/AST/Stmt";
-import { ErrorReporter } from "../../parse/Reporter";
 
 import { makeContext, PolyType } from "./Types";
 import { W } from "./Inference";
 import { UnificationError } from "./Utilities";
-import { Environment } from "../../environment";
-import { applyToExpr } from "./Annotations";
+import { Environment } from "../environment";
+import { TypeInfo, applyToExpr, getType } from "./Annotations";
 
 export class TypeChecker {
   private environment: { [name: string]: PolyType };
 
-  constructor(private readonly reporter: ErrorReporter, env: Environment) {
+  constructor(env: Environment) {
     this.environment = Object.fromEntries(
       Object.entries(env.typeEnv).map(([key, { type }]) => [key, type])
     );
   }
 
-  check(statement: Stmt) {
+  check(statement: Stmt): Stmt<TypeInfo> {
     try {
       switch (statement.is) {
         case Stmt.Is.Expression:
@@ -24,14 +23,17 @@ export class TypeChecker {
             makeContext(this.environment),
             statement.expression
           );
-          return { ...statement, expression: applyToExpr(expr, sub) };
+          let expression = applyToExpr(expr, sub);
+          return { ...statement, expression, type: getType(expression) };
+        case Stmt.Is.Error:
+          return { ...statement };
         default:
-          return statement.is satisfies never;
+          return statement satisfies never;
       }
     } catch (e) {
-      if (e instanceof UnificationError && e.type2) {
-        this.reporter.error(0, 0, e.message);
-      }
+      // if (e instanceof UnificationError && e.type2) {
+      //   this.reporter.error(0, 0, e.message);
+      // }
 
       throw e;
     }

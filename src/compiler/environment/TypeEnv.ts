@@ -1,6 +1,5 @@
 import { Scanner } from "../scan/Scanner";
 import { TypeParser } from "../parse/TypeParser";
-import { ErrorReporter } from "../parse/Reporter";
 
 import { Environment, TypeConEnv } from ".";
 import { TypeNode } from "../parse/AST/TypeNode";
@@ -51,13 +50,12 @@ export function addBinding(
 }
 
 function parseTypeString(typeString: string) {
-  let reporter = new ErrorReporter();
   let tokens = new Scanner(typeString).scanTokens();
-  let type = new TypeParser(tokens, reporter).parse();
+  let type = new TypeParser(tokens).parse();
 
-  if (reporter.hasError) {
-    throw new Error(`Error parsing type string: "${typeString}"`);
-  }
+  // if (reporter.hasError) {
+  //   throw new Error(`Error parsing type string: "${typeString}"`);
+  // }
 
   return type;
 }

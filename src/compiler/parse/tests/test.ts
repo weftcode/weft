@@ -2,7 +2,6 @@ import { describe, it, expect } from "@jest/globals";
 
 import { Scanner } from "../../scan/Scanner";
 import { Parser } from "../Parser";
-import { ErrorReporter } from "../Reporter";
 
 import { makeEnv } from "../../typecheck/environment";
 import prelude from "../../../standard-lib";
@@ -18,7 +17,7 @@ putStrLn
 
 describe("Basic Code Snapshot", () => {
   const basicTokens = new Scanner(basicCode).scanTokens();
-  const basicAst = new Parser(basicTokens, env, new ErrorReporter()).parse();
+  const basicAst = new Parser(basicTokens, env).parse();
 
   it("scans correctly", () => {
     expect(basicTokens).toMatchSnapshot();

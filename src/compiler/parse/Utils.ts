@@ -39,6 +39,23 @@ export function expressionBounds(expr: Expr): {
       return tokenBounds(expr.name);
     case Expr.Is.Empty:
       throw new Error("Empty AST nodes don't have source bounds");
+    case Expr.Is.Error:
+      if (expr.contents.length === 0) {
+        throw new Error("Empty AST nodes don't have source bounds");
+      } else {
+        let first = expr.contents[0];
+        let last = expr.contents[expr.contents.length - 1];
+        return {
+          from:
+            first.is === "Token"
+              ? tokenBounds(first.item).from
+              : expressionBounds(first.item).from,
+          to:
+            last.is === "Token"
+              ? tokenBounds(last.item).to
+              : expressionBounds(last.item).to,
+        };
+      }
     default:
       return expr satisfies never;
   }

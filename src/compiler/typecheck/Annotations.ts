@@ -115,7 +115,7 @@ export type TypeInfo = {
 export function getType(expr: Expr<TypeInfo>): Type | null {
   if (expr.is === Expr.Is.Grouping) {
     return getType(expr.expression);
-  } else if (expr.is === Expr.Is.Empty) {
+  } else if (expr.is === Expr.Is.Empty || expr.is === Expr.Is.Error) {
     return null;
   } else {
     return expr.type;
@@ -132,6 +132,7 @@ export function applyToExpr<T extends Expr<TypeInfo>>(
 
   switch (expr.is) {
     case Expr.Is.Empty:
+    case Expr.Is.Error:
       return expr;
     case Expr.Is.Literal:
     case Expr.Is.Variable: {
@@ -189,6 +190,7 @@ export function collectTypeDiagnostics(expr: Expr<TypeInfo>): Diagnostic[] {
     case Expr.Is.Grouping:
       return collectTypeDiagnostics(expr.expression);
     case Expr.Is.Empty:
+    case Expr.Is.Error:
       return [];
   }
 

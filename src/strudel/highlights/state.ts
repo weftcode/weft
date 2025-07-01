@@ -89,9 +89,9 @@ export const highlightSetField = StateField.define({
   update: (value: HighlightEvent[], tr) => {
     for (let effect of tr.effects) {
       if (effect.is(highlightTickEffect)) {
-        value = value.filter((event) => {
-          event.time + event.duration >= effect.value;
-        });
+        value = value.filter(
+          (event) => event.time + event.duration >= effect.value
+        );
       } else if (effect.is(highlightAddEffect)) {
         value = value.concat(effect.value);
       }

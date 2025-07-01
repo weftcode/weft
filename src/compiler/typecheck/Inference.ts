@@ -67,6 +67,51 @@ export function inferExpr(
         right: expr.right,
       });
 
+    //   // We expect that the typed expression we got back is still a binary expression
+    //   if (absExpr.is !== Expr.Is.Binary) {
+    //     throw new Error(
+    //       `Unexpected expression in section inference: ${absExpr.is}`
+    //     );
+    //   }
+
+    //   return [
+    //     substitution,
+    //     {
+    //       is: Expr.Is.Section,
+    //       operator: absExpr.operator,
+    //       expression: expr.side === "left" ? absExpr.right : absExpr.left,
+    //       side: expr.side,
+    //       ...typeInfo,
+    //     },
+    //   ];
+    // }
+
+    // case Expr.Is.List:
+    //   // Desugar to a right-associative set of cons operators
+    //   return W(
+    //     typEnv,
+    //     expr.items.reduceRight(
+    //       (right, left) => ({
+    //         is: Expr.Is.Binary,
+    //         left,
+    //         operator: {
+    //           is: Expr.Is.Variable,
+    //           name: { type: TokenType.Identifier, lexeme: ":", from: 0 },
+    //         },
+    //         right,
+    //         precedence: 0,
+    //       }),
+    //       {
+    //         is: Expr.Is.Variable,
+    //         name: { type: TokenType.Identifier, lexeme: "[]", from: 0 },
+    //       }
+    //     )
+    //   );
+
+    // case Expr.Is.Error:
+    // case Expr.Is.Empty:
+    //   throw new Error(`Unhandled expression type: ${expr.is}`);
+
     default:
       throw new Error("Incomplete");
   }
