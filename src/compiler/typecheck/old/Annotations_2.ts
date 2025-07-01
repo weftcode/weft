@@ -1,14 +1,14 @@
-import { Expr } from "../parse/AST/Expr";
-import { Stmt } from "../parse/AST/Stmt";
-import { expressionBounds } from "../parse/Utils";
-import { printType } from "./Printer";
-import { Type } from "./Type";
-import { Substitution, applyToType } from "./Substitution";
+import { Expr } from "../../parse/AST/Expr";
+import { Stmt } from "../../parse/AST/Stmt";
+import { expressionBounds } from "../../parse/Utils";
+import { printType } from "../Printer";
+import { Type } from "../Type";
+import { Substitution, applyToType } from "../Substitution";
 
-import { TypeExt } from "./ASTExtensions";
+import { TypeExt } from "../ASTExtensions";
 
 import type { Diagnostic } from "@codemirror/lint";
-import { Predicate } from "./TypeClass";
+import { Predicate } from "../TypeClass";
 
 type Severity = "info" | "warning" | "error";
 

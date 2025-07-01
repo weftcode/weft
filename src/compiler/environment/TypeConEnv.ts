@@ -1,6 +1,6 @@
 import { Kind } from "../typecheck/Type";
 
-import { Environment } from "../typecheck/environment";
+import { Environment } from "../environment";
 
 export type TypeConEnv = {
   readonly [name: string]: TypeCon;

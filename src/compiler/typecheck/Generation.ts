@@ -1,12 +1,12 @@
-import { Expr } from "../../parse/AST/Expr";
-import { Stmt } from "../../parse/AST/Stmt";
-import { KType, TApp, TFunc, tList } from "../BuiltIns";
+import { Expr } from "../parse/AST/Expr";
+import { Stmt } from "../parse/AST/Stmt";
+import { KType, TApp, TFunc, tList } from "./BuiltIns";
 
 import { Environment } from "../environment";
 
-import { Type } from "../Type";
-import { TypeExt } from "../ASTExtensions";
-import { Substitution, applyToType } from "../Substitution";
+import { Type } from "./Type";
+import { TypeExt } from "./ASTExtensions";
+import { Substitution, applyToType } from "./Substitution";
 import { Inference, freshInst, unify } from "./Monad";
 
 export function infer(env: Environment, expr: Expr): Inference<Expr<TypeExt>> {

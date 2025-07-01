@@ -1,4 +1,4 @@
-import { Environment } from "../compiler/typecheck/environment";
+import { Environment } from "../compiler/environment";
 
 import core from "./core";
 import operators from "./operators";

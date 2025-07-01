@@ -18,7 +18,7 @@ import {
   TypeInfo,
   getType,
   NodeTypeInfo,
-} from "./Annotations";
+} from "./Annotations_1";
 
 export const W = (
   typEnv: Context,

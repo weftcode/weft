@@ -4,7 +4,7 @@ import { makeContext, PolyType } from "./Types";
 import { W } from "./Inference_W";
 import { UnificationError } from "./Utilities";
 import { Environment } from "../environment";
-import { TypeInfo, applyToExpr, getType } from "./Annotations";
+import { TypeInfo, applyToExpr, getType } from "./Annotations_1";
 
 export class TypeChecker {
   private environment: { [name: string]: PolyType };

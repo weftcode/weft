@@ -4,8 +4,8 @@ import {
   Environment,
   addDataType,
   addBinding,
-  addClass,
-} from "../compiler/typecheck/environment";
+  // addClass,
+} from "../compiler/environment";
 
 export type BindingsSpec = { [name: string]: Omit<BindingSpec, "name"> };
 
@@ -23,8 +23,8 @@ export default (env: Environment) => {
     dataCons: [],
   });
 
-  env = addClass(env, { name: "FromNumber", superClasses: [], methods: {} });
-  env = addClass(env, { name: "FromString", superClasses: [], methods: {} });
+  // env = addClass(env, { name: "FromNumber", superClasses: [], methods: {} });
+  // env = addClass(env, { name: "FromString", superClasses: [], methods: {} });
 
   for (let [name, binding] of Object.entries(standardLib)) {
     env = addBinding(env, { name, ...binding });

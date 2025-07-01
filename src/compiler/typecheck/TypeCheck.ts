@@ -1,13 +1,13 @@
-import { Expr } from "../../parse/AST/Expr";
-import { Stmt } from "../../parse/AST/Stmt";
+import { Expr } from "../parse/AST/Expr";
+import { Stmt } from "../parse/AST/Stmt";
 
-import { TypeScheme } from "../TypeScheme";
+import { TypeScheme } from "./TypeScheme";
 // import { inferExpr } from "./Inference";
 // import { UnificationError } from "./Utilities";
 import { Environment } from "../environment";
 import { Constraint } from "./Constraint";
 import { infer, applyToExpr } from "./Generation";
-import { TypeExt } from "../ASTExtensions";
+import { TypeExt } from "./ASTExtensions";
 import { Inference } from "./Monad";
 import { printConstraint } from "./Printer";
 import { solve } from "./Solver";

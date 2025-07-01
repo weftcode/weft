@@ -1,6 +1,6 @@
 import { Expr } from "../parse/AST/Expr";
 import { Stmt } from "../parse/AST/Stmt";
-import { TypeEnv } from "../typecheck/environment";
+import { TypeEnv } from "../environment";
 import { RenamerExt } from "./ASTExtensions";
 
 export function renameStmt(stmt: Stmt, context: TypeEnv): Stmt<RenamerExt> {

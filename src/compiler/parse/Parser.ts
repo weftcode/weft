@@ -6,7 +6,7 @@ import { TokenType } from "../scan/TokenType";
 import { Expr } from "./AST/Expr";
 import { Stmt } from "./AST/Stmt";
 
-import { TypeEnv } from "../typecheck/environment";
+import { TypeEnv } from "../environment";
 
 export class Parser extends BaseParser<Stmt[]> {
   constructor(tokens: Token[], private environment: TypeEnv) {

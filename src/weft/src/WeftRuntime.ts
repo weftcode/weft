@@ -10,7 +10,7 @@ import { collectErrors } from "../../compiler/errors/Errors";
 
 import { makeEnv } from "../../compiler/environment";
 import { Evaluation } from "../../editor/console";
-import { collectTypeDiagnostics } from "../../compiler/typecheck/Annotations";
+import { collectTypeDiagnostics } from "../../compiler/typecheck/old/Annotations_2";
 
 import { Diagnostic } from "@codemirror/lint";
 

@@ -1,6 +1,6 @@
-import { Type } from "../Type";
-import { applyToType, combine, Substitution } from "../Substitution";
-import { mgu } from "../Unification";
+import { Type } from "./Type";
+import { applyToType, combine, Substitution } from "./Substitution";
+import { mgu } from "./Unification";
 import { Constraint } from "./Constraint";
 
 interface Solution {

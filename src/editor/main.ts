@@ -20,7 +20,7 @@ import strudel from "../strudel";
 import { hush } from "../strudel";
 import standardLib from "../standard-lib";
 
-import { makeEnv } from "../compiler/typecheck/environment";
+import { makeEnv } from "../compiler/environment";
 
 let env = standardLib(makeEnv());
 

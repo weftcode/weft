@@ -2,8 +2,8 @@ import { Expr } from "../../parse/AST/Expr";
 
 import { Kind } from "../Type";
 
-import { TypeInf, freshInst, unify } from "../Monad";
-import { UnificationError, getType } from "../Annotations";
+import { TypeInf, freshInst, unify } from "./Monad";
+import { UnificationError, getType } from "./Annotations_2";
 import { TypeExt } from "../ASTExtensions";
 import { KType, TFunc } from "../BuiltIns";
 import { TokenType } from "../../scan/TokenType";

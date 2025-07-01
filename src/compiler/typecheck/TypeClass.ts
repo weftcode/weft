@@ -1,5 +1,5 @@
 import { eq } from "../../utils";
-import { TypeClassEnv } from "./environment";
+import { TypeClassEnv } from "../environment";
 import { printType } from "./Printer";
 import { applyToPred } from "./Substitution";
 import { Type } from "./Type";

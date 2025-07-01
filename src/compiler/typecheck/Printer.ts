@@ -1,6 +1,7 @@
 import { Type } from "./Type";
 import { Predicate, QualType } from "./TypeClass";
 import { TypeScheme } from "./TypeScheme";
+import { Constraint } from "./Constraint";
 
 import { asFnType, tList } from "./BuiltIns";
 import { Substitution } from "./Substitution";
@@ -64,4 +65,8 @@ export function printType(type: Type, parenthesize = false): string {
 
 function parens(text: string, parenthesize: boolean) {
   return (parenthesize ? "(" : "") + text + (parenthesize ? ")" : "");
+}
+
+export function printConstraint({ left, right }: Constraint) {
+  return `${printType(left, true)} ~ ${printType(right, true)}`;
 }

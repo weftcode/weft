@@ -1,4 +1,4 @@
-import { Type } from "../Type";
+import { Type } from "./Type";
 
 export type Constraint = Constraint.Equality;
 

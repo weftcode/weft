@@ -5,7 +5,7 @@ import { Stmt } from "./parse/AST/Stmt";
 import { Pattern, parseMini } from "../strudel";
 import { TokenType } from "./scan/TokenType";
 import { Type } from "./typecheck/Type";
-import { TypeEnv } from "./typecheck/environment";
+import { TypeEnv } from "./environment";
 import { TypeExt } from "./typecheck/ASTExtensions";
 
 type Value = Value[] | ((input: Value) => Value);
