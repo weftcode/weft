@@ -90,10 +90,14 @@ export class WeftRuntime {
       );
 
       if (miniLocations) {
-        miniLocations = miniLocations.map(([id, { from, to }]) => [
-          id,
-          { from: from + offset, to: to + offset },
-        ]);
+        miniLocations = miniLocations
+          .map<Location>(([id, { from, to }]) => [
+            id,
+            { from: from + offset, to: to + offset },
+          ])
+          .toSorted(
+            ([_a, { from: fromA }], [_b, { from: fromB }]) => fromA - fromB
+          );
       }
 
       values.forEach((text, i) => {
