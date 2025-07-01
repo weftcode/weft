@@ -81,7 +81,9 @@ export function inferExpr(
     //       operator: absExpr.operator,
     //       expression: expr.side === "left" ? absExpr.right : absExpr.left,
     //       side: expr.side,
-    //       ...typeInfo,
+    //       type: typeInfo.type,
+    //       // If the binary expression has an error, copy that to the section
+    //       typeAnnotation: absExpr.typeAnnotation,
     //     },
     //   ];
     // }

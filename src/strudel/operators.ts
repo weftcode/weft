@@ -14,6 +14,33 @@ export default (env: Environment) => {
 };
 
 const operators: BindingSpec = {
+  // Plain arithmetic operators
+  // These should be overloaded eventually, but we're assuming
+  // patterns right now
+  "+": {
+    type: "Pattern a -> Pattern a -> Pattern a",
+    value: (a: number, b: number) => reify(a).add.in(reify(b)),
+    prec: [6, "left"],
+  },
+
+  "-": {
+    type: "Pattern a -> Pattern a -> Pattern a",
+    value: (a: number, b: number) => reify(a).sub.in(reify(b)),
+    prec: [6, "left"],
+  },
+
+  "*": {
+    type: "Pattern a -> Pattern a -> Pattern a",
+    value: (a: number, b: number) => reify(a).mul.in(reify(b)),
+    prec: [7, "left"],
+  },
+
+  "/": {
+    type: "Pattern a -> Pattern a -> Pattern a",
+    value: (a: number, b: number) => reify(a).div.in(reify(b)),
+    prec: [7, "left"],
+  },
+
   // Addition/subtration
   "|+": {
     type: "Pattern a -> Pattern a -> Pattern a",
