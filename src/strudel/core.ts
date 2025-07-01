@@ -6,7 +6,7 @@ import {
   addDataType,
   addBinding,
   BindingSpec,
-} from "../compiler/typecheck/environment";
+} from "../compiler/environment";
 import { KFunc, KType } from "../compiler/typecheck/BuiltIns";
 
 export default (env: Environment) => {

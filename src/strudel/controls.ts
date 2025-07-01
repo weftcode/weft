@@ -1,6 +1,6 @@
 // @ts-nocheck
 
-import { addBinding, BindingSpec } from "../compiler/typecheck/environment";
+import { addBinding, BindingSpec } from "../compiler/environment";
 
 import { controls as strudelControls } from "@strudel/core";
 

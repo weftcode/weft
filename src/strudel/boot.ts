@@ -12,7 +12,7 @@ import {
   samples,
 } from "@strudel/webaudio";
 
-import { addBinding, BindingSpec } from "../compiler/typecheck/environment";
+import { addBinding, BindingSpec } from "../compiler/environment";
 import { HighlightHandler } from "./highlights";
 
 initAudioOnFirstClick();

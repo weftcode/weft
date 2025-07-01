@@ -8,8 +8,12 @@ import { Type } from "./Type";
 import { TypeExt } from "./ASTExtensions";
 import { Substitution, applyToType } from "./Substitution";
 import { Inference, freshInst, unify } from "./Monad";
+import { RenamerExt } from "../rename/ASTExtensions";
 
-export function infer(env: Environment, expr: Expr): Inference<Expr<TypeExt>> {
+export function infer(
+  env: Environment,
+  expr: Expr<RenamerExt>
+): Inference<Expr<TypeExt>> {
   switch (expr.is) {
     // Literals
     case Expr.Is.Literal:
@@ -20,8 +24,13 @@ export function infer(env: Environment, expr: Expr): Inference<Expr<TypeExt>> {
 
     // Variable
     case Expr.Is.Variable:
-      let scheme = env.typeEnv[expr.name.lexeme].type;
-      return freshInst(scheme).map(({ type }) => ({ ...expr, type }));
+      if (expr.missing) {
+        // If we're missing a variable, treat it as a typed hole
+        return Inference.fresh().map((type) => ({ ...expr, type }));
+      } else {
+        let scheme = env.typeEnv[expr.name.lexeme].type;
+        return freshInst(scheme).map(({ type }) => ({ ...expr, type }));
+      }
 
     // Grouping
     case Expr.Is.Grouping:

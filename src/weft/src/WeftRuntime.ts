@@ -4,13 +4,13 @@ import { expressionBounds } from "../../compiler/parse/Utils";
 import { Scanner } from "../../compiler/scan/Scanner";
 import { Parser } from "../../compiler/parse/Parser";
 import { renameStmt } from "../../compiler/rename/Renamer";
-import { TypeChecker } from "../../compiler/typecheck/old/TypeChecker_THIH";
+import { typecheckStmt } from "../../compiler/typecheck/TypeCheck";
 import { Interpreter, Location } from "../../compiler/Interpreter";
 import { collectErrors } from "../../compiler/errors/Errors";
 
 import { makeEnv } from "../../compiler/environment";
 import { Evaluation } from "../../editor/console";
-import { collectTypeDiagnostics } from "../../compiler/typecheck/old/Annotations_2";
+// import { collectTypeDiagnostics } from "../../compiler/typecheck/old/Annotations_2";
 
 import { Diagnostic } from "@codemirror/lint";
 
@@ -38,15 +38,17 @@ export class WeftRuntime {
       // Run renamer to check for undefined variables
       let renamedStmts = stmts.map((s) => renameStmt(s, this.env.typeEnv));
 
-      const typechecker = new TypeChecker(this.env);
+      let typedStmts = renamedStmts.map((stmt) =>
+        typecheckStmt(stmt, this.env)
+      );
 
-      for (let stmt of renamedStmts) {
-        let checked = typechecker.check(stmt);
+      // for (let stmt of renamedStmts) {
+      //   let checked = typecheckStmt(stmt, this.env);
 
-        if (checked.is === Stmt.Is.Expression) {
-          diagnostics.push(...collectTypeDiagnostics(checked.expression));
-        }
-      }
+      //   // if (checked.is === Stmt.Is.Expression) {
+      //   //   diagnostics.push(...collectTypeDiagnostics(checked.expression));
+      //   // }
+      // }
     } catch (error) {
       if (error instanceof Error) {
         diagnostics.push({
@@ -77,9 +79,9 @@ export class WeftRuntime {
         renameStmt(stmt, this.env.typeEnv)
       );
 
-      let typechecker = new TypeChecker(this.env);
-
-      let typedStmts = renamedStmts.map((stmt) => typechecker.check(stmt));
+      let typedStmts = renamedStmts.map((stmt) =>
+        typecheckStmt(stmt, this.env)
+      );
 
       const interpreter = new Interpreter(this.env.typeEnv);
 
