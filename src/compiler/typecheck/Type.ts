@@ -1,5 +1,3 @@
-import { printType } from "./Printer";
-
 export type Kind = Kind.Type | Kind.Function;
 
 export namespace Kind {

@@ -5,26 +5,11 @@ import { KType, TApp, TFunc, tList } from "../BuiltIns";
 import { Environment } from "../environment";
 
 import { Type } from "../Type";
+import { TypeExt } from "../ASTExtensions";
 import { Substitution, applyToType } from "../Substitution";
 import { Inference, freshInst, unify } from "./Monad";
 
-export interface NodeTypeInfo {
-  type: Type;
-}
-
-export type TypeInfo = {
-  "Stmt.Expression": NodeTypeInfo;
-  "Expr.Variable": NodeTypeInfo;
-  "Expr.Literal": NodeTypeInfo;
-  "Expr.Application": NodeTypeInfo;
-  "Expr.Binary": NodeTypeInfo;
-  "Expr.Section": NodeTypeInfo;
-  "Expr.List": NodeTypeInfo;
-  "Expr.Grouping": NodeTypeInfo;
-  "Expr.Empty": NodeTypeInfo;
-} & Stmt.Extension;
-
-export function infer(env: Environment, expr: Expr): Inference<Expr<TypeInfo>> {
+export function infer(env: Environment, expr: Expr): Inference<Expr<TypeExt>> {
   switch (expr.is) {
     // Literals
     case Expr.Is.Literal:
@@ -94,7 +79,7 @@ export function infer(env: Environment, expr: Expr): Inference<Expr<TypeInfo>> {
                   // TODO: The type of `infer` doesn't offer a guarantee that
                   //   the type of the elaborated expression is preserved
                   //   This cast is a stop-gap until I have a better solution.
-                  operator: operator as Expr.Variable<TypeInfo>,
+                  operator: operator as Expr.Variable<TypeExt>,
                   type: resultType,
                 })
               )
@@ -119,7 +104,7 @@ export function infer(env: Environment, expr: Expr): Inference<Expr<TypeInfo>> {
                   ...expr,
                   expression,
                   // See above
-                  operator: operator as Expr.Variable<TypeInfo>,
+                  operator: operator as Expr.Variable<TypeExt>,
                   type: TFunc(argType, resultType),
                 })
               )
@@ -129,6 +114,7 @@ export function infer(env: Environment, expr: Expr): Inference<Expr<TypeInfo>> {
       );
 
     case Expr.Is.Empty:
+    case Expr.Is.Error:
       // Treat this as an expression of totally unknown type
       return Inference.fresh().map((type) => ({ ...expr, type }));
 
@@ -137,12 +123,13 @@ export function infer(env: Environment, expr: Expr): Inference<Expr<TypeInfo>> {
   }
 }
 
-export function applyToExpr<T extends Expr<TypeInfo>>(
+export function applyToExpr<T extends Expr<TypeExt>>(
   expr: T,
   sub: Substitution
 ): T {
   switch (expr.is) {
     case Expr.Is.Empty:
+    case Expr.Is.Error:
       return expr;
     case Expr.Is.Literal:
     case Expr.Is.Variable: {

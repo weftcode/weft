@@ -1,7 +1,7 @@
 import { Stmt } from "../../parse/AST/Stmt";
 
 import { makeContext, PolyType } from "./Types";
-import { W } from "./Inference";
+import { W } from "./Inference_W";
 import { UnificationError } from "./Utilities";
 import { Environment } from "../environment";
 import { TypeInfo, applyToExpr, getType } from "./Annotations";

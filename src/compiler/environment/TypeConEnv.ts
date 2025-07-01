@@ -1,11 +1,13 @@
-import { Environment } from ".";
+import { Kind } from "../typecheck/Type";
+
+import { Environment } from "../typecheck/environment";
 
 export type TypeConEnv = {
   readonly [name: string]: TypeCon;
 };
 
 export interface TypeCon {
-  // Kind
+  kind: Kind;
   dataCons: DataCon[];
 }
 
@@ -14,10 +16,11 @@ export interface DataCon {
   // type: PolyType;
 }
 
-export interface TypeConSpec {
+export type TypeConSpec = TypeCon & {
   name: string;
+  kind: Kind;
   dataCons: DataCon[];
-}
+};
 
 export function addDataType(
   env: Environment,

@@ -4,7 +4,7 @@ import { expressionBounds } from "../../compiler/parse/Utils";
 import { Scanner } from "../../compiler/scan/Scanner";
 import { Parser } from "../../compiler/parse/Parser";
 import { renameStmt } from "../../compiler/rename/Renamer";
-import { TypeChecker } from "../../compiler/typecheck/TypeChecker";
+import { TypeChecker } from "../../compiler/typecheck/old/TypeChecker_THIH";
 import { Interpreter, Location } from "../../compiler/Interpreter";
 import { collectErrors } from "../../compiler/errors/Errors";
 

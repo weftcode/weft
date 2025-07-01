@@ -6,7 +6,7 @@ import { Pattern, parseMini } from "../strudel";
 import { TokenType } from "./scan/TokenType";
 import { Type } from "./typecheck/Type";
 import { TypeEnv } from "./typecheck/environment";
-import { TypeInfo } from "./typecheck/constraints/Generation";
+import { TypeExt } from "./typecheck/ASTExtensions";
 
 type Value = Value[] | ((input: Value) => Value);
 
@@ -19,7 +19,7 @@ export class Interpreter {
 
   private miniNotationLocations: Location[] = [];
 
-  interpret(statements: Stmt<TypeInfo>[], id: number): [string[], Location[]] {
+  interpret(statements: Stmt<TypeExt>[], id: number): [string[], Location[]] {
     let results: string[] = [];
 
     this.currentID = id;
@@ -66,14 +66,14 @@ export class Interpreter {
     return object.toString();
   }
 
-  private execute(stmt: Stmt<TypeInfo>) {
+  private execute(stmt: Stmt<TypeExt>) {
     switch (stmt.is) {
       case Stmt.Is.Expression:
         return this.evaluate(stmt.expression) as any;
     }
   }
 
-  private evaluate(expr: Expr<TypeInfo>): any {
+  private evaluate(expr: Expr<TypeExt>): any {
     switch (expr.is) {
       case Expr.Is.Literal:
         return this.evaluateLiteral(expr);
@@ -111,7 +111,7 @@ export class Interpreter {
   private evaluateLiteral({
     token,
     type,
-  }: Expr.Literal<TypeInfo>): string | number | any {
+  }: Expr.Literal<TypeExt>): string | number | any {
     switch (token.type) {
       case TokenType.Number:
         // Parse number
@@ -147,7 +147,7 @@ export class Interpreter {
     }
   }
 
-  private curry(func: Expr<TypeInfo>): Function {
+  private curry(func: Expr<TypeExt>): Function {
     if (func.is === Expr.Is.Variable || func.is === Expr.Is.Section) {
       return this.evaluate(func) as any;
     } else if (func.is === Expr.Is.Grouping) {

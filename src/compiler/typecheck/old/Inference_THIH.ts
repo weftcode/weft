@@ -1,24 +1,27 @@
-import { Expr } from "../parse/AST/Expr";
+import { Expr } from "../../parse/AST/Expr";
 
-import { Kind } from "./Type";
+import { Kind } from "../Type";
 
-import { TypeInf, freshInst, unify } from "./Monad";
-import {
-  ClassConstraint,
-  TypeInfo,
-  UnificationError,
-  getType,
-} from "./Annotations";
-import { KType, TFunc } from "./BuiltIns";
-import { TokenType } from "../scan/TokenType";
-import { printPred } from "./Printer";
-import { applyToPred } from "./Substitution";
-import { byInst } from "./TypeClass";
-import { Environment, TypeClassEnv } from "./environment";
+import { TypeInf, freshInst, unify } from "../Monad";
+import { UnificationError, getType } from "../Annotations";
+import { TypeExt } from "../ASTExtensions";
+import { KType, TFunc } from "../BuiltIns";
+import { TokenType } from "../../scan/TokenType";
+import { printPred } from "../Printer";
+import { applyToPred } from "../Substitution";
+import { byInst } from "../TypeClass";
+import { Environment, TypeClassEnv } from "../environment";
+import { Predicate } from "../TypeClass";
+
+// For now, ClassConstraint can live here
+interface ClassConstraint {
+  pred: Predicate;
+  dictionary?: { [method: string]: any };
+}
 
 export function inferLit(
   expr: Expr.Literal
-): TypeInf<[ClassConstraint[], Expr<TypeInfo>]> {
+): TypeInf<[ClassConstraint[], Expr<TypeExt>]> {
   const typeClass =
     expr.token.type === TokenType.String ? "FromString" : "FromNumber";
   return TypeInf.newTVar(KType).bind((type) => {
@@ -33,7 +36,7 @@ export function inferLit(
 export function inferExpr(
   env: Environment,
   expr: Expr
-): TypeInf<[ClassConstraint[], Expr<TypeInfo>]> {
+): TypeInf<[ClassConstraint[], Expr<TypeExt>]> {
   switch (expr.is) {
     // Literals
     case Expr.Is.Literal:
@@ -131,7 +134,7 @@ export function inferApp(
         let rType = getType(typedR);
 
         if (!lType || !rType) {
-          return TypeInf.pure<[ClassConstraint[], Expr<TypeInfo>]>([
+          return TypeInf.pure<[ClassConstraint[], Expr<TypeExt>]>([
             ps.concat(qs),
             { ...expr, left: typedL, right: typedR, type: null },
           ]);
@@ -141,7 +144,7 @@ export function inferApp(
           let constraints = ps.concat(qs);
 
           return checkConstraints(env.typeClassEnv, constraints).then(
-            TypeInf.pure<[ClassConstraint[], Expr<TypeInfo>]>([
+            TypeInf.pure<[ClassConstraint[], Expr<TypeExt>]>([
               constraints,
               {
                 ...expr,

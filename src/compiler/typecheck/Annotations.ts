@@ -5,6 +5,8 @@ import { printType } from "./Printer";
 import { Type } from "./Type";
 import { Substitution, applyToType } from "./Substitution";
 
+import { TypeExt } from "./ASTExtensions";
+
 import type { Diagnostic } from "@codemirror/lint";
 import { Predicate } from "./TypeClass";
 
@@ -26,7 +28,7 @@ export abstract class TypeAnnotation {
   abstract apply(substitution: Substitution): void;
 }
 
-export class TypeInfoAnnotation extends TypeAnnotation {
+export class TypeExtAnnotation extends TypeAnnotation {
   constructor(expr: Expr, private type: Type) {
     super("info", expr);
   }
@@ -88,31 +90,7 @@ export class ApplicationError extends TypeAnnotation {
   apply() {}
 }
 
-export interface NodeTypeInfo {
-  type: Type | null;
-  typeAnnotation?: TypeAnnotation;
-}
-
-export type NodeTypeClass = {
-  typeClasses: ClassConstraint[];
-};
-
-export interface ClassConstraint {
-  pred: Predicate;
-  dictionary?: { [method: string]: any };
-}
-
-export type TypeInfo = {
-  "Stmt.Expression": NodeTypeInfo;
-  "Expr.Variable": NodeTypeInfo & NodeTypeClass;
-  "Expr.Literal": NodeTypeInfo & NodeTypeClass;
-  "Expr.Application": NodeTypeInfo;
-  "Expr.Binary": NodeTypeInfo;
-  "Expr.Section": NodeTypeInfo;
-  "Expr.List": NodeTypeInfo;
-} & Stmt.Extension;
-
-export function getType(expr: Expr<TypeInfo>): Type | null {
+export function getType(expr: Expr<TypeExt>): Type | null {
   if (expr.is === Expr.Is.Grouping) {
     return getType(expr.expression);
   } else if (expr.is === Expr.Is.Empty || expr.is === Expr.Is.Error) {
@@ -122,14 +100,10 @@ export function getType(expr: Expr<TypeInfo>): Type | null {
   }
 }
 
-export function applyToExpr<T extends Expr<TypeInfo>>(
+export function applyToExpr<T extends Expr<TypeExt>>(
   expr: T,
   sub: Substitution
 ): T {
-  if ("typeAnnotation" in expr && expr.typeAnnotation) {
-    expr.typeAnnotation.apply(sub);
-  }
-
   switch (expr.is) {
     case Expr.Is.Empty:
     case Expr.Is.Error:
@@ -184,7 +158,7 @@ export function applyToExpr<T extends Expr<TypeInfo>>(
   }
 }
 
-export function collectTypeDiagnostics(expr: Expr<TypeInfo>): Diagnostic[] {
+export function collectTypeDiagnostics(expr: Expr<TypeExt>): Diagnostic[] {
   // Dispense with the simplest cases
   switch (expr.is) {
     case Expr.Is.Grouping:
@@ -194,17 +168,11 @@ export function collectTypeDiagnostics(expr: Expr<TypeInfo>): Diagnostic[] {
       return [];
   }
 
-  // Now, check for a type annotation
-  let { typeAnnotation } = expr;
-  if (typeAnnotation) {
-    return [typeAnnotation];
-  }
-
   switch (expr.is) {
     case Expr.Is.Variable:
     case Expr.Is.Literal:
       let type = getType(expr);
-      return type ? [new TypeInfoAnnotation(expr, type)] : [];
+      return type ? [new TypeExtAnnotation(expr, type)] : [];
 
     case Expr.Is.Application:
     case Expr.Is.Binary:

@@ -1,23 +1,20 @@
-import { Stmt } from "../parse/AST/Stmt";
-import { ErrorReporter } from "../parse/Reporter";
+import { Stmt } from "../../parse/AST/Stmt";
 
-import { TypeScheme } from "./TypeScheme";
-import { inferExpr } from "./Inference";
+import { TypeScheme } from "../TypeScheme";
+import { inferExpr } from "./Inference_THIH";
 // import { UnificationError } from "./Utilities";
-import { Environment } from "./environment";
-import { TypeInf } from "./Monad";
-import { applyToExpr } from "./Annotations";
-import { applyToPred } from "./Substitution";
-import { printContext } from "./Printer";
-import { reduce } from "./TypeClass";
+import { Environment } from "../environment";
+import { TypeInf } from "../Monad";
+import { applyToExpr } from "../Annotations";
+import { applyToPred } from "../Substitution";
+import { printContext } from "../Printer";
+import { reduce } from "../TypeClass";
+import { TypeExt } from "../ASTExtensions";
 
 export class TypeChecker {
-  constructor(
-    private readonly reporter: ErrorReporter,
-    private environment: Environment
-  ) {}
+  constructor(private environment: Environment) {}
 
-  check(statement: Stmt) {
+  check(statement: Stmt): Stmt<TypeExt> {
     try {
       switch (statement.is) {
         case Stmt.Is.Expression:
@@ -32,8 +29,10 @@ export class TypeChecker {
             )
             .run();
           return { ...statement, expression };
+        case Stmt.Is.Error:
+          return statement;
         default:
-          return statement.is satisfies never;
+          return statement satisfies never;
       }
     } catch (e) {
       // if (e instanceof UnificationError && e.type2) {
