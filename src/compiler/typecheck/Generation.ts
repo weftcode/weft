@@ -1,6 +1,6 @@
 import { Expr } from "../parse/AST/Expr";
 import { Stmt } from "../parse/AST/Stmt";
-import { KType, TApp, TFunc, tList } from "./BuiltIns";
+import { TApp, TFunc, tList } from "./BuiltIns";
 
 import { Environment } from "../environment";
 
@@ -42,7 +42,7 @@ export function infer(
         Inference.mapList(
           (rawItem) =>
             infer(env, rawItem).bind((item) =>
-              unify(itemType, item.type).then(Inference.pure(item))
+              unify(itemType, item.type, item).then(Inference.pure(item))
             ),
           expr.items
         ).bind((items) =>
@@ -59,7 +59,7 @@ export function infer(
       return infer(env, expr.left).bind((left) =>
         infer(env, expr.right).bind((right) =>
           Inference.fresh().bind((resultType) =>
-            unify(left.type, TFunc(right.type, resultType)).then(
+            unify(left.type, TFunc(right.type, resultType), right).then(
               Inference.pure({
                 ...expr,
                 left,
@@ -79,7 +79,8 @@ export function infer(
             Inference.fresh().bind((resultType) =>
               unify(
                 operator.type,
-                TFunc(left.type, TFunc(right.type, resultType))
+                TFunc(left.type, TFunc(right.type, resultType)),
+                right
               ).then(
                 Inference.pure({
                   ...expr,
@@ -107,7 +108,8 @@ export function infer(
                 operator.type,
                 expr.side === "left"
                   ? TFunc(argType, TFunc(expression.type, resultType))
-                  : TFunc(expression.type, TFunc(argType, resultType))
+                  : TFunc(expression.type, TFunc(argType, resultType)),
+                expression
               ).then(
                 Inference.pure({
                   ...expr,

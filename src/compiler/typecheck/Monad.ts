@@ -5,6 +5,9 @@ import { KType } from "./BuiltIns";
 
 import { Constraint } from "./Constraint";
 
+import { Expr } from "../parse/AST/Expr";
+import { TypeExt } from "./ASTExtensions";
+
 interface InferState<A> {
   num: number;
   constraints: Constraint[];
@@ -77,8 +80,13 @@ export class Inference<A> {
   }
 }
 
-export function unify(left: Type, right: Type) {
-  return Inference.addConstraint({ is: Constraint.Is.Equality, left, right });
+export function unify(left: Type, right: Type, source: Expr<TypeExt>) {
+  return Inference.addConstraint({
+    is: Constraint.Is.Equality,
+    left,
+    right,
+    source,
+  });
 }
 
 export function freshInst({ forAll, qual }: TypeScheme) {

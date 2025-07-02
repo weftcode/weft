@@ -5,6 +5,7 @@ import { printType } from "./Printer";
 
 import { eq } from "../../utils";
 import { varsInType } from "./Vars";
+import { UnificationError } from "./Solver";
 
 export function mgu(type1: Type, type2: Type): Substitution {
   if (type1.is === Type.Is.App && type2.is === Type.Is.App) {
@@ -31,9 +32,11 @@ export function mgu(type1: Type, type2: Type): Substitution {
     }
   }
 
-  throw new Error(
-    `Type Error: Can't unify "${printType(type1)}" with ${printType(type2)}`
-  );
+  throw {
+    is: "Unification",
+    left: type1,
+    right: type2,
+  } satisfies UnificationError;
 }
 
 function varBind(tyVar: Type.Var, type: Type): Substitution {

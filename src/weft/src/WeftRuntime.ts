@@ -14,6 +14,8 @@ import { Evaluation } from "../../editor/console";
 
 import { Diagnostic } from "@codemirror/lint";
 import { collectRenameErrors } from "../../compiler/errors/Renamer";
+import { TypeExt } from "../../compiler/typecheck/ASTExtensions";
+import { SolverError } from "../../compiler/typecheck/Solver";
 
 interface EvaluationResults {
   results: Evaluation[];
@@ -41,17 +43,20 @@ export class WeftRuntime {
 
       diagnostics.push(...collectRenameErrors(renamedStmts));
 
-      let typedStmts = renamedStmts.map((stmt) =>
-        typecheckStmt(stmt, this.env)
-      );
+      // TODO: This is kinda clunky
+      let typedStmts: Stmt<TypeExt>[] = [];
+      let allTypeErrors: SolverError[] = [];
 
-      // for (let stmt of renamedStmts) {
-      //   let checked = typecheckStmt(stmt, this.env);
+      for (let stmt of renamedStmts) {
+        let [typedStmt, typeErrors] = typecheckStmt(stmt, this.env);
+        typedStmts.push(typedStmt);
+        allTypeErrors.push(...typeErrors);
+      }
 
-      //   // if (checked.is === Stmt.Is.Expression) {
-      //   //   diagnostics.push(...collectTypeDiagnostics(checked.expression));
-      //   // }
-      // }
+      for (let typeError of allTypeErrors) {
+        console.log(typeError);
+        diagnostics.push({ severity: "error", ...typeError });
+      }
     } catch (error) {
       if (error instanceof Error) {
         diagnostics.push({
@@ -82,9 +87,15 @@ export class WeftRuntime {
         renameStmt(stmt, this.env.typeEnv)
       );
 
-      let typedStmts = renamedStmts.map((stmt) =>
-        typecheckStmt(stmt, this.env)
-      );
+      // TODO: This is kinda clunky
+      let typedStmts: Stmt<TypeExt>[] = [];
+      let allTypeErrors: SolverError[] = [];
+
+      for (let stmt of renamedStmts) {
+        let [typedStmt, typeErrors] = typecheckStmt(stmt, this.env);
+        typedStmts.push(typedStmt);
+        allTypeErrors.push(...typeErrors);
+      }
 
       const interpreter = new Interpreter(this.env.typeEnv);
 

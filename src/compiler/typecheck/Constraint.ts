@@ -1,3 +1,4 @@
+import { Expr } from "../parse/AST/Expr";
 import { Type } from "./Type";
 
 export type Constraint = Constraint.Equality;
@@ -11,5 +12,6 @@ export namespace Constraint {
     is: Is.Equality;
     left: Type;
     right: Type;
+    source: Expr;
   }
 }

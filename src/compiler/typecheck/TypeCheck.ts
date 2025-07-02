@@ -10,12 +10,12 @@ import { infer, applyToExpr } from "./Generation";
 import { TypeExt } from "./ASTExtensions";
 import { Inference } from "./Monad";
 import { printConstraint } from "./Printer";
-import { solve } from "./Solver";
+import { solve, SolverError } from "./Solver";
 
 export function typecheckStmt(
   statement: Stmt,
   env: Environment
-): Stmt<TypeExt> {
+): [Stmt<TypeExt>, SolverError[]] {
   switch (statement.is) {
     case Stmt.Is.Expression:
       let [expression, constraints] = infer(env, statement.expression)
@@ -27,13 +27,10 @@ export function typecheckStmt(
         )
         .run();
       let { substitution, errors } = solve(constraints);
-      for (let error of errors) {
-        console.log(error);
-      }
       expression = applyToExpr(expression, substitution);
-      return { ...statement, expression };
+      return [{ ...statement, expression }, errors];
     case Stmt.Is.Error:
-      return statement;
+      return [statement, []];
     default:
       return statement satisfies never;
   }
