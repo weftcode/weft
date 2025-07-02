@@ -28,7 +28,7 @@ export function solve(constraints: Constraint[]): Solution {
       substitution = combine(newSub, substitution);
     } catch (e) {
       if (isUnificationError(e)) {
-        unificationErrors.push({ ...e, source });
+        unificationErrors.push({ ...e, left, right, source });
       } else {
         throw e;
       }

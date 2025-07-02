@@ -58,14 +58,18 @@ export function infer(
     case Expr.Is.Application:
       return infer(env, expr.left).bind((left) =>
         infer(env, expr.right).bind((right) =>
-          Inference.fresh().bind((resultType) =>
-            unify(left.type, TFunc(right.type, resultType), right).then(
-              Inference.pure({
-                ...expr,
-                left,
-                right,
-                type: resultType,
-              })
+          Inference.fresh().bind((argType) =>
+            Inference.fresh().bind((resultType) =>
+              unify(left.type, TFunc(argType, resultType), left).then(
+                unify(argType, right.type, right).then(
+                  Inference.pure({
+                    ...expr,
+                    left,
+                    right,
+                    type: resultType,
+                  })
+                )
+              )
             )
           )
         )
