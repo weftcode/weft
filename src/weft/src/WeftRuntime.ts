@@ -13,6 +13,7 @@ import { Evaluation } from "../../editor/console";
 // import { collectTypeDiagnostics } from "../../compiler/typecheck/old/Annotations_2";
 
 import { Diagnostic } from "@codemirror/lint";
+import { collectRenameErrors } from "../../compiler/errors/Renamer";
 
 interface EvaluationResults {
   results: Evaluation[];
@@ -37,6 +38,8 @@ export class WeftRuntime {
 
       // Run renamer to check for undefined variables
       let renamedStmts = stmts.map((s) => renameStmt(s, this.env.typeEnv));
+
+      diagnostics.push(...collectRenameErrors(renamedStmts));
 
       let typedStmts = renamedStmts.map((stmt) =>
         typecheckStmt(stmt, this.env)
