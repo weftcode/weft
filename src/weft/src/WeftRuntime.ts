@@ -54,7 +54,6 @@ export class WeftRuntime {
       }
 
       for (let typeError of allTypeErrors) {
-        console.log(typeError);
         diagnostics.push({ severity: "error", ...typeError });
       }
     } catch (error) {
@@ -83,9 +82,13 @@ export class WeftRuntime {
       const parser = new Parser(tokens, this.env.typeEnv);
       const stmts = parser.parse();
 
+      const errors = collectErrors(stmts);
+
       const renamedStmts = stmts.map((stmt) =>
         renameStmt(stmt, this.env.typeEnv)
       );
+
+      errors.push(...collectRenameErrors(renamedStmts));
 
       // TODO: This is kinda clunky
       let typedStmts: Stmt<TypeExt>[] = [];
@@ -97,35 +100,49 @@ export class WeftRuntime {
         allTypeErrors.push(...typeErrors);
       }
 
-      const interpreter = new Interpreter(this.env.typeEnv);
-
-      let values: string[];
-      [values, miniLocations] = interpreter.interpret(
-        typedStmts,
-        this.evalCounter++
-      );
-
-      if (miniLocations) {
-        miniLocations = miniLocations
-          .map<Location>(([id, { from, to }]) => [
-            id,
-            { from: from + offset, to: to + offset },
-          ])
-          .toSorted(
-            ([_a, { from: fromA }], [_b, { from: fromB }]) => fromA - fromB
-          );
+      for (let typeError of allTypeErrors) {
+        errors.push({ severity: "error", ...typeError });
       }
 
-      values.forEach((text, i) => {
-        if (text !== "" && stmts[i].is === Stmt.Is.Expression) {
-          let { from, to } = expressionBounds(stmts[i].expression);
+      if (errors.length === 0) {
+        const interpreter = new Interpreter(this.env.typeEnv);
+
+        let values: string[];
+        [values, miniLocations] = interpreter.interpret(
+          typedStmts,
+          this.evalCounter++
+        );
+
+        if (miniLocations) {
+          miniLocations = miniLocations
+            .map<Location>(([id, { from, to }]) => [
+              id,
+              { from: from + offset, to: to + offset },
+            ])
+            .toSorted(
+              ([_a, { from: fromA }], [_b, { from: fromB }]) => fromA - fromB
+            );
+        }
+
+        values.forEach((text, i) => {
+          if (text !== "" && stmts[i].is === Stmt.Is.Expression) {
+            let { from, to } = expressionBounds(stmts[i].expression);
+            results.push({
+              input: code.slice(from, to),
+              success: true,
+              text,
+            });
+          }
+        });
+      } else {
+        for (let error of errors) {
           results.push({
-            input: code.slice(from, to),
-            success: true,
-            text,
+            input: code,
+            success: false,
+            text: "Error: " + error.message,
           });
         }
-      });
+      }
     } catch (error) {
       if (error instanceof Error) {
         results.push({
