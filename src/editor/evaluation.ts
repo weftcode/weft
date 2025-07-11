@@ -1,11 +1,3 @@
-import { Scanner } from "../compiler/scan/Scanner";
-import { Parser } from "../compiler/parse/Parser";
-import { Stmt } from "../compiler/parse/AST/Stmt";
-import { renamer } from "../compiler/rename/Renamer";
-import { TypeChecker } from "../compiler/typecheck/Typechecker";
-import { ErrorReporter } from "../compiler/parse/Reporter";
-import { Interpreter, Location } from "../compiler/Interpreter";
-
 import { EditorView } from "codemirror";
 import { EditorState, Extension, StateEffect } from "@codemirror/state";
 import { keymap } from "@codemirror/view";
@@ -13,9 +5,9 @@ import { keymap } from "@codemirror/view";
 import type { console as editorConsole, Evaluation } from "./console";
 
 import {
-  evalDecoration,
-  evalEffect,
-  evalKeymap,
+  evaluationEffect,
+  evaluationKeymap,
+  evaluateDecorationPlugin,
 } from "@management/cm-evaluate";
 
 import {
@@ -23,136 +15,34 @@ import {
   replaceMininotation,
 } from "../strudel/highlights/state";
 
-import { Environment } from "../compiler/environment";
-import { expressionBounds } from "../compiler/parse/Utils";
-import { TypeInfo } from "../compiler/typecheck/Annotations";
+import { WeftRuntime } from "../weft/src";
 
-export const evalTheme = EditorView.theme({
-  "@keyframes cm-eval-flash": {
-    from: { backgroundColor: "#FFFFFF" },
-    to: { backgroundColor: "#FFFFFF00" },
-  },
-  "& .cm-evaluated": { animation: "cm-eval-flash 0.5s" },
-});
-
-interface EvaluationResults {
-  results: Evaluation[];
-  miniLocations?: Location[];
-}
-
-let evalCounter = 0;
-
-export function handleEvaluation(
-  code: string,
-  offset: number,
-  env: Environment
-): EvaluationResults {
-  let reporter = new ErrorReporter();
-
-  let results: Evaluation[] = [];
-  let miniLocations: Location[] | undefined;
-
-  try {
-    const scanner = new Scanner(code);
-    const tokens = scanner.scanTokens();
-    const parser = new Parser(tokens, env.typeEnv, reporter);
-    const stmts = parser.parse();
-
-    renamer(stmts, env.typeEnv, reporter);
-
-    let typedStmts: Stmt<TypeInfo>[] = [];
-
-    if (!reporter.hasError) {
-      let typechecker = new TypeChecker(reporter, env);
-
-      for (let stmt of stmts) {
-        let typedStmt = typechecker.check(stmt);
-        typedStmts.push(typedStmt);
-        // generateTypeDiagnostics(sub, expr).forEach((annotation) => {
-        //   if (annotation.severity === "error") {
-        //     reporter.error(annotation.from, annotation.to, annotation.message);
-        //   }
-        // });
-      }
-    }
-
-    if (reporter.hasError) {
-      results.push({
-        input: code,
-        success: false,
-        text:
-          "Error: " + reporter.errors.map((error) => error.message).join("\n"),
-      });
-    } else {
-      const interpreter = new Interpreter(reporter, env.typeEnv);
-
-      let values: string[];
-      [values, miniLocations] = interpreter.interpret(
-        typedStmts,
-        evalCounter++
-      );
-
-      if (miniLocations) {
-        miniLocations = miniLocations.map(([id, { from, to }]) => [
-          id,
-          { from: from + offset, to: to + offset },
-        ]);
-      }
-
-      values.forEach((text, i) => {
-        if (text !== "") {
-          let { from, to } = expressionBounds(stmts[i].expression);
-          results.push({
-            input: code.slice(from, to),
-            success: true,
-            text,
-          });
-        }
-      });
-
-      if (reporter.hasError) {
-        results.push({
-          input: code,
-          success: false,
-          text:
-            "Error: " +
-            reporter.errors.map((error) => error.message).join("\n"),
-        });
-      }
-    }
-  } catch (error) {
-    if (error instanceof Error) {
-      results.push({
-        input: code,
-        success: false,
-        text: "Error: " + error.message,
-      });
-    }
-
-    throw error;
-  }
-
-  return { results, miniLocations };
-}
+// export const evalTheme = EditorView.theme({
+//   "@keyframes cm-eval-flash": {
+//     from: { backgroundColor: "#FFFFFF" },
+//     to: { backgroundColor: "#FFFFFF00" },
+//   },
+//   "& .cm-evaluated": { animation: "cm-eval-flash 0.5s" },
+// });
 
 export function evaluation(
-  env: Environment,
+  runtime: WeftRuntime,
   consoleComponent: ReturnType<typeof editorConsole>
 ): Extension {
   const listener = EditorState.transactionExtender.of((tr) => {
     let effects: StateEffect<any>[] = [];
 
     for (let effect of tr.effects) {
-      if (effect.is(evalEffect)) {
-        let { from, to } = effect.value;
-        let code = tr.newDoc.sliceString(from, to);
-        let { results, miniLocations } = handleEvaluation(code, from, env);
+      if (effect.is(evaluationEffect)) {
+        let { code, span } = effect.value;
+        let { results, miniLocations } = runtime.evaluate(code, span?.from);
 
         for (let result of results) {
           consoleComponent.update(result);
         }
 
-        if (miniLocations) {
+        if (miniLocations && span) {
+          let { from, to } = span;
           effects.push(replaceMininotation(from, to, miniLocations));
         }
       }
@@ -163,9 +53,9 @@ export function evaluation(
 
   return [
     listener,
-    evalTheme,
-    keymap.of(evalKeymap),
-    evalDecoration(),
+    // evalTheme,
+    keymap.of(evaluationKeymap),
+    evaluateDecorationPlugin,
     mininotationStringField,
   ];
 }

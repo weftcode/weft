@@ -5,14 +5,22 @@ import { Scanner } from "../../compiler/scan/Scanner";
 import { Parser } from "../../compiler/parse/Parser";
 import { renamer } from "../../compiler/rename/Renamer";
 import { TypeChecker } from "../../compiler/typecheck/Typechecker";
-import { Interpreter } from "../../compiler/Interpreter";
+import { Interpreter, Location } from "../../compiler/Interpreter";
 
 import { ErrorReporter } from "../../compiler/parse/Reporter";
-import { makeEnv } from "../../compiler/environment";
+import {
+  addBinding,
+  BindingSpec,
+  Environment,
+  makeEnv,
+} from "../../compiler/environment";
 import { Evaluation } from "../../editor/console";
-import type { TypeInfo } from "../../compiler/typecheck/Annotations";
+import {
+  TypeInfo,
+  collectTypeDiagnostics,
+} from "../../compiler/typecheck/Annotations";
 
-import preludeLib from "../../standard-lib";
+import { Diagnostic } from "@codemirror/lint";
 
 interface EvaluationResults {
   results: Evaluation[];
@@ -20,15 +28,67 @@ interface EvaluationResults {
 }
 
 export class WeftRuntime {
-  private env = makeEnv();
-
   private evalCounter = 0;
 
-  constructor() {
-    this.env = preludeLib(this.env);
+  private env = makeEnv();
+
+  constructor() {}
+
+  loadLibrary(lib: (env: Environment) => Environment) {
+    this.env = lib(this.env);
   }
 
-  async evaluate(code: string, offset = 0): Promise<EvaluationResults> {
+  addBinding(spec: BindingSpec) {
+    this.env = addBinding(this.env, spec);
+  }
+
+  async parse(code: string): Promise<Diagnostic[]> {
+    let reporter = new ErrorReporter();
+
+    let diagnostics: Diagnostic[] = [];
+
+    try {
+      const scanner = new Scanner(code);
+      const tokens = scanner.scanTokens();
+      const parser = new Parser(tokens, this.env.typeEnv, reporter);
+      const stmts = parser.parse();
+
+      renamer(stmts, this.env.typeEnv, reporter);
+
+      if (!reporter.hasError) {
+        let typechecker = new TypeChecker(reporter, this.env);
+
+        for (let stmt of stmts) {
+          let typedStmt = typechecker.check(stmt);
+          diagnostics.push(...collectTypeDiagnostics(typedStmt.expression));
+        }
+      }
+
+      if (reporter.hasError) {
+        diagnostics.push(
+          ...reporter.errors.map<Diagnostic>((error) => ({
+            ...error,
+            severity: "error",
+          }))
+        );
+      }
+    } catch (error) {
+      if (error instanceof Error) {
+        diagnostics.push({
+          severity: "error",
+          message: "Error: " + error.message,
+          from: 0,
+          to: code.length,
+        });
+      }
+
+      throw error;
+    }
+
+    return diagnostics;
+  }
+
+  evaluate(code: string, offset = 0): EvaluationResults {
     let reporter = new ErrorReporter();
 
     let results: Evaluation[] = [];
@@ -50,11 +110,15 @@ export class WeftRuntime {
         for (let stmt of stmts) {
           let typedStmt = typechecker.check(stmt);
           typedStmts.push(typedStmt);
-          // generateTypeDiagnostics(sub, expr).forEach((annotation) => {
-          //   if (annotation.severity === "error") {
-          //     reporter.error(annotation.from, annotation.to, annotation.message);
-          //   }
-          // });
+          collectTypeDiagnostics(typedStmt.expression).forEach((annotation) => {
+            if (annotation.severity === "error") {
+              reporter.error(
+                annotation.from,
+                annotation.to,
+                annotation.message
+              );
+            }
+          });
         }
       }
 
@@ -70,7 +134,6 @@ export class WeftRuntime {
         const interpreter = new Interpreter(reporter, this.env.typeEnv);
 
         let values: string[];
-        let miniLocations;
         [values, miniLocations] = interpreter.interpret(
           typedStmts,
           this.evalCounter++
