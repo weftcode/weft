@@ -23,6 +23,7 @@
     "@codemirror/language": "^6.0.1",
     "@codemirror/legacy-modes": "^6.0.1",
     "@codemirror/state": "^6.0.1",
+    "@fsegurai/codemirror-theme-nord": "^6.2.0",
     "@lezer/common": "^1.2.1",
     "@lezer/lr": "^1.4.1",
     "@management/cm-evaluate": "^0.2.0",

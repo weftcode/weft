@@ -8,7 +8,8 @@ import { evaluation } from "./evaluation";
 
 import { console as editorConsole } from "./console";
 
-import { editorTheme, colorTheme } from "./theme";
+import { editorTheme } from "./theme";
+import { nord } from "@fsegurai/codemirror-theme-nord";
 
 import { WeftRuntime } from "../weft/src";
 
@@ -121,7 +122,7 @@ window.addEventListener("load", async () => {
       parseLinter(runtime),
       autosave,
       editorTheme,
-      colorTheme,
+      nord,
       highlighter(handlerSet),
     ],
     parent: document.getElementById("editor") ?? undefined,
