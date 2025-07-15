@@ -1,4 +1,5 @@
-import { EditorView, basicSetup } from "codemirror";
+import { EditorView } from "codemirror";
+import { basicSetup } from "./basicSetup";
 
 import { StreamLanguage } from "@codemirror/language";
 import { haskell } from "@codemirror/legacy-modes/mode/haskell";
@@ -7,7 +8,7 @@ import { evaluation } from "./evaluation";
 
 import { console as editorConsole } from "./console";
 
-import { editorTheme } from "./theme";
+import { editorTheme, colorTheme } from "./theme";
 
 import { WeftRuntime } from "../weft/src";
 
@@ -120,6 +121,7 @@ window.addEventListener("load", async () => {
       parseLinter(runtime),
       autosave,
       editorTheme,
+      colorTheme,
       highlighter(handlerSet),
     ],
     parent: document.getElementById("editor") ?? undefined,

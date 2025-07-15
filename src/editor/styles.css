@@ -1,3 +1,6 @@
+/* Color scheme variables */
+@import url(./colors/scheme.css);
+
 html,
 body,
 .main {
@@ -5,7 +8,7 @@ body,
 }
 
 body {
-  background: #20232b;
+  background: var(--background);
   margin: 0;
 }
 

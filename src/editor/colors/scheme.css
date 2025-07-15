@@ -1,0 +1,11 @@
+:root {
+  --background: #dcdddeff;
+  --cursor: #3b9ee5ff;
+  --selection-background: #3b9ee53d;
+  --editor-background: #fcfcfcff;
+  --editor-foreground: #5c6166ff;
+  --editor-gutter-background: #fcfcfcff;
+  --editor-line-number: #b0b3b5;
+  --editor-active-line-number: #313435;
+  --editor-active-line-background: #ececedbf;
+}
