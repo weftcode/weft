@@ -1,11 +1,14 @@
+import { HighlightStyle, syntaxHighlighting } from "@codemirror/language";
+import { tags } from "@lezer/highlight";
 import { EditorView } from "codemirror";
 
-export const editorTheme = EditorView.theme({
+const layoutTheme = EditorView.theme({
   "&": {
     fontFamily: "inherit",
     width: "100%",
     height: "100%",
     overflow: "auto",
+    fontSize: "18px",
   },
 
   "&.cm-focused .cm-cursor": {
@@ -15,8 +18,28 @@ export const editorTheme = EditorView.theme({
 
   "& .cm-gutters": {
     borderRight: "none",
+    paddingRight: "0.5ch",
+  },
+
+  "& .cm-lineNumbers": {
+    fontSize: "inherit",
+    lineHeight: 1.6,
+  },
+
+  "& .cm-lineNumbers .cm-gutterElement": {
+    padding: "0 0.5ch 0 1ch",
+    minWidth: "2.5ch",
   },
 });
+
+const highlights = HighlightStyle.define([
+  {
+    tag: [tags.invalid],
+    textDecoration: "none",
+  },
+]);
+
+export const editorTheme = [layoutTheme, syntaxHighlighting(highlights)];
 
 export const colorTheme = EditorView.theme({
   "&": {
