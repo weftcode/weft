@@ -2,13 +2,25 @@
   "name": "@weftcode/weft",
   "version": "0.0.1",
   "type": "module",
-  "main": "dist/index.js",
+  "exports": {
+    ".": "./dist/index.js",
+    "./strudel": "./dist/strudel.js"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "parcel build src/index.ts"
+    "build": "vite build"
   },
+  "files": [
+    "dist/*"
+  ],
   "targets": {
-    "main": {
+    "default": {
+      "source": [
+        "src/index.ts",
+        "src/strudel.ts"
+      ],
+      "isLibrary": true,
+      "outputFormat": "esmodule",
       "includeNodeModules": true
     }
   },
