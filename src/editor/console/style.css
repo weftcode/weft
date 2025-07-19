@@ -40,11 +40,11 @@
 }
 
 .cm-console-message-input {
-  background-color: #282a36;
+  background-color: #434c5e;
 }
 
 .cm-console-message-output {
-  background-color: #2d2f3f;
+  background-color: #2e3440;
 }
 
 .cm-console-message-error .cm-console-message-input {

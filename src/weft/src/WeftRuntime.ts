@@ -8,7 +8,12 @@ import { typecheckStmt } from "../../compiler/typecheck/TypeCheck";
 import { Interpreter, Location } from "../../compiler/Interpreter";
 import { collectErrors } from "../../compiler/errors/Errors";
 
-import { makeEnv } from "../../compiler/environment";
+import {
+  addBinding,
+  BindingSpec,
+  Environment,
+  makeEnv,
+} from "../../compiler/environment";
 import { Evaluation } from "../../editor/console";
 // import { collectTypeDiagnostics } from "../../compiler/typecheck/old/Annotations_2";
 
@@ -25,7 +30,17 @@ interface EvaluationResults {
 export class WeftRuntime {
   private evalCounter = 0;
 
-  constructor(private env = makeEnv()) {}
+  private env = makeEnv();
+
+  constructor() {}
+
+  loadLibrary(lib: (env: Environment) => Environment) {
+    this.env = lib(this.env);
+  }
+
+  addBinding(spec: BindingSpec) {
+    this.env = addBinding(this.env, spec);
+  }
 
   async parse(code: string): Promise<Diagnostic[]> {
     let diagnostics: Diagnostic[] = [];

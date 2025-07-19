@@ -1,4 +1,5 @@
-import { EditorView, basicSetup } from "codemirror";
+import { EditorView } from "codemirror";
+import { basicSetup } from "./basicSetup";
 
 import { StreamLanguage } from "@codemirror/language";
 import { haskell } from "@codemirror/legacy-modes/mode/haskell";
@@ -8,26 +9,22 @@ import { evaluation } from "./evaluation";
 import { console as editorConsole } from "./console";
 
 import { editorTheme } from "./theme";
-
-// @ts-ignore
-import { dracula } from "thememirror/dist/index.js";
+import { nord } from "@fsegurai/codemirror-theme-nord";
 
 import { WeftRuntime } from "../weft/src";
 
 import { parseLinter } from "./linter";
 
-import strudel from "../strudel";
+import { core, boot, operators, controls } from "../strudel";
 import { hush } from "../strudel";
 import standardLib from "../standard-lib";
 
-import { makeEnv } from "../compiler/environment";
-
-let env = standardLib(makeEnv());
-
-// @ts-ignore
-env = strudel(env);
-
-const runtime = new WeftRuntime(env);
+const runtime = new WeftRuntime();
+runtime.loadLibrary(standardLib);
+runtime.loadLibrary(core);
+runtime.loadLibrary(boot);
+runtime.loadLibrary(operators);
+runtime.loadLibrary(controls);
 
 async function updateURLField(input: HTMLInputElement, doc: string) {
   const stream = new ReadableStream({
@@ -124,8 +121,8 @@ window.addEventListener("load", async () => {
       StreamLanguage.define(haskell),
       parseLinter(runtime),
       autosave,
-      dracula,
       editorTheme,
+      nord,
       highlighter(handlerSet),
     ],
     parent: document.getElementById("editor") ?? undefined,
