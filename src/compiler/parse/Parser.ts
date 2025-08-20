@@ -25,8 +25,10 @@ export class Parser extends BaseParser<Stmt[]> {
           statements.push(this.expressionStatement());
         } catch (error) {
           if (error instanceof ParseError) {
-            let { token, message } = error;
-            let { from, to } = tokenBounds(token);
+            let { token: first, message } = error;
+            let last = this.synchronize();
+            let { from } = tokenBounds(first);
+            let { to } = tokenBounds(last);
             statements.push({ is: Stmt.Is.Error, message, from, to });
           } else {
             throw error;

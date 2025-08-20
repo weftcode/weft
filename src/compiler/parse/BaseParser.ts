@@ -74,9 +74,12 @@ export abstract class BaseParser<T> {
   }
 
   protected synchronize() {
+    let last: Token.Source;
     do {
-      this.advance();
-      if (this.previous().type == TokenType.LineBreak) return;
+      last = this.advance();
+      if (this.previous().type == TokenType.LineBreak) return last;
     } while (!this.isAtEnd());
+
+    return last;
   }
 }
