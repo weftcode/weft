@@ -1,10 +1,11 @@
-import { KFunc, KType } from "../compiler/typecheck/BuiltIns";
+import { KFunc, KType, TConst } from "../compiler/typecheck/BuiltIns";
 import {
   BindingSpec,
   Environment,
   addDataType,
   addBinding,
-  // addClass,
+  addClass,
+  addInstance,
 } from "../compiler/environment";
 
 export type BindingsSpec = { [name: string]: Omit<BindingSpec, "name"> };
@@ -29,6 +30,19 @@ export default (env: Environment) => {
   for (let [name, binding] of Object.entries(standardLib)) {
     env = addBinding(env, { name, ...binding });
   }
+
+  // Equality
+  // env = addClass(env, {
+  //   name: "Eq",
+  //   superClasses: [],
+  //   methods: { "==": { type: "a -> a -> Boolean" } },
+  // });
+
+  // env = addInstance(env, {
+  //   preds: [],
+  //   inst: { isIn: "Eq", type: TConst("Boolean") },
+  //   methods: { "==": { value: (a: boolean, b: boolean) => a == b } },
+  // });
 
   return env;
 };
