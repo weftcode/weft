@@ -15,12 +15,18 @@ import {
   makeEnv,
 } from "../../compiler/environment";
 import { Evaluation } from "../../editor/console";
-// import { collectTypeDiagnostics } from "../../compiler/typecheck/old/Annotations_2";
 
 import { Diagnostic } from "@codemirror/lint";
 import { collectRenameErrors } from "../../compiler/errors/Renamer";
 import { TypeExt } from "../../compiler/typecheck/ASTExtensions";
 import { SolverError } from "../../compiler/typecheck/Solver";
+import { Expr } from "../../compiler/parse/AST/Expr";
+import { printType } from "../../compiler/typecheck/Printer";
+
+export interface ParseResult {
+  stmts: Stmt<TypeExt>[];
+  diagnostics: Diagnostic[];
+}
 
 interface EvaluationResults {
   results: Evaluation[];
@@ -42,8 +48,9 @@ export class WeftRuntime {
     this.env = addBinding(this.env, spec);
   }
 
-  async parse(code: string): Promise<Diagnostic[]> {
+  async parse(code: string): Promise<ParseResult> {
     let diagnostics: Diagnostic[] = [];
+    let typedStmts: Stmt<TypeExt>[] = [];
 
     try {
       const scanner = new Scanner(code);
@@ -59,7 +66,6 @@ export class WeftRuntime {
       diagnostics.push(...collectRenameErrors(renamedStmts));
 
       // TODO: This is kinda clunky
-      let typedStmts: Stmt<TypeExt>[] = [];
       let allTypeErrors: SolverError[] = [];
 
       for (let stmt of renamedStmts) {
@@ -71,6 +77,8 @@ export class WeftRuntime {
       for (let typeError of allTypeErrors) {
         diagnostics.push({ severity: "error", ...typeError });
       }
+
+      diagnostics.push(...collectTypeInfo(typedStmts));
     } catch (error) {
       if (error instanceof Error) {
         diagnostics.push({
@@ -84,7 +92,7 @@ export class WeftRuntime {
       throw error;
     }
 
-    return diagnostics;
+    return { stmts: typedStmts, diagnostics };
   }
 
   evaluate(code: string, offset = 0): EvaluationResults {
@@ -171,5 +179,62 @@ export class WeftRuntime {
     }
 
     return { results, miniLocations };
+  }
+}
+
+export function collectTypeInfo(stmts: Stmt<TypeExt>[]): Diagnostic[] {
+  return stmts.flatMap((stmt) => {
+    switch (stmt.is) {
+      case Stmt.Is.Expression:
+        return collectTypeInfoExpr(stmt.expression);
+      case Stmt.Is.Error:
+        return [];
+      default:
+        return stmt satisfies never;
+    }
+  });
+}
+
+function collectTypeInfoExpr(expr: Expr<TypeExt>): Diagnostic[] {
+  // Dispense with the simplest cases
+  switch (expr.is) {
+    case Expr.Is.Grouping:
+      return collectTypeInfoExpr(expr.expression);
+    case Expr.Is.Empty:
+    case Expr.Is.Error:
+      return [];
+  }
+
+  switch (expr.is) {
+    case Expr.Is.Variable:
+    case Expr.Is.Literal:
+      return [
+        {
+          severity: "info",
+          message: printType(expr.type),
+          ...expressionBounds(expr),
+        },
+      ];
+
+    case Expr.Is.Application:
+      return [
+        ...collectTypeInfoExpr(expr.left),
+        ...collectTypeInfoExpr(expr.right),
+      ];
+    case Expr.Is.Binary:
+      return [
+        ...collectTypeInfoExpr(expr.left),
+        ...collectTypeInfoExpr(expr.operator),
+        ...collectTypeInfoExpr(expr.right),
+      ];
+    case Expr.Is.Section:
+      return [
+        ...collectTypeInfoExpr(expr.operator),
+        ...collectTypeInfoExpr(expr.expression),
+      ];
+    case Expr.Is.List:
+      return expr.items.flatMap((e) => collectTypeInfoExpr(e));
+    default:
+      return expr satisfies never;
   }
 }
