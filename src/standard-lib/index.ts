@@ -34,6 +34,7 @@ export default (env: Environment) => {
   // Equality
   // env = addClass(env, {
   //   name: "Eq",
+  //   variable: "a",
   //   superClasses: [],
   //   methods: { "==": { type: "a -> a -> Boolean" } },
   // });

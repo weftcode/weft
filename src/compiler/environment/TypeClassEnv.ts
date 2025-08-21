@@ -15,6 +15,7 @@ export interface ClassDec {
 
 export interface ClassSpec {
   name: string;
+  variable: string;
   superClasses: string[];
   methods: { readonly [name: string]: { type: string; value?: any } };
 }
@@ -32,7 +33,7 @@ export interface InstanceSpec {
 
 export function addClass(env: Environment, spec: ClassSpec): Environment {
   let { typeClassEnv } = env;
-  let { name, superClasses } = spec;
+  let { name, variable, superClasses } = spec;
   if (name in typeClassEnv) {
     throw new Error(
       `Can't add new class ${name}: Class name is already defined`
@@ -43,12 +44,12 @@ export function addClass(env: Environment, spec: ClassSpec): Environment {
     throw new Error(`Can't add new class ${name}: Superclass is not defined`);
   }
 
-  // const methods = Object.fromEntries(
-  //   Object.entries(spec.methods).map(([fName, { type, value }]) => [
-  //     fName,
-  //     { type: null, value },
-  //   ])
-  // );
+  const methods = Object.fromEntries(
+    Object.entries(spec.methods).map(([fName, { type, value }]) => [
+      fName,
+      { type: null, value },
+    ])
+  );
 
   return {
     ...env,
