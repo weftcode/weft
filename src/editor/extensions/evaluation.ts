@@ -2,7 +2,7 @@ import { EditorView } from "codemirror";
 import { EditorState, Extension, StateEffect } from "@codemirror/state";
 import { keymap } from "@codemirror/view";
 
-import type { console as editorConsole } from "./console";
+import type { console as editorConsole } from "../console";
 
 import {
   evaluationEffect,
@@ -13,9 +13,9 @@ import {
 import {
   mininotationStringField,
   replaceMininotation,
-} from "../strudel/highlights/state";
+} from "../../strudel/highlights/state";
 
-import { WeftRuntime } from "../weft/src";
+import { WeftRuntime } from "../../weft/src";
 
 // export const evalTheme = EditorView.theme({
 //   "@keyframes cm-eval-flash": {

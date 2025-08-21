@@ -4,7 +4,7 @@ import { basicSetup } from "./basicSetup";
 import { StreamLanguage } from "@codemirror/language";
 import { haskell } from "@codemirror/legacy-modes/mode/haskell";
 
-import { evaluation } from "./evaluation";
+import { evaluation } from "./extensions/evaluation";
 
 import { console as editorConsole } from "./console";
 
@@ -13,7 +13,7 @@ import { nord } from "@fsegurai/codemirror-theme-nord";
 
 import { WeftRuntime } from "../weft/src";
 
-import { parseLinter } from "./linter";
+import { parseLinter } from "./extensions/linter";
 
 import { core, boot, operators, controls } from "../strudel";
 import { hush } from "../strudel";
