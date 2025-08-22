@@ -6,7 +6,7 @@ import { Parser } from "../Parser";
 import { makeEnv } from "../../environment";
 import prelude from "../../../standard-lib";
 
-const env = prelude(makeEnv()).typeEnv;
+const env = prelude(makeEnv());
 
 const basicCode = `
 -- Basic code example

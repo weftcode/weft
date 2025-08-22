@@ -1,9 +1,9 @@
 import { Expr } from "../parse/AST/Expr";
 import { Stmt } from "../parse/AST/Stmt";
-import { TypeEnv } from "../environment";
+import { Environment, getBinding } from "../environment";
 import { RenamerExt } from "./ASTExtensions";
 
-export function renameStmt(stmt: Stmt, context: TypeEnv): Stmt<RenamerExt> {
+export function renameStmt(stmt: Stmt, context: Environment): Stmt<RenamerExt> {
   switch (stmt.is) {
     case Stmt.Is.Expression:
       return {
@@ -17,7 +17,7 @@ export function renameStmt(stmt: Stmt, context: TypeEnv): Stmt<RenamerExt> {
   }
 }
 
-export function renameExpr(expr: Expr, context: TypeEnv): Expr<RenamerExt> {
+export function renameExpr(expr: Expr, context: Environment): Expr<RenamerExt> {
   switch (expr.is) {
     case Expr.Is.Literal:
     case Expr.Is.Empty:
@@ -25,7 +25,9 @@ export function renameExpr(expr: Expr, context: TypeEnv): Expr<RenamerExt> {
 
     // The main case
     case Expr.Is.Variable:
-      return expr.name.lexeme in context ? expr : { ...expr, missing: true };
+      return getBinding(context, expr.name.lexeme)
+        ? expr
+        : { ...expr, missing: true };
 
     case Expr.Is.Application:
       return {

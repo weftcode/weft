@@ -32,18 +32,18 @@ export default (env: Environment) => {
   }
 
   // Equality
-  // env = addClass(env, {
-  //   name: "Eq",
-  //   variable: "a",
-  //   superClasses: [],
-  //   methods: { "==": { type: "a -> a -> Boolean" } },
-  // });
+  env = addClass(env, {
+    name: "Eq",
+    variable: "a",
+    superClasses: [],
+    methods: { "==": { type: "a -> a -> Bool" } },
+  });
 
-  // env = addInstance(env, {
-  //   preds: [],
-  //   inst: { isIn: "Eq", type: TConst("Boolean") },
-  //   methods: { "==": { value: (a: boolean, b: boolean) => a == b } },
-  // });
+  env = addInstance(env, {
+    preds: [],
+    inst: { isIn: "Eq", type: TConst("Bool") },
+    methods: { "==": { value: (a: boolean, b: boolean) => a == b } },
+  });
 
   return env;
 };

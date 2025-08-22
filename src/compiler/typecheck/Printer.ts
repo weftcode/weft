@@ -21,8 +21,11 @@ export function printContext(preds: Predicate[]) {
   return parens(preds.map(printPred).join(", "), preds.length > 1);
 }
 
-export function printQualType({ preds, type }: QualType) {
-  return (preds.length ? `${printContext(preds)} => ` : "") + printType(type);
+export function printQualType({ preds, type }: QualType, parenthesize = false) {
+  return parens(
+    (preds.length ? `${printContext(preds)} => ` : "") + printType(type),
+    parenthesize
+  );
 }
 
 export function printType(type: Type, parenthesize = false): string {
@@ -67,6 +70,6 @@ function parens(text: string, parenthesize: boolean) {
   return (parenthesize ? "(" : "") + text + (parenthesize ? ")" : "");
 }
 
-export function printConstraint({ left, right }: Constraint) {
+export function printConstraint({ left, right }: Constraint.Equality) {
   return `${printType(left, true)} ~ ${printType(right, true)}`;
 }

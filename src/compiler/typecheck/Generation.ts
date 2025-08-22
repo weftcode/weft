@@ -2,7 +2,7 @@ import { Expr } from "../parse/AST/Expr";
 import { Stmt } from "../parse/AST/Stmt";
 import { TApp, TFunc, tList } from "./BuiltIns";
 
-import { Environment } from "../environment";
+import { Environment, getBinding } from "../environment";
 
 import { Type } from "./Type";
 import { TypeExt } from "./ASTExtensions";
@@ -24,12 +24,12 @@ export function infer(
 
     // Variable
     case Expr.Is.Variable:
-      if (expr.missing) {
+      let scheme = getBinding(env, expr.name.lexeme)?.type;
+      if (expr.missing || !scheme) {
         // If we're missing a variable, treat it as a typed hole
         return Inference.fresh().map((type) => ({ ...expr, type }));
       } else {
-        let scheme = env.typeEnv[expr.name.lexeme].type;
-        return freshInst(scheme).map(({ type }) => ({ ...expr, type }));
+        return freshInst(scheme).map(({ type }) => ({ ...expr, type, scheme }));
       }
 
     // Grouping

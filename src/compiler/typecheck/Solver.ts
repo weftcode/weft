@@ -13,7 +13,7 @@ interface Solution {
   errors: SolverError[];
 }
 
-export function solve(constraints: Constraint[]): Solution {
+export function solve(constraints: Constraint.Equality[]): Solution {
   let substitution: Substitution = {};
   let unificationErrors: Required<UnificationError>[] = [];
 

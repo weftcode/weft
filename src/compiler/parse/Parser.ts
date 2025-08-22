@@ -6,10 +6,10 @@ import { TokenType } from "../scan/TokenType";
 import { Expr } from "./AST/Expr";
 import { Stmt } from "./AST/Stmt";
 
-import { TypeEnv } from "../environment";
+import { Environment, getBinding } from "../environment";
 
 export class Parser extends BaseParser<Stmt[]> {
-  constructor(tokens: Token[], private environment: TypeEnv) {
+  constructor(tokens: Token[], private environment: Environment) {
     super(tokens);
   }
 
@@ -60,7 +60,7 @@ export class Parser extends BaseParser<Stmt[]> {
     let left = this.application();
 
     while (this.peek().type === TokenType.Operator) {
-      let op = this.environment[this.peek().lexeme];
+      let op = getBinding(this.environment, this.peek().lexeme);
       if (!op) {
         throw new ParseError(
           this.peek(),
@@ -170,7 +170,7 @@ export class Parser extends BaseParser<Stmt[]> {
 
       if (sectionOp) {
         let { operator, side } = sectionOp;
-        let op = this.environment[operator.name.lexeme];
+        let op = getBinding(this.environment, operator.name.lexeme);
 
         if (!op) {
           throw new ParseError(

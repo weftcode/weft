@@ -20,6 +20,10 @@ export function quantify(vs: Type.Var[], qt: QualType): TypeScheme {
   return { forAll: vs1.map((v) => kindOf(v)), qual: applyToQualType(s, qt) };
 }
 
+export function asScheme(type: Type) {
+  return quantify([], { preds: [], type });
+}
+
 export function instType(ts: Type[], type: Type): Type {
   switch (type.is) {
     case Type.Is.App:

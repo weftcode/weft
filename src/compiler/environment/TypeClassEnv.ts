@@ -1,15 +1,18 @@
-import { Environment } from ".";
+import { Binding, Environment, Precedence } from ".";
+import { parseTypeString, validateQualType } from "./utils";
+import { TVar } from "../typecheck/BuiltIns";
 import { Type } from "../typecheck/Type";
-import { Predicate, Instance, mguPred } from "../typecheck/TypeClass";
-import { TypeScheme } from "../typecheck/TypeScheme";
+import { Predicate, Instance, mguPred, QualType } from "../typecheck/TypeClass";
+import { quantify } from "../typecheck/TypeScheme";
 
 export type TypeClassEnv = {
   readonly [name: string]: ClassDec;
 };
 
 export interface ClassDec {
+  variable: Type.Var;
   superClasses: string[];
-  methods: { readonly [name: string]: { type: TypeScheme; value?: any } };
+  methods: { readonly [name: string]: Binding };
   instances: Instance[];
 }
 
@@ -17,7 +20,9 @@ export interface ClassSpec {
   name: string;
   variable: string;
   superClasses: string[];
-  methods: { readonly [name: string]: { type: string; value?: any } };
+  methods: {
+    readonly [name: string]: { type: string; value?: any; prec?: Precedence };
+  };
 }
 
 export interface InstanceSpec {
@@ -33,7 +38,7 @@ export interface InstanceSpec {
 
 export function addClass(env: Environment, spec: ClassSpec): Environment {
   let { typeClassEnv } = env;
-  let { name, variable, superClasses } = spec;
+  let { name, variable: varName, superClasses } = spec;
   if (name in typeClassEnv) {
     throw new Error(
       `Can't add new class ${name}: Class name is already defined`
@@ -44,20 +49,39 @@ export function addClass(env: Environment, spec: ClassSpec): Environment {
     throw new Error(`Can't add new class ${name}: Superclass is not defined`);
   }
 
+  let variable = TVar(varName);
+  let predicate = { isIn: name, type: variable };
+
   const methods = Object.fromEntries(
-    Object.entries(spec.methods).map(([fName, { type, value }]) => [
-      fName,
-      { type: null, value },
-    ])
+    Object.entries(spec.methods).map(
+      ([fName, { type: typeString, value, prec }]) => [
+        fName,
+        {
+          type: quantify(
+            [],
+            withPredicate(
+              predicate,
+              validateQualType(parseTypeString(typeString), env)
+            )
+          ),
+          value,
+          prec,
+        },
+      ]
+    )
   );
 
   return {
     ...env,
     typeClassEnv: {
       ...typeClassEnv,
-      [name]: { superClasses, methods: {}, instances: [] },
+      [name]: { variable, superClasses, methods, instances: [] },
     },
   };
+}
+
+function withPredicate(pred: Predicate, { preds, type }: QualType) {
+  return { preds: [pred, ...preds], type };
 }
 
 export function addInstance(env: Environment, spec: InstanceSpec): Environment {

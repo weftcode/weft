@@ -21,7 +21,8 @@ import { collectRenameErrors } from "../../compiler/errors/Renamer";
 import { TypeExt } from "../../compiler/typecheck/ASTExtensions";
 import { SolverError } from "../../compiler/typecheck/Solver";
 import { Expr } from "../../compiler/parse/AST/Expr";
-import { printType } from "../../compiler/typecheck/Printer";
+import { printQualType } from "../../compiler/typecheck/Printer";
+import { asScheme } from "../../compiler/typecheck/TypeScheme";
 
 export interface ParseResult {
   stmts: Stmt<TypeExt>[];
@@ -55,13 +56,13 @@ export class WeftRuntime {
     try {
       const scanner = new Scanner(code);
       const tokens = scanner.scanTokens();
-      const parser = new Parser(tokens, this.env.typeEnv);
+      const parser = new Parser(tokens, this.env);
       const stmts = parser.parse();
 
       diagnostics.push(...collectErrors(stmts));
 
       // Run renamer to check for undefined variables
-      let renamedStmts = stmts.map((s) => renameStmt(s, this.env.typeEnv));
+      let renamedStmts = stmts.map((s) => renameStmt(s, this.env));
 
       diagnostics.push(...collectRenameErrors(renamedStmts));
 
@@ -102,14 +103,12 @@ export class WeftRuntime {
     try {
       const scanner = new Scanner(code);
       const tokens = scanner.scanTokens();
-      const parser = new Parser(tokens, this.env.typeEnv);
+      const parser = new Parser(tokens, this.env);
       const stmts = parser.parse();
 
       const errors = collectErrors(stmts);
 
-      const renamedStmts = stmts.map((stmt) =>
-        renameStmt(stmt, this.env.typeEnv)
-      );
+      const renamedStmts = stmts.map((stmt) => renameStmt(stmt, this.env));
 
       errors.push(...collectRenameErrors(renamedStmts));
 
@@ -211,7 +210,7 @@ function collectTypeInfoExpr(expr: Expr<TypeExt>): Diagnostic[] {
       return [
         {
           severity: "info",
-          message: printType(expr.type),
+          message: printQualType(expr.scheme?.qual ?? asScheme(expr.type).qual),
           ...expressionBounds(expr),
         },
       ];
