@@ -68,7 +68,11 @@ export function byInst(ce: TypeClassEnv, pred: Predicate) {
   );
 }
 
-function entail(ce: TypeClassEnv, ps: Predicate[], p: Predicate): boolean {
+export function entail(
+  ce: TypeClassEnv,
+  ps: Predicate[],
+  p: Predicate
+): boolean {
   let checkSupers = ps
     .map((p1) => bySuper(ce, p1))
     .some((ps1) => ps1.some((p2) => eq(p, p2)));

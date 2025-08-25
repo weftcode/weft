@@ -29,7 +29,11 @@ export function infer(
         // If we're missing a variable, treat it as a typed hole
         return Inference.fresh().map((type) => ({ ...expr, type }));
       } else {
-        return freshInst(scheme).map(({ type }) => ({ ...expr, type, scheme }));
+        return freshInst(scheme, expr).map(({ type }) => ({
+          ...expr,
+          type,
+          scheme,
+        }));
       }
 
     // Grouping

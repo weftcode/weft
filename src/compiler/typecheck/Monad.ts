@@ -7,6 +7,7 @@ import { Constraint } from "./Constraint";
 
 import { Expr } from "../parse/AST/Expr";
 import { TypeExt } from "./ASTExtensions";
+import { RenamerExt } from "../rename/ASTExtensions";
 
 interface InferState<A> {
   num: number;
@@ -89,8 +90,24 @@ export function unify(left: Type, right: Type, source: Expr<TypeExt>) {
   });
 }
 
-export function freshInst({ forAll, qual }: TypeScheme) {
-  return Inference.mapList(Inference.fresh, forAll).bind((ts) =>
-    Inference.pure(instQualType(ts, qual))
-  );
+export function freshInst(
+  { forAll, qual }: TypeScheme,
+  source: Expr<RenamerExt>
+) {
+  return Inference.mapList(Inference.fresh, forAll).bind((ts) => {
+    const instantiated = instQualType(ts, qual);
+    return instantiated.preds
+      .reduce(
+        (prev, pred) =>
+          prev.then(
+            Inference.addConstraint({
+              is: Constraint.Is.Class,
+              pred,
+              source,
+            })
+          ),
+        Inference.pure(null)
+      )
+      .then(Inference.pure(instQualType(ts, qual)));
+  });
 }

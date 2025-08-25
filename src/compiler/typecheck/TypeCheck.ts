@@ -26,11 +26,7 @@ export function typecheckStmt(
           ])
         )
         .run();
-      // For now, only solve equality constraints
-      let eqConstraints = constraints.flatMap((ct) =>
-        ct.is === Constraint.Is.Equality ? [ct] : []
-      );
-      let { substitution, errors } = solve(eqConstraints);
+      let { substitution, errors } = solve(constraints, env.typeClassEnv);
       expression = applyToExpr(expression, substitution);
       return [{ ...statement, expression }, errors];
     case Stmt.Is.Error:

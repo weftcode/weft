@@ -70,6 +70,13 @@ function parens(text: string, parenthesize: boolean) {
   return (parenthesize ? "(" : "") + text + (parenthesize ? ")" : "");
 }
 
-export function printConstraint({ left, right }: Constraint.Equality) {
-  return `${printType(left, true)} ~ ${printType(right, true)}`;
+export function printConstraint(constraint: Constraint) {
+  switch (constraint.is) {
+    case Constraint.Is.Equality:
+      let { left, right } = constraint;
+      return `${printType(left, true)} ~ ${printType(right, true)}`;
+    case Constraint.Is.Class:
+      let { pred } = constraint;
+      return `${printPred(pred)}`;
+  }
 }

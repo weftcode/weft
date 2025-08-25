@@ -1,19 +1,48 @@
-import { applyToType, combine, Substitution } from "./Substitution";
+import {
+  applyToPred,
+  applyToType,
+  combine,
+  Substitution,
+} from "./Substitution";
 import { mgu } from "./Unification";
 import { Constraint } from "./Constraint";
 import { expressionBounds } from "../parse/Utils";
 import { Type } from "./Type";
 
-import { printType } from "./Printer";
+import { printConstraint, printPred, printType } from "./Printer";
 
 import { Expr } from "../parse/AST/Expr";
+import { TypeClassEnv } from "../environment";
+import { entail } from "./TypeClass";
 
 interface Solution {
   substitution: Substitution;
   errors: SolverError[];
 }
 
-export function solve(constraints: Constraint.Equality[]): Solution {
+export function solve(constraints: Constraint[], env: TypeClassEnv): Solution {
+  let { substitution, errors } = solveEq(constraints.filter(isEqConstraint));
+
+  errors.push(
+    ...solveClass(substitution, constraints.filter(isClassConstraint), env)
+  );
+
+  return { substitution, errors };
+}
+
+function isEqConstraint(
+  constraint: Constraint
+): constraint is Constraint.Equality {
+  return constraint.is === Constraint.Is.Equality;
+}
+
+function isClassConstraint(
+  constraint: Constraint
+): constraint is Constraint.Class {
+  return constraint.is === Constraint.Is.Class;
+}
+
+function solveEq(constraints: Constraint.Equality[]): Solution {
   let substitution: Substitution = {};
   let unificationErrors: Required<UnificationError>[] = [];
 
@@ -45,6 +74,32 @@ export function solve(constraints: Constraint.Equality[]): Solution {
   );
 
   return { substitution, errors };
+}
+
+function solveClass(
+  substitution: Substitution,
+  constraints: Constraint.Class[],
+  env: TypeClassEnv
+) {
+  let errors: SolverError[] = [];
+
+  for (let { source, pred } of constraints) {
+    pred = applyToPred(substitution, pred);
+    console.log(`Checking constraint: ${printPred(pred)}`);
+    if (entail(env, [], pred)) {
+      // TODO: Collect dictionaries
+    } else {
+      let { isIn, type } = pred;
+      errors.push({
+        message: `Couldn't find an instance of the class ${isIn} for type ${printType(
+          type
+        )}`,
+        ...expressionBounds(source),
+      });
+    }
+  }
+
+  return errors;
 }
 
 export function isUnificationError(error: unknown): error is UnificationError {

@@ -1,5 +1,6 @@
 import { Expr } from "../parse/AST/Expr";
 import { Type } from "./Type";
+import { Predicate } from "./TypeClass";
 
 export type Constraint = Constraint.Equality | Constraint.Class;
 
@@ -18,8 +19,7 @@ export namespace Constraint {
 
   export interface Class {
     is: Is.Class;
-    type: Type;
-    isIn: string;
+    pred: Predicate;
     source: Expr;
   }
 }
