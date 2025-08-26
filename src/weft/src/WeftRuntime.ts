@@ -8,12 +8,7 @@ import { typecheckStmt } from "../../compiler/typecheck/TypeCheck";
 import { Interpreter, Location } from "../../compiler/Interpreter";
 import { collectErrors } from "../../compiler/errors/Errors";
 
-import {
-  addBinding,
-  BindingSpec,
-  Environment,
-  makeEnv,
-} from "../../compiler/environment";
+import { addBinding, Environment, makeEnv } from "../../compiler/environment";
 import { Evaluation } from "../../editor/console";
 
 import { Diagnostic } from "@codemirror/lint";
@@ -22,6 +17,8 @@ import { TypeExt } from "../../compiler/typecheck/ASTExtensions";
 import { SolverError } from "../../compiler/typecheck/Solver";
 import { Expr } from "../../compiler/parse/AST/Expr";
 import { printType } from "../../compiler/typecheck/Printer";
+
+import { BindingSpec, validateSpec } from "./environment/Type";
 
 export interface ParseResult {
   stmts: Stmt<TypeExt>[];
@@ -45,7 +42,7 @@ export class WeftRuntime {
   }
 
   addBinding(spec: BindingSpec) {
-    this.env = addBinding(this.env, spec);
+    this.env = addBinding(this.env, spec.name, validateSpec(this.env, spec));
   }
 
   async parse(code: string): Promise<ParseResult> {

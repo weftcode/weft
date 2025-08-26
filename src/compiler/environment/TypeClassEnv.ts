@@ -1,4 +1,9 @@
-import { Environment } from ".";
+import { Binding, Environment, Precedence } from ".";
+import {
+  parseTypeString,
+  validateQualType,
+} from "../../weft/src/environment/utils";
+import { TVar } from "../typecheck/BuiltIns";
 import { Type } from "../typecheck/Type";
 import { Predicate, Instance, mguPred } from "../typecheck/TypeClass";
 import { TypeScheme } from "../typecheck/TypeScheme";
@@ -12,23 +17,6 @@ export interface ClassDec {
   methods: { readonly [name: string]: { type: TypeScheme; value?: any } };
   instances: Instance[];
 }
-
-export interface ClassSpec {
-  name: string;
-  superClasses: string[];
-  methods: { readonly [name: string]: { type: string; value?: any } };
-}
-
-export interface InstanceSpec {
-  preds: Predicate[];
-  inst: Predicate;
-  methods: { readonly [name: string]: { value: any } };
-}
-
-// const modify = ({ classes, defaults }: ClassEnv, id: Id, c: Class) => ({
-//   classes: { ...classes, [id]: c },
-//   defaults,
-// });
 
 export function addClass(env: Environment, spec: ClassSpec): Environment {
   let { typeClassEnv } = env;
