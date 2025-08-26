@@ -1,12 +1,12 @@
-import { Environment } from ".";
-import { TypeConEnv } from ".";
+import { Environment } from "../../../compiler/environment";
+import { TypeConEnv } from "../../../compiler/environment";
 
-import { Scanner } from "../scan/Scanner";
-import { TypeParser } from "../parse/TypeParser";
-import { TypeNode } from "../parse/AST/TypeNode";
+import { Scanner } from "../../../compiler/scan/Scanner";
+import { TypeParser } from "../../../compiler/parse/TypeParser";
+import { TypeNode } from "../../../compiler/parse/AST/TypeNode";
 
-import { Type, Kind } from "../typecheck/Type";
-import { QualType, Predicate } from "../typecheck/TypeClass";
+import { Type, Kind } from "../../../compiler/typecheck/Type";
+import { QualType, Predicate } from "../../../compiler/typecheck/TypeClass";
 
 import {
   KFunc,
@@ -15,7 +15,7 @@ import {
   tList,
   TTuple,
   tUnit,
-} from "../typecheck/BuiltIns";
+} from "../../../compiler/typecheck/BuiltIns";
 
 export function parseTypeString(typeString: string) {
   let tokens = new Scanner(typeString).scanTokens();
