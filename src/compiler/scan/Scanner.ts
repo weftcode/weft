@@ -1,6 +1,69 @@
 import { Token } from "./Token";
 import { TokenType } from "./TokenType";
 
+import { State } from "../utils/State";
+
+interface ScanState {
+  source: string;
+  start: number;
+  current: number;
+  line: number;
+  lineStart: number;
+}
+
+type Scan<A> = State<ScanState, A>;
+
+export namespace Scan {
+  const get: Scan<ScanState> = State.get();
+
+  const modify = State.modify<ScanState>;
+
+  export function peek() {
+    return isAtEnd.bind((atEnd) =>
+      atEnd
+        ? State.of("\0")
+        : get.map(({ source, current }) => source.charAt(current))
+    );
+  }
+
+  // private peekNext() {
+  //   if (this.current + 1 >= this.source.length) return "\0";
+  //   return this.source.charAt(this.current + 1);
+  // }
+
+  // private isAlpha(c: string) {
+  //   return !!c.match(/^[a-zA-Z_]$/);
+  // }
+
+  // private isAlphaNumeric(c: string) {
+  //   return this.isAlpha(c) || this.isDigit(c);
+  // }
+
+  // private isDigit(c: string) {
+  //   return !!c.match(/^[0-9]$/);
+  // }
+
+  export const isAtEnd: Scan<boolean> = get.map(
+    ({ current, source }) => current >= source.length
+  );
+
+  export function advance(): Scan<string> {
+    return get.bind(({ current, ...state }) =>
+      State.put({ current: current + 1, ...state }).then(
+        State.of(state.source.charAt(current))
+      )
+    );
+  }
+
+  export function advanceLine() {
+    return modify(({ line, lineStart, ...state }) => ({
+      ...state,
+      line: line + 1,
+      lineStart: state.current,
+    }));
+  }
+}
+
 export class Scanner {
   private tokens: Token[] = [];
   private start = 0;
@@ -128,14 +191,6 @@ export class Scanner {
 
     // Trim the surrounding quotes.
     this.addToken(TokenType.String);
-  }
-
-  private match(expected: string) {
-    if (this.isAtEnd()) return false;
-    if (this.source.charAt(this.current) != expected) return false;
-
-    this.current++;
-    return true;
   }
 
   private peek() {
