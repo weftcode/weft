@@ -2,11 +2,11 @@ import { Kind, Type } from "./Type";
 
 import { eq } from "../../utils";
 
-export const KType: Kind = {
+export const KType: Kind.Type = {
   is: Kind.Is.Type,
 };
 
-export function KFunc(left: Kind, right: Kind) {
+export function KFunc(left: Kind, right: Kind): Kind.Function {
   return {
     is: Kind.Is.Function,
     left,
@@ -18,7 +18,7 @@ export function TVar(id: string, kind = KType): Type.Var {
   return { is: Type.Is.Var, id, kind };
 }
 
-export function TConst(id: string, kind = KType): Type.Const {
+export function TConst(id: string, kind: Kind = KType): Type.Const {
   return {
     is: Type.Is.Const,
     id,
@@ -40,7 +40,7 @@ export function TFunc(left: Type, right: Type): Type.App {
 
 export function TTuple(arity: number) {
   // Assume arity >= 2
-  let kind = KType;
+  let kind: Kind = KType;
   for (let i = 0; i < arity - 1; ++i) {
     kind = KFunc(KType, kind);
   }
