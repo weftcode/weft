@@ -2,19 +2,18 @@ add :: Pattern Number -> Pattern Number -> Pattern Number
 and :: Pattern Bool -> Pattern Bool -> Pattern Bool
 apply :: Pattern (a -> b) -> Pattern a -> Pattern b
 arp :: Pattern String -> Pattern a -> Pattern a
-arpWith :: Any
-arrange :: Any
-band :: Any
+arpWith :: Pattern ([a] -> b) -> Pattern a -> Pattern b
+arrange :: [(Number, Pattern a)] -> Pattern a
+band :: Pattern Number -> Pattern Number -> Pattern Number
 beat :: Any
 bind :: (a -> Pattern b) -> Pattern a -> Pattern b
 bite :: Pattern Number -> Pattern Number -> Pattern a -> Pattern a
-blshift :: Any
-bor :: Any
+blshift :: Pattern Number -> Pattern Number -> Pattern Number
+bor :: Pattern Number -> Pattern Number -> Pattern Number
 brak :: Pattern a -> Pattern a
-brshift :: Any
-bxor :: Any
-bypass :: Any
-calculateSteps :: Any
+brshift :: Pattern Number -> Pattern Number -> Pattern Number
+bxor :: Pattern Number -> Pattern Number -> Pattern Number
+bypass :: Pattern Number -> Pattern a -> Pattern a
 cat :: [Pattern a] -> Pattern a
 ceil :: Pattern Number -> Pattern Number
 chop :: Pattern Number -> Pattern Controls -> Pattern Controls
@@ -36,7 +35,7 @@ drop :: Pattern Number -> Pattern a -> Pattern a
 early :: Pattern Number -> Pattern a -> Pattern a
 echo :: Pattern Number -> Pattern Number -> Pattern Number -> Pattern Controls -> Pattern Controls
 echoWith :: Pattern Number -> Pattern Number -> (Pattern a -> Pattern a) -> Pattern a -> Pattern a
-echowith :: Any
+echowith :: Pattern Number -> Pattern Number -> (Pattern a -> Pattern a) -> Pattern a -> Pattern a
 eq :: Eq a => Pattern a -> Pattern a -> Pattern Bool
 eqt :: Eq a => Pattern a -> Pattern a -> Pattern Bool
 every :: Pattern Number -> (Pattern a -> Pattern a) -> Pattern a -> Pattern a
@@ -48,8 +47,8 @@ fastGap :: Pattern Number -> Pattern a -> Pattern a
 fastcat :: [Pattern a] -> Pattern a
 fastchunk :: Pattern Number -> (Pattern a -> Pattern a) -> Pattern a -> Pattern a
 fastgap :: Pattern Number -> Pattern a -> Pattern a
-filter :: Any
-filterWhen :: Any
+filter :: Pattern (Hap a -> Bool) -> Pattern a -> Pattern a
+filterWhen :: Pattern (Number -> Bool) -> Pattern a -> Pattern a
 firstOf :: Pattern Number -> (Pattern a -> Pattern a) -> Pattern a -> Pattern a
 fit :: Pattern Number -> [a] -> Pattern Number -> Pattern a
 floor :: Pattern Number -> Pattern Number
@@ -62,14 +61,13 @@ gap :: Number -> Pattern a
 grow :: Pattern Number -> Pattern a -> Pattern a
 gt :: Ord a => Pattern a -> Pattern a -> Pattern Bool
 gte :: Ord a => Pattern a -> Pattern a -> Pattern Bool
-hsl :: Any
-hsla :: Any
+hsl :: Pattern Number -> Pattern Number -> Pattern Number -> Pattern Controls
+hsla :: Pattern Number -> Pattern Number -> Pattern Number -> Pattern Number -> Pattern Controls
 hurry :: Pattern Number -> Pattern Controls -> Pattern Controls
 innerBind :: (a -> Pattern b) -> Pattern a -> Pattern b
 inside :: Pattern Number -> (Pattern a -> Pattern b) -> Pattern a -> Pattern b
 inv :: Pattern Bool -> Pattern Bool
-invert :: Any
-isPattern :: Any
+invert :: Pattern Number -> Pattern Number
 iter :: Pattern Number -> Pattern a -> Pattern a
 iterBack :: Pattern Number -> Pattern a -> Pattern a
 iterback :: Pattern Number -> Pattern a -> Pattern a
@@ -77,7 +75,7 @@ jux :: (Pattern Controls -> Pattern Controls) -> Pattern Controls -> Pattern Con
 juxBy :: Pattern Number -> (Pattern Controls -> Pattern Controls) -> Pattern Controls -> Pattern Controls
 juxby :: Pattern Number -> (Pattern Controls -> Pattern Controls) -> Pattern Controls -> Pattern Controls
 keep :: Any
-keepif :: Any
+keepif :: Pattern a -> Pattern Boolean -> Pattern a
 lastOf :: Pattern Number -> (Pattern a -> Pattern a) -> Pattern a -> Pattern a
 late :: Pattern Number -> Pattern a -> Pattern a
 linger :: Pattern Number -> Pattern a -> Pattern a
@@ -113,20 +111,20 @@ pure :: a -> Pattern a
 range :: Pattern Number -> Pattern Number -> Pattern Number -> Pattern Number
 range2 :: Pattern Number -> Pattern Number -> Pattern Number -> Pattern Number
 rangex :: Pattern Number -> Pattern Number -> Pattern Number -> Pattern Number
-ratio :: Any
-ref :: Any
+ratio :: Pattern [Number] -> Pattern Number
+ref :: IO a -> Pattern a
 repeatCycles :: Pattern Number -> Pattern a -> Pattern a
 rev :: Pattern a -> Pattern a
-rib :: Any
-ribbon :: Any
+rib :: Pattern Number -> Pattern Number -> Pattern a -> Pattern a
+ribbon :: Pattern Number -> Pattern Number -> Pattern a -> Pattern a
 round :: Pattern Number -> Pattern Number
 seg :: Pattern Number -> Pattern a -> Pattern a
 segment :: Pattern Number -> Pattern a -> Pattern a
-seq :: Any
-seqPLoop :: Any
-sequence :: Any
-sequenceP :: Any
-set :: Any
+seq :: [Pattern a] -> Pattern a
+seqPLoop :: [(Number, Number, Pattern a)] -> Pattern a
+sequence :: [Pattern a] -> Pattern a
+sequenceP :: [Pattern a] -> Pattern [a]
+set :: Pattern a -> Pattern b -> Pattern b
 shrink :: Pattern Number -> Pattern a -> Pattern a
 shrinklist :: Any
 silence :: Pattern a
@@ -152,14 +150,14 @@ striate :: Pattern Number -> Pattern Controls -> Pattern Controls
 struct :: Pattern Bool -> Pattern a -> Pattern a
 stut :: Pattern Number -> Pattern Number -> Pattern Number -> Pattern Controls -> Pattern Controls
 stutWith :: Pattern Number -> Pattern Number -> (Pattern a -> Pattern a) -> Pattern a -> Pattern a
-stutwith :: Any
+stutwith :: Pattern Number -> Pattern Number -> (Pattern a -> Pattern a) -> Pattern a -> Pattern a
 sub :: Pattern Number -> Pattern Number -> Pattern Number
 superimpose :: [Pattern a -> Pattern a] -> Pattern a -> Pattern a
 swing :: Pattern Number -> Pattern a -> Pattern a
 swingBy :: Pattern Number -> Pattern Number -> Pattern a -> Pattern a
 take :: Pattern Number -> Pattern a -> Pattern a
-timeCat :: Any
-timecat :: Any
+timeCat :: [Pattern a] -> Pattern a
+timecat :: [Pattern a] -> Pattern a
 toBipolar :: Pattern Number -> Pattern Number
 tour :: Pattern a -> [Pattern a] -> Pattern a
 when :: (Number -> Bool) -> (Pattern a -> Pattern a) -> Pattern a -> Pattern a

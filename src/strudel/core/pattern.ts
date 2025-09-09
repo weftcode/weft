@@ -15,6 +15,12 @@ export const polymeter = (patterns) => Base.polymeter(...patterns);
 export const pm = polymeter;
 
 export const cat = (patterns) => Base.cat(...patterns);
+export const slowcat = (patterns) => Base.cat(...patterns);
+export const seq = (patterns) => Base.seq(...patterns);
+export const sequence = (patterns) => Base.seq(...patterns);
+export const fastcat = (patterns) => Base.seq(...patterns);
 
 export const stepcat = (patterns) => Base.stepcat(...patterns);
+export const timeCat = (patterns) => Base.stepcat(...patterns);
+export const timeCat = (patterns) => Base.stepcat(...patterns);
 export const zip = (patterns) => Base.zip(...patterns);
