@@ -16,7 +16,7 @@ export function getBinding(
   env: Environment,
   name: string
 ): Binding | undefined {
-  let { typeEnv, typeClassEnv } = env;
+  let { typeEnv, typeClassEnv, typeConEnv } = env;
 
   // First, check if name is bound in type environment
   if (name in typeEnv) return typeEnv[name];
@@ -24,6 +24,13 @@ export function getBinding(
   // Then check if name is bound as a type class method
   for (let { methods } of Object.values(typeClassEnv)) {
     if (name in methods) return methods[name];
+  }
+
+  // Then check if name is bound as a data constructor
+  for (let { dataCons } of Object.values(typeConEnv)) {
+    for (let { name: dataConName, ...dataCon } of dataCons) {
+      if (dataConName === name) return dataCon;
+    }
   }
 
   return undefined;

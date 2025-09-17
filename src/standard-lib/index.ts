@@ -16,16 +16,51 @@ export default (env: Environment) => {
   env = addDataType(env, {
     name: "Bool",
     kind: KType,
-    dataCons: [{ name: "True" }, { name: "False" }],
+    dataCons: [
+      { name: "True", type: "Bool", value: true },
+      { name: "False", type: "Bool", value: false },
+    ],
   });
+
   env = addDataType(env, {
     name: "IO",
     kind: KFunc(KType, KType),
     dataCons: [],
   });
 
-  // env = addClass(env, { name: "FromNumber", superClasses: [], methods: {} });
-  // env = addClass(env, { name: "FromString", superClasses: [], methods: {} });
+  env = addClass(env, {
+    name: "NumberLit",
+    variable: "a",
+    superClasses: [],
+    methods: {
+      fromNumberLit: { type: "String -> a" },
+    },
+  });
+
+  env = addInstance(env, {
+    preds: [],
+    inst: { isIn: "NumberLit", type: TConst("Number") },
+    methods: {
+      fromNumberLit: { value: (literal: string) => parseFloat(literal) },
+    },
+  });
+
+  env = addClass(env, {
+    name: "StringLit",
+    variable: "a",
+    superClasses: [],
+    methods: {
+      fromStringLit: { type: "String -> a" },
+    },
+  });
+
+  env = addInstance(env, {
+    preds: [],
+    inst: { isIn: "StringLit", type: TConst("String") },
+    methods: {
+      fromStringLit: { value: (literal: string) => literal },
+    },
+  });
 
   for (let [name, binding] of Object.entries(standardLib)) {
     env = addBinding(env, { name, ...binding });
