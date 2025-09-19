@@ -38,7 +38,7 @@ export const { type } = fc.letrec<LetRecOf<Type, "type">>((tie) => ({
   }),
   [Type.Is.Gen]: fc.record({
     is: fc.constant(Type.Is.Gen),
-    num: fc.integer(),
+    num: fc.nat(),
   }),
   [Type.Is.App]: fc.record({
     is: fc.constant(Type.Is.App),
