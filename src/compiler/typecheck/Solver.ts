@@ -4,7 +4,7 @@ import {
   combine,
   Substitution,
 } from "./Substitution";
-import { mgu } from "./Unification";
+import { mgu, match } from "./Unification";
 import { Constraint } from "./Constraint";
 import { expressionBounds } from "../parse/Utils";
 import { Type } from "./Type";
@@ -13,7 +13,7 @@ import { printConstraint, printPred, printType } from "./Printer";
 
 import { Expr } from "../parse/AST/Expr";
 import { TypeClassEnv } from "../environment";
-import { entail } from "./TypeClass";
+import { byInst, entail } from "./TypeClass";
 
 interface Solution {
   substitution: Substitution;
@@ -88,6 +88,9 @@ function solveClass(
     console.log(`Checking constraint: ${printPred(pred)}`);
     if (entail(env, [], pred)) {
       // TODO: Collect dictionaries
+      for (let inst of env[pred.isIn]?.instances ?? []) {
+        console.log(inst);
+      }
     } else {
       let { isIn, type } = pred;
       errors.push({

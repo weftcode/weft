@@ -1,4 +1,12 @@
-import { TConst } from "../compiler/typecheck/BuiltIns";
+import {
+  KFunc,
+  KType,
+  TApp,
+  TConst,
+  TVar,
+  tList,
+} from "../compiler/typecheck/BuiltIns";
+
 import {
   Environment,
   addDataType,
@@ -12,18 +20,30 @@ export default {
   datatypes: {
     Number: {},
     String: {},
-    Bool: { constructors: [{ name: "True" }, { name: "False" }] },
+    Bool: {
+      constructors: [
+        { name: "True", value: true },
+        { name: "False", value: false },
+      ],
+    },
     IO: { vars: ["a"] },
   },
   classes: {
-    // env = addClass(env, { name: "FromNumber", superClasses: [], methods: {} });
-    // env = addClass(env, { name: "FromString", superClasses: [], methods: {} });
-
     // Equality
-    Eq: {
-      variable: "a",
-      superClasses: [],
+    "Eq a": {
       methods: { "==": { type: "a -> a -> Bool" } },
+    },
+
+    // Literals
+    "NumberLit a": {
+      methods: {
+        fromNumberLit: { type: "String -> a" },
+      },
+    },
+    "StringLit a": {
+      methods: {
+        fromStringLit: { type: "String -> a" },
+      },
     },
   },
   vars: {
@@ -95,6 +115,34 @@ export default {
     preds: [],
     inst: { isIn: "Eq", type: TConst("Bool") },
     methods: { "==": { value: (a: boolean, b: boolean) => a == b } },
+  });
+
+  // TODO: Approximate instance for Eq a => Eq [a]
+  // env = addInstance(env, {
+  //   preds: [{ isIn: "Eq", type: TVar("a") }],
+  //   inst: { isIn: "Eq", type: TApp(tList, TVar("a")) },
+  //   methods: <A>(eqA: any) => ({
+  //     "==": {
+  //       value: (as: A[], bs: A[]) =>
+  //         as.length === bs.length && as.every((a, i) => eqA["=="](a, bs[i])),
+  //     },
+  //   }),
+  // });
+
+  env = addInstance(env, {
+    preds: [],
+    inst: { isIn: "NumberLit", type: TConst("Number") },
+    methods: {
+      fromNumberLit: { value: (literal: string) => parseFloat(literal) },
+    },
+  });
+
+  env = addInstance(env, {
+    preds: [],
+    inst: { isIn: "StringLit", type: TConst("String") },
+    methods: {
+      fromStringLit: { value: (literal: string) => literal },
+    },
   });
 
   return env;

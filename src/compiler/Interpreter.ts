@@ -5,7 +5,7 @@ import { Stmt } from "./parse/AST/Stmt";
 import { Pattern, parseMini } from "../strudel";
 import { TokenType } from "./scan/TokenType";
 import { Type } from "./typecheck/Type";
-import { TypeEnv } from "./environment";
+import { Environment, getBinding } from "./environment";
 import { TypeExt } from "./typecheck/ASTExtensions";
 
 type Value = Value[] | ((input: Value) => Value);
@@ -13,7 +13,7 @@ type Value = Value[] | ((input: Value) => Value);
 export type Location = [string, { from: number; to: number }];
 
 export class Interpreter {
-  constructor(private bindings: TypeEnv) {}
+  constructor(private env: Environment) {}
 
   private currentID: number = 0;
 
@@ -99,7 +99,13 @@ export class Interpreter {
         };
       }
       case Expr.Is.Variable:
-        return this.bindings[expr.name.lexeme].value;
+        let binding = getBinding(this.env, expr.name.lexeme);
+        if (binding === undefined) {
+          throw new Error(
+            `Environment has no value for variable ${expr.name.lexeme}`
+          );
+        }
+        return binding.value;
       case Expr.Is.Application: {
         const left = this.curry(expr.left);
         const right = this.evaluate(expr.right);

@@ -1,13 +1,21 @@
 // @ts-nocheck
 
 import * as strudelCore from "@strudel/core";
+import { mini } from "@strudel/mini";
 import {
   Environment,
   addDataType,
   addBinding,
   BindingSpec,
+  addInstance,
 } from "../compiler/environment";
-import { KFunc, KType } from "../compiler/typecheck/BuiltIns";
+import {
+  KFunc,
+  KType,
+  TApp,
+  TConst,
+  TVar,
+} from "../compiler/typecheck/BuiltIns";
 
 export default (env: Environment) => {
   env = addDataType(env, {
@@ -15,6 +23,18 @@ export default (env: Environment) => {
     kind: KFunc(KType, KType),
     dataCons: [],
   });
+
+  env = addInstance(env, {
+    preds: [],
+    inst: {
+      isIn: "StringLit",
+      type: TApp(TConst("Pattern", KFunc(KType, KType)), TVar("a")),
+    },
+    methods: {
+      fromStringLit: { value: mini },
+    },
+  });
+
   env = addDataType(env, { name: "Controls", kind: KType, dataCons: [] });
 
   for (let [name, binding] of Object.entries(core)) {
