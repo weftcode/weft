@@ -1,4 +1,12 @@
-import { KFunc, KType, TConst } from "../compiler/typecheck/BuiltIns";
+import {
+  KFunc,
+  KType,
+  TApp,
+  TConst,
+  TVar,
+  tList,
+} from "../compiler/typecheck/BuiltIns";
+
 import {
   BindingSpec,
   Environment,
@@ -79,6 +87,18 @@ export default (env: Environment) => {
     inst: { isIn: "Eq", type: TConst("Bool") },
     methods: { "==": { value: (a: boolean, b: boolean) => a == b } },
   });
+
+  // TODO: Approximate instance for Eq a => Eq [a]
+  // env = addInstance(env, {
+  //   preds: [{ isIn: "Eq", type: TVar("a") }],
+  //   inst: { isIn: "Eq", type: TApp(tList, TVar("a")) },
+  //   methods: <A>(eqA: any) => ({
+  //     "==": {
+  //       value: (as: A[], bs: A[]) =>
+  //         as.length === bs.length && as.every((a, i) => eqA["=="](a, bs[i])),
+  //     },
+  //   }),
+  // });
 
   return env;
 };

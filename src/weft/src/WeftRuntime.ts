@@ -127,7 +127,7 @@ export class WeftRuntime {
       }
 
       if (errors.length === 0) {
-        const interpreter = new Interpreter(this.env.typeEnv);
+        const interpreter = new Interpreter(this.env);
 
         let values: string[];
         [values, miniLocations] = interpreter.interpret(
