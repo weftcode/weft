@@ -3,7 +3,6 @@ import {
   parseTypeString,
   validateQualType,
 } from "../../weft/src/environment/utils";
-import { TVar } from "../typecheck/BuiltIns";
 import { Type } from "../typecheck/Type";
 import { Predicate, Instance, mguPred, QualType } from "../typecheck/TypeClass";
 import { quantify } from "../typecheck/TypeScheme";
@@ -16,12 +15,26 @@ export interface ClassDec {
   variable: Type.Var;
   superClasses: string[];
   methods: { readonly [name: string]: Binding };
-  instances: Instance[];
+  instances: InstanceDec[];
 }
 
-export function addClass(env: Environment, spec: ClassSpec): Environment {
+export type InstanceImpl = {
+  readonly [name: string]: any;
+};
+
+export interface InstanceDec {
+  preds: Predicate[];
+  inst: Predicate;
+  methods: InstanceImpl | ((...preds: InstanceImpl[]) => InstanceImpl);
+}
+
+export function addClass(
+  env: Environment,
+  name: string,
+  spec: ClassDec
+): Environment {
   let { typeClassEnv } = env;
-  let { name, variable: varName, superClasses } = spec;
+  let { variable, superClasses, methods } = spec;
   if (name in typeClassEnv) {
     throw new Error(
       `Can't add new class ${name}: Class name is already defined`
@@ -32,27 +45,7 @@ export function addClass(env: Environment, spec: ClassSpec): Environment {
     throw new Error(`Can't add new class ${name}: Superclass is not defined`);
   }
 
-  let variable = TVar(varName);
-  let predicate = { isIn: name, type: variable };
-
-  const methods = Object.fromEntries(
-    Object.entries(spec.methods).map(
-      ([fName, { type: typeString, value, prec }]) => [
-        fName,
-        {
-          type: quantify(
-            [],
-            withPredicate(
-              predicate,
-              validateQualType(parseTypeString(typeString), env)
-            )
-          ),
-          value,
-          prec,
-        },
-      ]
-    )
-  );
+  // TODO: Validate that method types only refer to known type constants and are well-kinded
 
   return {
     ...env,
@@ -63,13 +56,9 @@ export function addClass(env: Environment, spec: ClassSpec): Environment {
   };
 }
 
-function withPredicate(pred: Predicate, { preds, type }: QualType) {
-  return { preds: [pred, ...preds], type };
-}
-
-export function addInstance(env: Environment, spec: InstanceSpec): Environment {
+export function addInstance(env: Environment, spec: InstanceDec): Environment {
   let { typeClassEnv } = env;
-  let { preds, inst } = spec;
+  let { inst } = spec;
   let { isIn } = inst;
 
   if (!(isIn in typeClassEnv)) {
@@ -88,7 +77,7 @@ export function addInstance(env: Environment, spec: InstanceSpec): Environment {
       ...typeClassEnv,
       [isIn]: {
         ...typeClassEnv[isIn],
-        instances: [{ preds, inst }, ...instances],
+        instances: [spec, ...instances],
       },
     },
   };

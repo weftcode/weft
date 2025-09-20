@@ -1,20 +1,11 @@
-import {
-  KFunc,
-  KType,
-  TApp,
-  TConst,
-  TVar,
-  tList,
-} from "../compiler/typecheck/BuiltIns";
-
-import {
-  Environment,
-  addDataType,
-  addBinding,
-  addClass,
-  addInstance,
-} from "../compiler/environment";
 import { ModuleSpec } from "../weft/src/environment/ModuleSpec";
+import { InstanceSpec } from "../weft/src/environment/TypeClass";
+
+const primitiveEquality: InstanceSpec = {
+  methods: {
+    "==": { value: (a: any, b: any) => a === b },
+  },
+};
 
 export default {
   datatypes: {
@@ -43,6 +34,32 @@ export default {
     "StringLit a": {
       methods: {
         fromStringLit: { type: "String -> a" },
+      },
+    },
+  },
+  instances: {
+    "Eq Bool": primitiveEquality,
+    "Eq Number": primitiveEquality,
+    "Eq String": primitiveEquality,
+
+    "Eq a => Eq [a]": {
+      methods: <A>(eqA: any) => ({
+        "==": {
+          value: (as: A[], bs: A[]) =>
+            as.length === bs.length && as.every((a, i) => eqA["=="](a, bs[i])),
+        },
+      }),
+    },
+
+    "NumberLit Number": {
+      methods: {
+        fromNumberLit: { value: (literal: string) => parseFloat(literal) },
+      },
+    },
+
+    "StringLit String": {
+      methods: {
+        fromStringLit: { value: (literal: string) => literal },
       },
     },
   },
@@ -109,41 +126,3 @@ export default {
     },
   },
 } satisfies ModuleSpec;
-
-(env: Environment) => {
-  env = addInstance(env, {
-    preds: [],
-    inst: { isIn: "Eq", type: TConst("Bool") },
-    methods: { "==": { value: (a: boolean, b: boolean) => a == b } },
-  });
-
-  // TODO: Approximate instance for Eq a => Eq [a]
-  // env = addInstance(env, {
-  //   preds: [{ isIn: "Eq", type: TVar("a") }],
-  //   inst: { isIn: "Eq", type: TApp(tList, TVar("a")) },
-  //   methods: <A>(eqA: any) => ({
-  //     "==": {
-  //       value: (as: A[], bs: A[]) =>
-  //         as.length === bs.length && as.every((a, i) => eqA["=="](a, bs[i])),
-  //     },
-  //   }),
-  // });
-
-  env = addInstance(env, {
-    preds: [],
-    inst: { isIn: "NumberLit", type: TConst("Number") },
-    methods: {
-      fromNumberLit: { value: (literal: string) => parseFloat(literal) },
-    },
-  });
-
-  env = addInstance(env, {
-    preds: [],
-    inst: { isIn: "StringLit", type: TConst("String") },
-    methods: {
-      fromStringLit: { value: (literal: string) => literal },
-    },
-  });
-
-  return env;
-};

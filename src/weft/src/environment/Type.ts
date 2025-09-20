@@ -3,17 +3,17 @@ import { quantify } from "../../../compiler/typecheck/TypeScheme";
 
 import { validateQualType, parseTypeString } from "./utils";
 
-export type BindingSpec = Omit<Binding, "type"> & {
+export type BindingSpec = Omit<Binding, "type" | "value"> & {
   type: string;
+  value?: any;
 };
 
 export function validateSpec(
-  env: Environment,
-  name: string, // TODO: Maybe this isn't necessary here?
+  name: string,
   { type: typeString, value, prec }: BindingSpec
 ): Binding {
   try {
-    let type = quantify([], validateQualType(parseTypeString(typeString), env));
+    let type = quantify([], validateQualType(parseTypeString(typeString)));
 
     return { type, value, prec };
   } catch (e) {

@@ -3,9 +3,6 @@ import { Kind } from "../typecheck/Type";
 import { Environment } from "../environment";
 import { TypeScheme } from "../typecheck/TypeScheme";
 
-import { parseTypeString, validateQualType } from "./utils";
-import { quantify } from "../typecheck/TypeScheme";
-
 export type TypeConEnv = {
   readonly [name: string]: TypeCon;
 };
@@ -32,26 +29,28 @@ export type DataConSpec = Omit<DataCon, "type"> & {
 
 export function addDataType(
   env: Environment,
-  { name, kind, dataCons: dataConSpecs }: TypeConSpec
+  name: string,
+  typeCon: TypeCon
 ): Environment {
+  // TODO: Some sorts of validation?
   // This is hacky, but in order to validate the correct type of the constructors, we
   // need to pretend like the type constructor has been added to the type environment
-  let dummyEnv = {
-    ...env,
-    typeConEnv: { ...env.typeConEnv, [name]: { kind, dataCons: [] } },
-  };
+  // let dummyEnv = {
+  //   ...env,
+  //   typeConEnv: { ...env.typeConEnv, [name]: { kind, dataCons: [] } },
+  // };
 
-  let dataCons = dataConSpecs.map(({ type: typeString, ...spec }) => {
-    let type = quantify(
-      [],
-      validateQualType(parseTypeString(typeString), dummyEnv)
-    );
+  // let dataCons = dataConSpecs.map(({ type: typeString, ...spec }) => {
+  //   let type = quantify(
+  //     [],
+  //     validateQualType(parseTypeString(typeString), dummyEnv)
+  //   );
 
-    return { type, ...spec };
-  });
+  //   return { type, ...spec };
+  // });
 
   return {
     ...env,
-    typeConEnv: { ...env.typeConEnv, [name]: { kind, dataCons } },
+    typeConEnv: { ...env.typeConEnv, [name]: typeCon },
   };
 }
