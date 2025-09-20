@@ -24,7 +24,28 @@ export type TypeConSpec = TypeCon & {
 
 export function addDataType(
   env: Environment,
-  { name, ...spec }: TypeConSpec
+  name: string,
+  typeCon: TypeCon
 ): Environment {
-  return { ...env, typeConEnv: { ...env.typeConEnv, [name]: spec } };
+  // TODO: Some sorts of validation?
+  // This is hacky, but in order to validate the correct type of the constructors, we
+  // need to pretend like the type constructor has been added to the type environment
+  // let dummyEnv = {
+  //   ...env,
+  //   typeConEnv: { ...env.typeConEnv, [name]: { kind, dataCons: [] } },
+  // };
+
+  // let dataCons = dataConSpecs.map(({ type: typeString, ...spec }) => {
+  //   let type = quantify(
+  //     [],
+  //     validateQualType(parseTypeString(typeString), dummyEnv)
+  //   );
+
+  //   return { type, ...spec };
+  // });
+
+  return {
+    ...env,
+    typeConEnv: { ...env.typeConEnv, [name]: typeCon },
+  };
 }

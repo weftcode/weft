@@ -1,5 +1,11 @@
-import { TConst } from "../compiler/typecheck/BuiltIns";
 import { ModuleSpec } from "../weft/src/environment/ModuleSpec";
+import { InstanceSpec } from "../weft/src/environment/TypeClass";
+
+const primitiveEquality: InstanceSpec = {
+  methods: {
+    "==": { value: (a: any, b: any) => a === b },
+  },
+};
 
 export default {
   datatypes: {
@@ -17,6 +23,32 @@ export default {
       variable: "a",
       superClasses: [],
       methods: { "==": { type: "a -> a -> Bool" } },
+    },
+  },
+  instances: {
+    "Eq Bool": primitiveEquality,
+    "Eq Number": primitiveEquality,
+    "Eq String": primitiveEquality,
+
+    "Eq a => Eq [a]": {
+      methods: <A>(eqA: any) => ({
+        "==": {
+          value: (as: A[], bs: A[]) =>
+            as.length === bs.length && as.every((a, i) => eqA["=="](a, bs[i])),
+        },
+      }),
+    },
+
+    "NumberLit Number": {
+      methods: {
+        fromNumberLit: { value: (literal: string) => parseFloat(literal) },
+      },
+    },
+
+    "StringLit String": {
+      methods: {
+        fromStringLit: { value: (literal: string) => literal },
+      },
     },
   },
   vars: {
@@ -82,13 +114,3 @@ export default {
     },
   },
 } satisfies ModuleSpec;
-
-// (env: Environment) => {
-//   env = addInstance(env, {
-//     preds: [],
-//     inst: { isIn: "Eq", type: TConst("Bool") },
-//     methods: { "==": { value: (a: boolean, b: boolean) => a == b } },
-//   });
-
-//   return env;
-// };

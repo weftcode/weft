@@ -1,12 +1,5 @@
-import { Binding, Environment, Precedence } from ".";
-import {
-  parseTypeString,
-  validateQualType,
-} from "../../weft/src/environment/utils";
-import { TVar } from "../typecheck/BuiltIns";
-import { Type } from "../typecheck/Type";
-import { Predicate, Instance, mguPred } from "../typecheck/TypeClass";
-import { TypeScheme } from "../typecheck/TypeScheme";
+import { Binding, Environment } from ".";
+import { Predicate, mguPred } from "../typecheck/TypeClass";
 
 export type TypeClassEnv = {
   readonly [name: string]: ClassDec;
@@ -14,13 +7,27 @@ export type TypeClassEnv = {
 
 export interface ClassDec {
   superClasses: string[];
-  methods: { readonly [name: string]: { type: TypeScheme; value?: any } };
-  instances: Instance[];
+  methods: { readonly [name: string]: Binding };
+  instances: InstanceDec[];
 }
 
-export function addClass(env: Environment, spec: ClassSpec): Environment {
+export type InstanceImpl = {
+  readonly [name: string]: any;
+};
+
+export interface InstanceDec {
+  preds: Predicate[];
+  inst: Predicate;
+  methods: InstanceImpl | ((...preds: InstanceImpl[]) => InstanceImpl);
+}
+
+export function addClass(
+  env: Environment,
+  name: string,
+  spec: ClassDec
+): Environment {
   let { typeClassEnv } = env;
-  let { name, superClasses } = spec;
+  let { superClasses } = spec;
   if (name in typeClassEnv) {
     throw new Error(
       `Can't add new class ${name}: Class name is already defined`
@@ -31,12 +38,7 @@ export function addClass(env: Environment, spec: ClassSpec): Environment {
     throw new Error(`Can't add new class ${name}: Superclass is not defined`);
   }
 
-  // const methods = Object.fromEntries(
-  //   Object.entries(spec.methods).map(([fName, { type, value }]) => [
-  //     fName,
-  //     { type: null, value },
-  //   ])
-  // );
+  // TODO: Validate that method types only refer to known type constants and are well-kinded
 
   return {
     ...env,
@@ -47,9 +49,9 @@ export function addClass(env: Environment, spec: ClassSpec): Environment {
   };
 }
 
-export function addInstance(env: Environment, spec: InstanceSpec): Environment {
+export function addInstance(env: Environment, spec: InstanceDec): Environment {
   let { typeClassEnv } = env;
-  let { preds, inst } = spec;
+  let { inst } = spec;
   let { isIn } = inst;
 
   if (!(isIn in typeClassEnv)) {
@@ -68,7 +70,7 @@ export function addInstance(env: Environment, spec: InstanceSpec): Environment {
       ...typeClassEnv,
       [isIn]: {
         ...typeClassEnv[isIn],
-        instances: [{ preds, inst }, ...instances],
+        instances: [spec, ...instances],
       },
     },
   };
