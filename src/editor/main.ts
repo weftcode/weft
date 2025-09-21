@@ -14,6 +14,7 @@ import { nord } from "@fsegurai/codemirror-theme-nord";
 import { WeftRuntime } from "../weft/src";
 
 import { parseLinter } from "./extensions/linter";
+import { autocomplete } from "./extensions/autocomplete";
 
 import { core, boot, operators, controls } from "../strudel";
 import { hush } from "../strudel";
@@ -124,6 +125,7 @@ window.addEventListener("load", async () => {
       editorTheme,
       nord,
       highlighter(handlerSet),
+      autocomplete(runtime.bindings),
     ],
     parent: document.getElementById("editor") ?? undefined,
   });

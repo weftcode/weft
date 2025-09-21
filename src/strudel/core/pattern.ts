@@ -20,7 +20,6 @@ export const seq = (patterns) => Base.seq(...patterns);
 export const sequence = (patterns) => Base.seq(...patterns);
 export const fastcat = (patterns) => Base.seq(...patterns);
 
-export const stepcat = (patterns) => Base.stepcat(...patterns);
-export const timeCat = (patterns) => Base.stepcat(...patterns);
-export const timeCat = (patterns) => Base.stepcat(...patterns);
+export const stepCat = (patterns) => Base.stepcat(...patterns);
+export const timeCat = (patterns) => Base.timecat(...patterns);
 export const zip = (patterns) => Base.zip(...patterns);

@@ -75,7 +75,7 @@ jux :: (Pattern Controls -> Pattern Controls) -> Pattern Controls -> Pattern Con
 juxBy :: Pattern Number -> (Pattern Controls -> Pattern Controls) -> Pattern Controls -> Pattern Controls
 juxby :: Pattern Number -> (Pattern Controls -> Pattern Controls) -> Pattern Controls -> Pattern Controls
 keep :: Any
-keepif :: Pattern a -> Pattern Boolean -> Pattern a
+keepif :: Pattern a -> Pattern Bool -> Pattern a
 lastOf :: Pattern Number -> (Pattern a -> Pattern a) -> Pattern a -> Pattern a
 late :: Pattern Number -> Pattern a -> Pattern a
 linger :: Pattern Number -> Pattern a -> Pattern a

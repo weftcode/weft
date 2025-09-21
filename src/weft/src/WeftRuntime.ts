@@ -12,6 +12,7 @@ import {
   addBinding,
   BindingSpec,
   Environment,
+  listBindingNames,
   makeEnv,
 } from "../../compiler/environment";
 import { Evaluation } from "../../editor/console";
@@ -46,6 +47,10 @@ export class WeftRuntime {
 
   addBinding(spec: BindingSpec) {
     this.env = addBinding(this.env, spec);
+  }
+
+  get bindings() {
+    return listBindingNames(this.env);
   }
 
   async parse(code: string): Promise<ParseResult> {

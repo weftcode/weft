@@ -21,6 +21,12 @@ export default (env: Environment) => {
   });
 
   env = addDataType(env, {
+    name: "Hap",
+    kind: KFunc(KType, KType),
+    dataCons: [],
+  });
+
+  env = addDataType(env, {
     name: "Pattern",
     kind: KFunc(KType, KType),
     dataCons: [],

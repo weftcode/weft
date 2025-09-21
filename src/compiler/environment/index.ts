@@ -12,6 +12,10 @@ export function makeEnv(): Environment {
   return { typeConEnv: {}, typeEnv: {}, typeClassEnv: {} };
 }
 
+export function listBindingNames(env: Environment) {
+  return Object.keys(env.typeEnv);
+}
+
 export * from "./TypeEnv";
 export * from "./TypeConEnv";
 export * from "./TypeClassEnv";
