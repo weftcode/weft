@@ -227,6 +227,11 @@ function collectTypeInfoExpr(expr: Expr<TypeExt>): Diagnostic[] {
         ...collectTypeInfoExpr(expr.operator),
         ...collectTypeInfoExpr(expr.right),
       ];
+    case Expr.Is.Lambda:
+      return [
+        ...expr.parameters.flatMap(collectTypeInfoExpr),
+        ...collectTypeInfoExpr(expr.expression),
+      ];
     case Expr.Is.Section:
       return [
         ...collectTypeInfoExpr(expr.operator),

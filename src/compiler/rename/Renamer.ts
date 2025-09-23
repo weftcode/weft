@@ -53,7 +53,7 @@ export function renameExpr(expr: Expr, context: TypeEnv): Expr<RenamerExt> {
       for (let param of expr.parameters) {
         context = {
           ...context,
-          // At this stage, these
+          // At this stage, these don't need defined types
           [param.name.lexeme]: { type: asScheme(TVar("a")), value: null },
         };
       }
