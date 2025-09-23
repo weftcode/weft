@@ -13,6 +13,7 @@ export type TypeExt = Stmt.Extension & {
   "Expr.Application": NodeTypeInfo;
   "Expr.Binary": NodeTypeInfo;
   "Expr.Section": NodeTypeInfo;
+  "Expr.Lambda": NodeTypeInfo;
   "Expr.List": NodeTypeInfo;
   "Expr.Grouping": NodeTypeInfo;
   "Expr.Empty": NodeTypeInfo;
