@@ -434,7 +434,10 @@ const controls: BindingSpec = {
     value: strudelControls.chord,
   },
   // dictionary: { type: "", value: strudelControls.dictionary },
-  // dict: { type: "", value: strudelControls.dict },
+  dict: {
+    type: "Pattern String -> Pattern Controls",
+    value: strudelControls.dict,
+  },
   // anchor: { type: "", value: strudelControls.anchor },
   offset: {
     type: "Pattern Number -> Pattern Controls",

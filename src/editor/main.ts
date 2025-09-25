@@ -15,7 +15,7 @@ import { WeftRuntime } from "../weft/src";
 
 import { parseLinter } from "./extensions/linter";
 
-import { core, boot, operators, controls } from "../strudel";
+import { core, boot, operators, controls, tonal } from "../strudel";
 import { hush } from "../strudel";
 import standardLib from "../standard-lib";
 
@@ -25,6 +25,7 @@ runtime.loadLibrary(core);
 runtime.loadLibrary(boot);
 runtime.loadLibrary(operators);
 runtime.loadLibrary(controls);
+runtime.loadLibrary(tonal);
 
 async function updateURLField(input: HTMLInputElement, doc: string) {
   const stream = new ReadableStream({
