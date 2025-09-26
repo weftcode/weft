@@ -6,6 +6,7 @@ import {
 import { KFunc, KType } from "../../compiler/typecheck/BuiltIns";
 
 import * as pattern from "./pattern";
+import * as signal from "./signal";
 
 export default (env: Environment) => {
   env = addDataType(env, {
@@ -35,6 +36,7 @@ export default (env: Environment) => {
   env = addDataType(env, { name: "Controls", kind: KType, dataCons: [] });
 
   env = addModule(env, pattern);
+  env = addModule(env, signal);
 
   return env;
 };
@@ -46,7 +48,10 @@ interface ModuleSpec {
 
 function addModule(env: Environment, module: ModuleSpec) {
   let { $Types, ...exports } = module;
-  let parsed = $Types.split("\n").map((line) => line.split(/\s*::\s*/));
+  let parsed = $Types
+    .split("\n")
+    .filter((line) => line !== "" && !/^\s*--.*$/.test(line))
+    .map((line) => line.split(/\s*::\s*/));
 
   for (let [name, type] of parsed) {
     if (name in exports) {
