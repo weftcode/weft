@@ -1,53 +1,30 @@
-import {
-  Environment,
-  addDataType,
-  addBinding,
-} from "../../compiler/environment";
-import { KFunc, KType } from "../../compiler/typecheck/BuiltIns";
+import { ModuleSpec } from "../../weft/src/environment/ModuleSpec";
 
 import * as pattern from "./pattern";
 import * as signal from "./signal";
 
-export default (env: Environment) => {
-  env = addDataType(env, {
-    name: "Any",
-    kind: KType,
-    dataCons: [],
-  });
+export default {
+  datatypes: {
+    Any: { dataCons: [] },
+    Span: { dataCons: [] },
+    "Hap a": { dataCons: [] },
+    "Pattern a": { dataCons: [] },
+    Controls: { dataCons: [] },
+  },
+  vars: {
+    ...fromImport(pattern),
+    ...fromImport(signal),
+  },
+} satisfies ModuleSpec;
 
-  env = addDataType(env, {
-    name: "Span",
-    kind: KType,
-    dataCons: [],
-  });
-
-  env = addDataType(env, {
-    name: "Hap",
-    kind: KFunc(KType, KType),
-    dataCons: [],
-  });
-
-  env = addDataType(env, {
-    name: "Pattern",
-    kind: KFunc(KType, KType),
-    dataCons: [],
-  });
-
-  env = addDataType(env, { name: "Controls", kind: KType, dataCons: [] });
-
-  env = addModule(env, pattern);
-  env = addModule(env, signal);
-
-  return env;
-};
-
-interface ModuleSpec {
+interface AnnotatedImport {
   $Types: string;
   [name: string]: any;
 }
 
-function addModule(env: Environment, module: ModuleSpec) {
-  let { $Types, ...exports } = module;
+function fromImport({ $Types, ...exports }: AnnotatedImport) {
+  let vars: ModuleSpec["vars"] = {};
+
   let parsed = $Types
     .split("\n")
     .filter((line) => line !== "" && !/^\s*--.*$/.test(line))
@@ -55,10 +32,11 @@ function addModule(env: Environment, module: ModuleSpec) {
 
   for (let [name, type] of parsed) {
     if (name in exports) {
-      env = addBinding(env, { name, type, value: exports[name] });
+      vars[name] = { type, value: exports[name] };
     } else {
+      // TODO throw error
     }
   }
 
-  return env;
+  return vars;
 }

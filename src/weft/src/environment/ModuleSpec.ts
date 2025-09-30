@@ -1,10 +1,3 @@
-import {
-  Binding,
-  ClassDec,
-  Environment,
-  InstanceDec,
-  TypeCon,
-} from "../../../compiler/environment";
 import { BindingSpec, validateSpec } from "./Type";
 import { ClassSpec, InstanceSpec, validateClassSpec } from "./TypeClass";
 
@@ -12,7 +5,7 @@ export interface ModuleSpec {
   classes?: { [name: string]: ClassSpec };
   instances?: { [name: string]: InstanceSpec };
   datatypes?: {};
-  vars?: { [name: string]: Omit<BindingSpec, "name"> };
+  vars?: { [name: string]: BindingSpec };
 }
 
 export function validateModule(spec: ModuleSpec) {
