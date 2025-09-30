@@ -1,12 +1,13 @@
 // @ts-nocheck
 
 import { addBinding, BindingSpec } from "../compiler/environment";
+import { validateSpec } from "../weft/src/environment/Type";
 
 import { controls as strudelControls } from "@strudel/core";
 
 export default (env: Environment) => {
   for (let [name, binding] of Object.entries(controls)) {
-    env = addBinding(env, { name, ...binding });
+    env = addBinding(env, name, validateSpec(name, binding));
   }
 
   return env;

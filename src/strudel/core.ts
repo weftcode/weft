@@ -8,6 +8,7 @@ import {
   BindingSpec,
 } from "../compiler/environment";
 import { KFunc, KType } from "../compiler/typecheck/BuiltIns";
+import { validateSpec } from "../weft/src/environment/Type";
 
 export default (env: Environment) => {
   env = addDataType(env, {
@@ -18,7 +19,7 @@ export default (env: Environment) => {
   env = addDataType(env, { name: "Controls", kind: KType, dataCons: [] });
 
   for (let [name, binding] of Object.entries(core)) {
-    env = addBinding(env, { name, ...binding });
+    env = addBinding(env, name, validateSpec(name, binding));
   }
 
   return env;

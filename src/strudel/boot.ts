@@ -13,6 +13,7 @@ import {
 } from "@strudel/webaudio";
 
 import { addBinding, BindingSpec } from "../compiler/environment";
+import { validateSpec } from "../weft/src/environment/Type";
 import { HighlightHandler } from "./highlights";
 
 initAudioOnFirstClick();
@@ -94,7 +95,7 @@ export function p(id: string | number) {
 
 export default (env: Environment) => {
   for (let [name, binding] of Object.entries(boot)) {
-    env = addBinding(env, { name, ...binding });
+    env = addBinding(env, name, validateSpec(name, binding));
   }
 
   return env;
