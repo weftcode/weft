@@ -1,12 +1,13 @@
 // @ts-nocheck
 
 import { addBinding, BindingSpec } from "../compiler/environment";
+import { validateSpec } from "../weft/src/environment/Type";
 
 import { controls as strudelControls } from "@strudel/core";
 
 export default (env: Environment) => {
   for (let [name, binding] of Object.entries(controls)) {
-    env = addBinding(env, { name, ...binding });
+    env = addBinding(env, name, validateSpec(name, binding));
   }
 
   return env;
@@ -434,7 +435,10 @@ const controls: BindingSpec = {
     value: strudelControls.chord,
   },
   // dictionary: { type: "", value: strudelControls.dictionary },
-  // dict: { type: "", value: strudelControls.dict },
+  dict: {
+    type: "Pattern String -> Pattern Controls",
+    value: strudelControls.dict,
+  },
   // anchor: { type: "", value: strudelControls.anchor },
   offset: {
     type: "Pattern Number -> Pattern Controls",
