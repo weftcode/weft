@@ -1,7 +1,8 @@
 import { Expr } from "../parse/AST/Expr";
 import { Stmt } from "../parse/AST/Stmt";
-import { TypeEnv } from "../environment";
+import { addBinding, TypeEnv } from "../environment";
 import { RenamerExt } from "./ASTExtensions";
+import { asScheme, TVar } from "../typecheck/BuiltIns";
 
 export function renameStmt(stmt: Stmt, context: TypeEnv): Stmt<RenamerExt> {
   switch (stmt.is) {
@@ -46,6 +47,20 @@ export function renameExpr(expr: Expr, context: TypeEnv): Expr<RenamerExt> {
       const operator = renameExpr(expr.operator, context) as Expr.Variable;
       const expression = renameExpr(expr.expression, context);
       return { ...expr, operator, expression };
+    }
+
+    case Expr.Is.Lambda: {
+      for (let param of expr.parameters) {
+        context = {
+          ...context,
+          // At this stage, these don't need defined types
+          [param.name.lexeme]: { type: asScheme(TVar("a")), value: null },
+        };
+      }
+
+      const expression = renameExpr(expr.expression, context);
+
+      return { ...expr, expression };
     }
 
     case Expr.Is.Grouping:

@@ -57,7 +57,7 @@ export class Parser extends BaseParser<Stmt[]> {
   }
 
   private expression(precedence: number): Expr {
-    let left = this.application();
+    let left = this.lexpr();
 
     while (this.peek().type === TokenType.Operator) {
       let op = this.environment[this.peek().lexeme];
@@ -98,6 +98,37 @@ export class Parser extends BaseParser<Stmt[]> {
     }
 
     return left;
+  }
+
+  private lexpr(): Expr {
+    if (this.match(TokenType.Backslash)) {
+      return this.lambda();
+    } else {
+      return this.application();
+    }
+  }
+
+  private lambda(): Expr {
+    let parameters: Expr.Variable[] = [];
+
+    while (!this.match(TokenType.Arrow)) {
+      let name = this.consume(
+        TokenType.Identifier,
+        "Unexpected symbol in lambda expression parameter"
+      );
+      parameters.push({ is: Expr.Is.Variable, name });
+    }
+
+    if (parameters.length === 0) {
+      throw new ParseError(
+        this.previous(),
+        "Lambda function must have at least one parameter"
+      );
+    }
+
+    let expression = this.expression(0);
+
+    return { is: Expr.Is.Lambda, parameters, expression };
   }
 
   private application(): Expr {
