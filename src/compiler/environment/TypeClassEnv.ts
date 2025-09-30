@@ -1,4 +1,5 @@
 import { Binding, Environment } from ".";
+import { Type } from "../typecheck/Type";
 import { Predicate, mguPred } from "../typecheck/TypeClass";
 
 export type TypeClassEnv = {
@@ -6,6 +7,7 @@ export type TypeClassEnv = {
 };
 
 export interface ClassDec {
+  variable: Type.Var;
   superClasses: string[];
   methods: { readonly [name: string]: Binding };
   instances: InstanceDec[];
@@ -27,7 +29,7 @@ export function addClass(
   spec: ClassDec
 ): Environment {
   let { typeClassEnv } = env;
-  let { superClasses } = spec;
+  let { variable, superClasses } = spec;
   if (name in typeClassEnv) {
     throw new Error(
       `Can't add new class ${name}: Class name is already defined`
@@ -44,7 +46,7 @@ export function addClass(
     ...env,
     typeClassEnv: {
       ...typeClassEnv,
-      [name]: { superClasses, methods: {}, instances: [] },
+      [name]: { variable, superClasses, methods: {}, instances: [] },
     },
   };
 }

@@ -58,12 +58,12 @@ export class WeftRuntime {
 
     // Instances
     for (let [name, instanceDec] of Object.entries(instances)) {
-      this.env = addInstance(this.env, name, instanceDec);
+      // this.env = addInstance(this.env, name, instanceDec);
     }
 
     // Datatypes
     for (let [name, datatype] of Object.entries(datatypes)) {
-      this.env = addDataType(this.env, name, datatype);
+      // this.env = addDataType(this.env, name, datatype);
     }
 
     for (let [name, binding] of Object.entries(vars)) {

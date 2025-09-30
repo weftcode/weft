@@ -17,13 +17,12 @@ export default {
   classes: {
     // env = addClass(env, { name: "FromNumber", superClasses: [], methods: {} });
     // env = addClass(env, { name: "FromString", superClasses: [], methods: {} });
-
     // Equality
-    Eq: {
-      variable: "a",
-      superClasses: [],
-      methods: { "==": { type: "a -> a -> Bool" } },
-    },
+    // Eq: {
+    //   variable: "a",
+    //   superClasses: [],
+    //   methods: { "==": { type: "a -> a -> Bool" } },
+    // },
   },
   instances: {
     "Eq Bool": primitiveEquality,
