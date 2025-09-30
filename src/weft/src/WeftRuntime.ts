@@ -10,7 +10,9 @@ import { collectErrors } from "../../compiler/errors/Errors";
 
 import {
   addBinding,
-  BindingSpec,
+  addClass,
+  addDataType,
+  addInstance,
   Environment,
   listBindingNames,
   makeEnv,
@@ -23,6 +25,9 @@ import { TypeExt } from "../../compiler/typecheck/ASTExtensions";
 import { SolverError } from "../../compiler/typecheck/Solver";
 import { Expr } from "../../compiler/parse/AST/Expr";
 import { printType } from "../../compiler/typecheck/Printer";
+
+import { BindingSpec, validateSpec } from "./environment/Type";
+import { ModuleSpec, validateModule } from "./environment/ModuleSpec";
 
 export interface ParseResult {
   stmts: Stmt<TypeExt>[];
@@ -45,8 +50,30 @@ export class WeftRuntime {
     this.env = lib(this.env);
   }
 
-  addBinding(spec: BindingSpec) {
-    this.env = addBinding(this.env, spec);
+  loadModule(module: ModuleSpec) {
+    let { classes, instances, datatypes, vars } = validateModule(module);
+
+    for (let [name, classDec] of Object.entries(classes)) {
+      this.env = addClass(this.env, name, classDec);
+    }
+
+    // Instances
+    for (let [name, instanceDec] of Object.entries(instances)) {
+      // this.env = addInstance(this.env, name, instanceDec);
+    }
+
+    // Datatypes
+    for (let [name, datatype] of Object.entries(datatypes)) {
+      // this.env = addDataType(this.env, name, datatype);
+    }
+
+    for (let [name, binding] of Object.entries(vars)) {
+      this.env = addBinding(this.env, name, binding);
+    }
+  }
+
+  addBinding(name: string, spec: BindingSpec) {
+    this.env = addBinding(this.env, name, validateSpec(name, spec));
   }
 
   get bindings() {
@@ -231,6 +258,11 @@ function collectTypeInfoExpr(expr: Expr<TypeExt>): Diagnostic[] {
         ...collectTypeInfoExpr(expr.left),
         ...collectTypeInfoExpr(expr.operator),
         ...collectTypeInfoExpr(expr.right),
+      ];
+    case Expr.Is.Lambda:
+      return [
+        ...expr.parameters.flatMap(collectTypeInfoExpr),
+        ...collectTypeInfoExpr(expr.expression),
       ];
     case Expr.Is.Section:
       return [

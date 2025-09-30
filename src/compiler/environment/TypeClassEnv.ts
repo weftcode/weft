@@ -1,38 +1,35 @@
-import { Environment } from ".";
+import { Binding, Environment } from ".";
 import { Type } from "../typecheck/Type";
-import { Predicate, Instance, mguPred } from "../typecheck/TypeClass";
-import { TypeScheme } from "../typecheck/TypeScheme";
+import { Predicate, mguPred } from "../typecheck/TypeClass";
 
 export type TypeClassEnv = {
   readonly [name: string]: ClassDec;
 };
 
 export interface ClassDec {
+  variable: Type.Var;
   superClasses: string[];
-  methods: { readonly [name: string]: { type: TypeScheme; value?: any } };
-  instances: Instance[];
+  methods: { readonly [name: string]: Binding };
+  instances: InstanceDec[];
 }
 
-export interface ClassSpec {
-  name: string;
-  superClasses: string[];
-  methods: { readonly [name: string]: { type: string; value?: any } };
-}
+export type InstanceImpl = {
+  readonly [name: string]: any;
+};
 
-export interface InstanceSpec {
+export interface InstanceDec {
   preds: Predicate[];
   inst: Predicate;
-  methods: { readonly [name: string]: { value: any } };
+  methods: InstanceImpl | ((...preds: InstanceImpl[]) => InstanceImpl);
 }
 
-// const modify = ({ classes, defaults }: ClassEnv, id: Id, c: Class) => ({
-//   classes: { ...classes, [id]: c },
-//   defaults,
-// });
-
-export function addClass(env: Environment, spec: ClassSpec): Environment {
+export function addClass(
+  env: Environment,
+  name: string,
+  spec: ClassDec
+): Environment {
   let { typeClassEnv } = env;
-  let { name, superClasses } = spec;
+  let { variable, superClasses } = spec;
   if (name in typeClassEnv) {
     throw new Error(
       `Can't add new class ${name}: Class name is already defined`
@@ -43,25 +40,20 @@ export function addClass(env: Environment, spec: ClassSpec): Environment {
     throw new Error(`Can't add new class ${name}: Superclass is not defined`);
   }
 
-  // const methods = Object.fromEntries(
-  //   Object.entries(spec.methods).map(([fName, { type, value }]) => [
-  //     fName,
-  //     { type: null, value },
-  //   ])
-  // );
+  // TODO: Validate that method types only refer to known type constants and are well-kinded
 
   return {
     ...env,
     typeClassEnv: {
       ...typeClassEnv,
-      [name]: { superClasses, methods: {}, instances: [] },
+      [name]: { variable, superClasses, methods: {}, instances: [] },
     },
   };
 }
 
-export function addInstance(env: Environment, spec: InstanceSpec): Environment {
+export function addInstance(env: Environment, spec: InstanceDec): Environment {
   let { typeClassEnv } = env;
-  let { preds, inst } = spec;
+  let { inst } = spec;
   let { isIn } = inst;
 
   if (!(isIn in typeClassEnv)) {
@@ -80,7 +72,7 @@ export function addInstance(env: Environment, spec: InstanceSpec): Environment {
       ...typeClassEnv,
       [isIn]: {
         ...typeClassEnv[isIn],
-        instances: [{ preds, inst }, ...instances],
+        instances: [spec, ...instances],
       },
     },
   };

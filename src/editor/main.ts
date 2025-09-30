@@ -21,7 +21,7 @@ import { hush } from "../strudel";
 import standardLib from "../standard-lib";
 
 const runtime = new WeftRuntime();
-runtime.loadLibrary(standardLib);
+runtime.loadModule(standardLib);
 runtime.loadLibrary(core);
 runtime.loadLibrary(boot);
 runtime.loadLibrary(operators);
