@@ -2,10 +2,11 @@
 
 import * as strudelTonal from "@strudel/tonal";
 import { addBinding, BindingSpec } from "../compiler/environment";
+import { validateSpec } from "../weft/src/environment/Type";
 
 export default (env: Environment) => {
   for (let [name, binding] of Object.entries(tonal)) {
-    env = addBinding(env, { name, ...binding });
+    env = addBinding(env, name, validateSpec(name, binding));
   }
 
   return env;
