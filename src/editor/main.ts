@@ -125,7 +125,7 @@ window.addEventListener("load", async () => {
       autosave,
       editorTheme,
       nord,
-      //highlighter(handlerSet),
+      highlighter(handlerSet),
       autocomplete(runtime.bindings),
     ],
     parent: document.getElementById("editor") ?? undefined,
