@@ -37,7 +37,7 @@ function getTime() {
 
 export const handlerSet = new Set<HighlightHandler>();
 
-async function onTrigger(hap, deadline, duration, cps) {
+async function onTrigger(hap, deadline, duration, cps, t) {
   for (let handler of handlerSet) {
     for (let { start, end, id } of hap.context.locations) {
       handler({
@@ -52,7 +52,7 @@ async function onTrigger(hap, deadline, duration, cps) {
 
   try {
     if (!hap.context.onTrigger || !hap.context.dominantTrigger) {
-      await webaudioOutput(hap, deadline, duration, cps);
+      await webaudioOutput(hap, deadline, duration, cps, t);
     }
     if (hap.context.onTrigger) {
       // call signature of output / onTrigger is different...
