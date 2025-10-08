@@ -136,6 +136,7 @@ slowcatPrime :: Any
 slowchunk :: Pattern Number -> (Pattern a -> Pattern a) -> Pattern a -> Pattern a
 sparsity :: Pattern Number -> Pattern a -> Pattern a
 splice :: Pattern Number -> Pattern Number -> Pattern Controls -> Pattern Controls
+splitQueries :: Pattern a -> Pattern a
 squeezeBind :: (a -> Pattern b) -> Pattern a -> Pattern b
 stack :: [Pattern a] -> Pattern a
 stackBy :: Any
@@ -144,7 +145,7 @@ stackLeft :: Any
 stackRight :: Any
 stepBind :: (a -> Pattern b) -> Pattern a -> Pattern b
 stepalt :: Any
-stepcat :: [Pattern a] -> Pattern a
+stepCat :: [Pattern a] -> Pattern a
 steps :: Any
 striate :: Pattern Number -> Pattern Controls -> Pattern Controls
 struct :: Pattern Bool -> Pattern a -> Pattern a

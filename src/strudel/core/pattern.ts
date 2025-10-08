@@ -7,6 +7,8 @@ export * from "@strudel/core/pattern.mjs";
 
 import * as Base from "@strudel/core/pattern.mjs";
 
+export const splitQueries = (pattern) => pattern.splitQueries();
+
 export const stack = (patterns) => Base.stack(...patterns);
 export const polyrhythm = stack;
 export const pr = stack;
