@@ -1,5 +1,8 @@
 import { ModuleSpec } from "../../weft/src/environment/ModuleSpec";
 
+//@ts-ignore
+import { mini } from "@strudel/mini";
+
 import * as pattern from "./pattern";
 import * as signal from "./signal";
 import * as pick from "./pick";
@@ -12,6 +15,13 @@ export default {
     "Hap a": { dataCons: [] },
     "Pattern a": { dataCons: [] },
     Controls: { dataCons: [] },
+  },
+  instances: {
+    "StringLit (Pattern a)": {
+      methods: {
+        fromStringLit: { value: mini },
+      },
+    },
   },
   vars: {
     ...fromImport(pattern),
