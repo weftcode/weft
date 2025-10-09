@@ -2,6 +2,8 @@ import { ModuleSpec } from "../../weft/src/environment/ModuleSpec";
 
 import * as pattern from "./pattern";
 import * as signal from "./signal";
+import * as pick from "./pick";
+import * as euclid from "./euclid";
 
 export default {
   datatypes: {
@@ -14,6 +16,8 @@ export default {
   vars: {
     ...fromImport(pattern),
     ...fromImport(signal),
+    ...fromImport(pick),
+    ...fromImport(euclid),
   },
 } satisfies ModuleSpec;
 
