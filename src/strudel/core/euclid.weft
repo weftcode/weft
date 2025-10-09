@@ -1,0 +1,5 @@
+euclid :: Pattern Number -> Pattern Number -> Pattern a -> Pattern a
+euclidRot :: Pattern Number -> Pattern Number -> Pattern Number -> Pattern a -> Pattern a
+euclidLegato :: Pattern Number -> Pattern Number -> Pattern a -> Pattern a
+euclidLegatoRot :: Pattern Number -> Pattern Number -> Pattern Number -> Pattern a -> Pattern a
+euclidish :: Pattern Number -> Pattern Number -> Pattern Number -> Pattern a -> Pattern a

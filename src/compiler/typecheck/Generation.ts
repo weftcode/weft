@@ -1,6 +1,6 @@
 import { Expr } from "../parse/AST/Expr";
 import { Stmt } from "../parse/AST/Stmt";
-import { TApp, TFunc, tList } from "./BuiltIns";
+import { asScheme, TApp, TFunc, tList } from "./BuiltIns";
 
 import { Environment, getBinding } from "../environment";
 
@@ -132,6 +132,42 @@ export function infer(
         )
       );
 
+    // Lambda abstractions
+    case Expr.Is.Lambda:
+      return Inference.mapList(
+        // Attach a fresh type variable to each parameter
+        (paramExp) => Inference.fresh().map((type) => ({ ...paramExp, type })),
+        expr.parameters
+      ).bind((parameters) => {
+        // Update the binding environment to include the local parameters
+        let newEnv: Environment = {
+          ...env,
+          typeEnv: {
+            ...env.typeEnv,
+            ...Object.fromEntries(
+              parameters.map((param) => [
+                param.name.lexeme,
+                { type: asScheme(param.type), value: undefined },
+              ])
+            ),
+          },
+        };
+
+        return infer(newEnv, expr.expression).bind((expression) =>
+          Inference.fresh().bind((resultType) => {
+            // Generate Lambda expression type
+            let type = parameters.reduceRight<Type>(
+              (prev, param) => TFunc(param.type, prev),
+              resultType
+            );
+
+            return unify(expression.type, resultType, expression).then(
+              Inference.pure({ ...expr, parameters, expression, type })
+            );
+          })
+        );
+      });
+
     case Expr.Is.Empty:
     case Expr.Is.Error:
       // Treat this as an expression of totally unknown type
@@ -184,6 +220,15 @@ export function applyToExpr<T extends Expr<TypeExt>>(
         ...expr,
         expression: applyToExpr(expression, sub),
         operator: applyToExpr(operator, sub),
+        type: type && applyToType(sub, type),
+      };
+    }
+    case Expr.Is.Lambda: {
+      const { parameters, expression, type } = expr;
+      return {
+        ...expr,
+        parameters: parameters.map((param) => applyToExpr(param, sub)),
+        expression: applyToExpr(expression, sub),
         type: type && applyToType(sub, type),
       };
     }

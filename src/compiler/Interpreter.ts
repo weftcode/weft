@@ -7,6 +7,7 @@ import { TokenType } from "./scan/TokenType";
 import { Type } from "./typecheck/Type";
 import { Environment, getBinding } from "./environment";
 import { TypeExt } from "./typecheck/ASTExtensions";
+import { asScheme } from "./typecheck/BuiltIns";
 
 type Value = Value[] | ((input: Value) => Value);
 
@@ -98,6 +99,25 @@ export class Interpreter {
             : opFunc(operand, input);
         };
       }
+      case Expr.Is.Lambda: {
+        return (...argValues: Value[]) => {
+          // Assume that args.length === parameters.length because
+          // otherwise, we'd have a type error
+          let argBindings: TypeEnv = Object.fromEntries(
+            expr.parameters.map(({ name: { lexeme }, type }, index) => [
+              lexeme,
+              { type: asScheme(type), value: argValues[index] },
+            ])
+          );
+
+          // This is a very hacky way to implement this
+          let outerBindings = this.bindings;
+          this.bindings = { ...this.bindings, ...argBindings };
+          let result = this.evaluate(expr.expression);
+          this.bindings = outerBindings;
+          return result;
+        };
+      }
       case Expr.Is.Variable:
         let binding = getBinding(this.env, expr.name.lexeme);
         if (binding === undefined) {
@@ -111,6 +131,11 @@ export class Interpreter {
         const right = this.evaluate(expr.right);
         return left(right);
       }
+      case Expr.Is.Empty:
+      case Expr.Is.Error:
+        throw new Error(`Error in expression`);
+      default:
+        return expr satisfies never;
     }
   }
 

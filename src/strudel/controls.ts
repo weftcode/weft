@@ -223,7 +223,10 @@ const controls: BindingSpec = {
   // hpr: { type: "", value: strudelControls.hpr },
   // bprelease: { type: "", value: strudelControls.bprelease },
   // bpr: { type: "", value: strudelControls.bpr },
-  // ftype: { type: "", value: strudelControls.ftype },
+  ftype: {
+    type: "Pattern Number -> Pattern Controls",
+    value: strudelControls.ftype,
+  },
   // fanchor: { type: "", value: strudelControls.fanchor },
   // vib: { type: "", value: strudelControls.vib },
   // vibrato: { type: "", value: strudelControls.vibrato },
@@ -703,7 +706,10 @@ const controls: BindingSpec = {
     type: "Pattern Number -> Pattern Controls",
     value: strudelControls.cps,
   },
-  // clip: { type: "", value: strudelControls.clip },
+  clip: {
+    type: "Pattern Number -> Pattern Controls",
+    value: strudelControls.clip,
+  },
   // zrand: { type: "", value: strudelControls.zrand },
   // curve: { type: "", value: strudelControls.curve },
   // deltaSlide: { type: "", value: strudelControls.deltaSlide },

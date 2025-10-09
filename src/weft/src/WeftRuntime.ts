@@ -14,6 +14,7 @@ import {
   addDataType,
   addInstance,
   Environment,
+  listBindingNames,
   makeEnv,
 } from "../../compiler/environment";
 import { Evaluation } from "../../editor/console";
@@ -74,6 +75,10 @@ export class WeftRuntime {
 
   addBinding(name: string, spec: BindingSpec) {
     this.env = addBinding(this.env, name, validateSpec(name, spec));
+  }
+
+  get bindings() {
+    return listBindingNames(this.env);
   }
 
   async parse(code: string): Promise<ParseResult> {
@@ -252,6 +257,11 @@ function collectTypeInfoExpr(expr: Expr<TypeExt>): Diagnostic[] {
         ...collectTypeInfoExpr(expr.left),
         ...collectTypeInfoExpr(expr.operator),
         ...collectTypeInfoExpr(expr.right),
+      ];
+    case Expr.Is.Lambda:
+      return [
+        ...expr.parameters.flatMap(collectTypeInfoExpr),
+        ...collectTypeInfoExpr(expr.expression),
       ];
     case Expr.Is.Section:
       return [
