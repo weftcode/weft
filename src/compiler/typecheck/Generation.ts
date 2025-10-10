@@ -1,6 +1,15 @@
 import { Expr } from "../parse/AST/Expr";
 import { Stmt } from "../parse/AST/Stmt";
-import { asScheme, TApp, TFunc, tList } from "./BuiltIns";
+import {
+  asScheme,
+  KFunc,
+  TApp,
+  TConst,
+  TFunc,
+  tList,
+  tNumber,
+  tString,
+} from "./BuiltIns";
 
 import { addBinding, Binding, Environment, TypeEnv } from "../environment";
 
@@ -9,6 +18,11 @@ import { TypeExt } from "./ASTExtensions";
 import { Substitution, applyToType } from "./Substitution";
 import { Inference, freshInst, unify } from "./Monad";
 import { RenamerExt } from "../rename/ASTExtensions";
+import { TokenType } from "../scan/TokenType";
+import { eq } from "../../utils";
+import { SolverError } from "./Solver";
+import { expressionBounds } from "../parse/Utils";
+import { printType } from "./Printer";
 
 export function infer(
   env: Environment,
@@ -235,6 +249,107 @@ export function applyToExpr<T extends Expr<TypeExt>>(
         items: items.map((item) => applyToExpr(item, sub)),
         type: type && applyToType(sub, type),
       };
+    }
+    default:
+      return expr satisfies never;
+  }
+}
+
+export function checkLiterals<T extends Expr<TypeExt>>(
+  expr: T
+): [T, SolverError[]] {
+  switch (expr.is) {
+    // This is the main case. Apply defaulting rules and check
+    // overloaded literal constraints (currently hard-coded)
+    case Expr.Is.Literal: {
+      const {
+        type,
+        token: { type: tokenType },
+      } = expr;
+
+      if (type.is === Type.Is.Var || type.is === Type.Is.Gen) {
+        return [
+          {
+            ...expr,
+            type: tokenType === TokenType.String ? tString : tNumber,
+          },
+          [],
+        ];
+      } else {
+        // Check for Patterns
+        if (
+          type.is === Type.Is.App &&
+          eq(type.left, TConst("Pattern", KFunc()))
+        ) {
+          return [expr, []];
+        } else if (
+          type.is === Type.Is.Const &&
+          ((tokenType === TokenType.String && eq(type, tString)) ||
+            (tokenType === TokenType.Number && eq(type, tNumber)))
+        ) {
+          return [expr, []];
+        } else {
+          return [
+            expr,
+            [
+              {
+                message: `Expecting ${printType(
+                  type
+                )} which can't be represented by a ${
+                  tokenType === TokenType.String ? "string" : "numeric"
+                } literal`,
+                ...expressionBounds(expr),
+              },
+            ],
+          ];
+        }
+      }
+    }
+    case Expr.Is.Empty:
+    case Expr.Is.Error:
+    case Expr.Is.Literal:
+    case Expr.Is.Variable:
+      return [expr, []];
+    case Expr.Is.Application:
+    case Expr.Is.Binary: {
+      const { left, right } = expr;
+      const [newLeft, lErrors] = checkLiterals(left);
+      const [newRight, rErrors] = checkLiterals(right);
+      return [
+        {
+          ...expr,
+          left: newLeft,
+          right: newRight,
+        },
+        [...lErrors, ...rErrors],
+      ];
+    }
+    case Expr.Is.Grouping:
+    case Expr.Is.Section:
+    case Expr.Is.Lambda: {
+      const { expression } = expr;
+      const [newExpression, errors] = checkLiterals(expression);
+      return [{ ...expr, expression: newExpression }, errors];
+    }
+    case Expr.Is.List: {
+      const { items } = expr;
+      const [newItems, errors] = items.reduce(
+        ([prevItems, prevErrors]: [Expr<TypeExt>[], SolverError[]], item) => {
+          const [newItem, newErrors] = checkLiterals(item);
+          return [
+            [newItem, ...prevItems],
+            [...newErrors, ...prevErrors],
+          ];
+        },
+        [[], []]
+      );
+      return [
+        {
+          ...expr,
+          items: newItems,
+        },
+        errors,
+      ];
     }
     default:
       return expr satisfies never;

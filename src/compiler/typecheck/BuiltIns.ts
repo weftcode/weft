@@ -7,7 +7,7 @@ export const KType: Kind = {
   is: Kind.Is.Type,
 };
 
-export function KFunc(left: Kind, right: Kind) {
+export function KFunc(left = KType, right = KType) {
   return {
     is: Kind.Is.Function,
     left,
