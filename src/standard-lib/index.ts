@@ -62,7 +62,10 @@ export default {
     ".": {
       // Function composition
       type: "(b -> c) -> (a -> b) -> a -> c",
-      value: <X, Y, Z>(a: (y: Y) => Z, b: (x: X) => Y, c: X) => a(b(c)),
+      value:
+        <X, Y, Z>(a: (y: Y) => Z, b: (x: X) => Y, c: X) =>
+        (c: X) =>
+          a(b(c)),
       prec: [9, "right"],
     },
 
@@ -110,6 +113,11 @@ export default {
     id: {
       type: "a -> a",
       value: <A>(a: A) => a,
+    },
+
+    consoleLog: {
+      type: "a -> IO ()",
+      value: (a: any) => console.log(a),
     },
   },
 } satisfies ModuleSpec;
