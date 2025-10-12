@@ -1,122 +1,283 @@
-approxRational::RealFrac a => a -> a -> Rational
-%::Integral a => a -> a -> GHC.Real.Ratio a
-denominator::GHC.Real.Ratio a -> a
-numerator::GHC.Real.Ratio a -> a
-defaultConfig::Sound.Tidal.Config.Config
-_chop::Int -> Sound.Tidal.Pattern.ControlPattern -> Sound.Tidal.Pattern.ControlPattern
-_echo::Integer -> Rational -> Double -> Sound.Tidal.Pattern.ControlPattern -> Sound.Tidal.Pattern.ControlPattern
-_echoWith::(Num n, Ord n) => n -> Sound.Tidal.Time.Time -> (Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a) -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-_gap::Int -> Sound.Tidal.Pattern.ControlPattern -> Sound.Tidal.Pattern.ControlPattern
-_slice::Int -> Int -> Sound.Tidal.Pattern.ControlPattern -> Sound.Tidal.Pattern.ControlPattern
-_spin::Int -> Sound.Tidal.Pattern.ControlPattern -> Sound.Tidal.Pattern.ControlPattern
-_splice::Int -> Sound.Tidal.Pattern.Pattern Int -> Sound.Tidal.Pattern.ControlPattern -> Sound.Tidal.Pattern.Pattern (Data.Map.Internal.Map String Sound.Tidal.Pattern.Value)
-_striate::Int -> Sound.Tidal.Pattern.ControlPattern -> Sound.Tidal.Pattern.ControlPattern
-_striateBy::Int -> Double -> Sound.Tidal.Pattern.ControlPattern -> Sound.Tidal.Pattern.ControlPattern
-_stut::Integer -> Double -> Rational -> Sound.Tidal.Pattern.ControlPattern -> Sound.Tidal.Pattern.ControlPattern
-_stutWith::(Num n, Ord n) => n -> Sound.Tidal.Time.Time -> (Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a) -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-chop::Sound.Tidal.Pattern.Pattern Int -> Sound.Tidal.Pattern.ControlPattern -> Sound.Tidal.Pattern.ControlPattern
-chopArc::Sound.Tidal.Time.Arc -> Int -> [Sound.Tidal.Time.Arc]
-ctrigger::Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-echo::Sound.Tidal.Pattern.Pattern Integer -> Sound.Tidal.Pattern.Pattern Rational -> Sound.Tidal.Pattern.Pattern Double -> Sound.Tidal.Pattern.ControlPattern -> Sound.Tidal.Pattern.ControlPattern
-echoWith::Sound.Tidal.Pattern.Pattern Int -> Sound.Tidal.Pattern.Pattern Sound.Tidal.Time.Time -> (Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a) -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-ftrigger::Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-gap::Sound.Tidal.Pattern.Pattern Int -> Sound.Tidal.Pattern.ControlPattern -> Sound.Tidal.Pattern.ControlPattern
-hurry::Sound.Tidal.Pattern.Pattern Rational -> Sound.Tidal.Pattern.ControlPattern -> Sound.Tidal.Pattern.ControlPattern
-interlace::Sound.Tidal.Pattern.ControlPattern -> Sound.Tidal.Pattern.ControlPattern -> Sound.Tidal.Pattern.ControlPattern
-loopAt::Sound.Tidal.Pattern.Pattern Sound.Tidal.Time.Time -> Sound.Tidal.Pattern.ControlPattern -> Sound.Tidal.Pattern.ControlPattern
-mergePlayRange::(Double, Double) -> Sound.Tidal.Pattern.ValueMap -> Sound.Tidal.Pattern.ValueMap
-msec::Fractional a => Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-mt::Int -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-mtrigger::Int -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-qt::Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-qtrigger::Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-randslice::Sound.Tidal.Pattern.Pattern Int -> Sound.Tidal.Pattern.ControlPattern -> Sound.Tidal.Pattern.ControlPattern
-rtrigger::Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-sec::Fractional a => Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-slice::Sound.Tidal.Pattern.Pattern Int -> Sound.Tidal.Pattern.Pattern Int -> Sound.Tidal.Pattern.ControlPattern -> Sound.Tidal.Pattern.ControlPattern
-smash::Sound.Tidal.Pattern.Pattern Int -> [Sound.Tidal.Pattern.Pattern Sound.Tidal.Time.Time] -> Sound.Tidal.Pattern.ControlPattern -> Sound.Tidal.Pattern.Pattern Sound.Tidal.Pattern.ValueMap
-smash'::Int -> [Sound.Tidal.Pattern.Pattern Sound.Tidal.Time.Time] -> Sound.Tidal.Pattern.ControlPattern -> Sound.Tidal.Pattern.ControlPattern
-spin::Sound.Tidal.Pattern.Pattern Int -> Sound.Tidal.Pattern.ControlPattern -> Sound.Tidal.Pattern.ControlPattern
-splat::Sound.Tidal.Pattern.Pattern Int -> Sound.Tidal.Pattern.ControlPattern -> Sound.Tidal.Pattern.ControlPattern -> Sound.Tidal.Pattern.ControlPattern
-splice::Sound.Tidal.Pattern.Pattern Int -> Sound.Tidal.Pattern.Pattern Int -> Sound.Tidal.Pattern.ControlPattern -> Sound.Tidal.Pattern.Pattern (Data.Map.Internal.Map String Sound.Tidal.Pattern.Value)
-striate::Sound.Tidal.Pattern.Pattern Int -> Sound.Tidal.Pattern.ControlPattern -> Sound.Tidal.Pattern.ControlPattern
-striate'::Sound.Tidal.Pattern.Pattern Int -> Sound.Tidal.Pattern.Pattern Double -> Sound.Tidal.Pattern.ControlPattern -> Sound.Tidal.Pattern.ControlPattern
-striateBy::Sound.Tidal.Pattern.Pattern Int -> Sound.Tidal.Pattern.Pattern Double -> Sound.Tidal.Pattern.ControlPattern -> Sound.Tidal.Pattern.ControlPattern
-stut::Sound.Tidal.Pattern.Pattern Integer -> Sound.Tidal.Pattern.Pattern Double -> Sound.Tidal.Pattern.Pattern Rational -> Sound.Tidal.Pattern.ControlPattern -> Sound.Tidal.Pattern.ControlPattern
-stut'::Sound.Tidal.Pattern.Pattern Int -> Sound.Tidal.Pattern.Pattern Sound.Tidal.Time.Time -> (Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a) -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-stutWith::Sound.Tidal.Pattern.Pattern Int -> Sound.Tidal.Pattern.Pattern Sound.Tidal.Time.Time -> (Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a) -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-trigger::Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-triggerWith::(Sound.Tidal.Time.Time -> Sound.Tidal.Time.Time) -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-weave::Sound.Tidal.Time.Time -> Sound.Tidal.Pattern.ControlPattern -> [Sound.Tidal.Pattern.ControlPattern] -> Sound.Tidal.Pattern.ControlPattern
-weave'::Sound.Tidal.Time.Time -> Sound.Tidal.Pattern.Pattern a -> [Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a] -> Sound.Tidal.Pattern.Pattern a
-weaveWith::Sound.Tidal.Time.Time -> Sound.Tidal.Pattern.Pattern a -> [Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a] -> Sound.Tidal.Pattern.Pattern a
 #::Sound.Tidal.Core.Unionable b => Sound.Tidal.Pattern.Pattern b -> Sound.Tidal.Pattern.Pattern b -> Sound.Tidal.Pattern.Pattern b
+%::Integral a => a -> a -> GHC.Real.Ratio a
 %|::Sound.Tidal.Pattern.Moddable a => Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
 **|::Floating a => Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+*>::Sound.Tidal.Pattern.Pattern (a -> b) -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern b
 *|::Num a => Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
 ++|::Sound.Tidal.Pattern.Pattern String -> Sound.Tidal.Pattern.Pattern String -> Sound.Tidal.Pattern.Pattern String
 +|::Num a => Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
 -|::Num a => Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
 /|::Fractional a => Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+<*::Sound.Tidal.Pattern.Pattern (a -> b) -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern b
+<<*::Sound.Tidal.Pattern.Pattern (a -> b) -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern b
 <|::Sound.Tidal.Core.Unionable a => Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
 <~::Sound.Tidal.Pattern.Pattern Sound.Tidal.Time.Time -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
 >|::Sound.Tidal.Core.Unionable a => Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+__binary::GHC.Bits.Bits b => Int -> b -> [Bool]
+_arp::String -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+_binary::GHC.Bits.Bits b => Int -> b -> Sound.Tidal.Pattern.Pattern Bool
+_binaryN::Int -> Sound.Tidal.Pattern.Pattern Int -> Sound.Tidal.Pattern.Pattern Bool
+_bite::Int -> Sound.Tidal.Pattern.Pattern Int -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+_brandBy::Double -> Sound.Tidal.Pattern.Pattern Bool
 _cX::a -> (Sound.Tidal.Pattern.Value -> Maybe a) -> String -> Sound.Tidal.Pattern.Pattern a
 _cX_::(Sound.Tidal.Pattern.Value -> Maybe a) -> String -> Sound.Tidal.Pattern.Pattern a
-_every::Int -> (Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a) -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+_chew::Int -> Sound.Tidal.Pattern.Pattern Int -> Sound.Tidal.Pattern.ControlPattern -> Sound.Tidal.Pattern.ControlPattern
+_chop::Int -> Sound.Tidal.Pattern.ControlPattern -> Sound.Tidal.Pattern.ControlPattern
+_chunk'::Integral a => a -> (Sound.Tidal.Pattern.Pattern b -> Sound.Tidal.Pattern.Pattern b) -> Sound.Tidal.Pattern.Pattern b -> Sound.Tidal.Pattern.Pattern b
+_chunk::Integral a => a -> (Sound.Tidal.Pattern.Pattern b -> Sound.Tidal.Pattern.Pattern b) -> Sound.Tidal.Pattern.Pattern b -> Sound.Tidal.Pattern.Pattern b
+_degradeBy::Double -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+_degradeByUsing::Sound.Tidal.Pattern.Pattern Double -> Double -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+_distrib::[Int] -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+_echo::Integer -> Rational -> Double -> Sound.Tidal.Pattern.ControlPattern -> Sound.Tidal.Pattern.ControlPattern
+_echoWith::(Num n, Ord n) => n -> Sound.Tidal.Time.Time -> (Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a) -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+_euclid'::Int -> Int -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+_euclid::Int -> Int -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+_euclidBool::Int -> Int -> Sound.Tidal.Pattern.Pattern Bool
+_euclidInv::Int -> Int -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+_euclidOff::Int -> Int -> Int -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+_euclidOffBool::Int -> Int -> Int -> Sound.Tidal.Pattern.Pattern Bool -> Sound.Tidal.Pattern.Pattern Bool
 _every'::Int -> Int -> (Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a) -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+_every::Int -> (Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a) -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+_extract::(Sound.Tidal.Pattern.Value -> Maybe a) -> String -> Sound.Tidal.Pattern.ControlPattern -> Sound.Tidal.Pattern.Pattern a
+_fast::Sound.Tidal.Time.Time -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+_fastGap::Sound.Tidal.Time.Time -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+_fit::Int -> [a] -> Sound.Tidal.Pattern.Pattern Int -> Sound.Tidal.Pattern.Pattern a
+_gap::Int -> Sound.Tidal.Pattern.ControlPattern -> Sound.Tidal.Pattern.ControlPattern
 _getP::a -> (Sound.Tidal.Pattern.Value -> Maybe a) -> Sound.Tidal.Pattern.Pattern Sound.Tidal.Pattern.Value -> Sound.Tidal.Pattern.Pattern a
 _getP_::(Sound.Tidal.Pattern.Value -> Maybe a) -> Sound.Tidal.Pattern.Pattern Sound.Tidal.Pattern.Value -> Sound.Tidal.Pattern.Pattern a
+_inside::Sound.Tidal.Time.Time -> (Sound.Tidal.Pattern.Pattern a1 -> Sound.Tidal.Pattern.Pattern a) -> Sound.Tidal.Pattern.Pattern a1 -> Sound.Tidal.Pattern.Pattern a
+_irand::Num a => Int -> Sound.Tidal.Pattern.Pattern a
+_iter'::Int -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+_iter::Int -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+_linger::Sound.Tidal.Time.Time -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+_markovPat::Int -> Int -> [[Double]] -> Sound.Tidal.Pattern.Pattern Int
+_off::Sound.Tidal.Time.Time -> (Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a) -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+_outside::Sound.Tidal.Time.Time -> (Sound.Tidal.Pattern.Pattern a1 -> Sound.Tidal.Pattern.Pattern a) -> Sound.Tidal.Pattern.Pattern a1 -> Sound.Tidal.Pattern.Pattern a
+_pickF::Int -> [Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a] -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+_ply::Rational -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+_plyWith::(Ord t, Num t) => t -> (Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a) -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+_pressBy::Sound.Tidal.Time.Time -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+_range::(Functor f, Num b) => b -> b -> f b -> f b
+_rearrangeWith::Sound.Tidal.Pattern.Pattern Int -> Int -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
 _repeatCycles::Int -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+_rot::Ord a => Int -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
 _run::(Enum a, Num a) => a -> Sound.Tidal.Pattern.Pattern a
 _scan::(Enum a, Num a) => a -> Sound.Tidal.Pattern.Pattern a
+_scramble::Int -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+_segment::Sound.Tidal.Time.Time -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+_select::Double -> [Sound.Tidal.Pattern.Pattern a] -> Sound.Tidal.Pattern.Pattern a
+_selectF::Double -> [Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a] -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+_shuffle::Int -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+_slice::Int -> Int -> Sound.Tidal.Pattern.ControlPattern -> Sound.Tidal.Pattern.ControlPattern
+_slow::Sound.Tidal.Time.Time -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+_someCyclesBy::Double -> (Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a) -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+_spin::Int -> Sound.Tidal.Pattern.ControlPattern -> Sound.Tidal.Pattern.ControlPattern
+_splice::Int -> Sound.Tidal.Pattern.Pattern Int -> Sound.Tidal.Pattern.ControlPattern -> Sound.Tidal.Pattern.Pattern (Data.Map.Internal.Map String Sound.Tidal.Pattern.Value)
+_striate::Int -> Sound.Tidal.Pattern.ControlPattern -> Sound.Tidal.Pattern.ControlPattern
+_striateBy::Int -> Double -> Sound.Tidal.Pattern.ControlPattern -> Sound.Tidal.Pattern.ControlPattern
+_stripe::Int -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+_stut::Integer -> Double -> Rational -> Sound.Tidal.Pattern.ControlPattern -> Sound.Tidal.Pattern.ControlPattern
+_stutWith::(Num n, Ord n) => n -> Sound.Tidal.Time.Time -> (Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a) -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+_trunc::Sound.Tidal.Time.Time -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+_unDegradeBy::Double -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+_wedge::Sound.Tidal.Time.Time -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+_whenmod::Sound.Tidal.Time.Time -> Sound.Tidal.Time.Time -> (Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a) -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+almostAlways'::(Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a) -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+almostAlways::(Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a) -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+almostNever'::(Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a) -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+almostNever::(Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a) -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+always::(Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a) -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+angles::Sound.Tidal.ParseBP.MyParser a -> Sound.Tidal.ParseBP.MyParser a
+anticipate::Sound.Tidal.Time.Time -> [Sound.Tidal.Pattern.ControlPattern] -> Sound.Tidal.Pattern.ControlPattern
+anticipateIn::Sound.Tidal.Time.Time -> Sound.Tidal.Time.Time -> [Sound.Tidal.Pattern.ControlPattern] -> Sound.Tidal.Pattern.ControlPattern
 append::Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-cB::Bool -> String -> Sound.Tidal.Pattern.Pattern Bool
+applyFIS::(Double -> Double) -> (Int -> Int) -> (String -> String) -> Sound.Tidal.Pattern.Value -> Sound.Tidal.Pattern.Value
+applyPatToPat::(Maybe Sound.Tidal.Time.Arc -> Maybe Sound.Tidal.Time.Arc -> Maybe (Maybe Sound.Tidal.Time.Arc)) -> Sound.Tidal.Pattern.Pattern (a -> b) -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern b
+applyPatToPatBoth::Sound.Tidal.Pattern.Pattern (a -> b) -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern b
+applyPatToPatLeft::Sound.Tidal.Pattern.Pattern (a -> b) -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern b
+applyPatToPatRight::Sound.Tidal.Pattern.Pattern (a -> b) -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern b
+applyPatToPatSqueeze::Sound.Tidal.Pattern.Pattern (a -> b) -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern b
+applySign::Num a => Sound.Tidal.ParseBP.Sign -> a -> a
+approxRational::RealFrac a => a -> a -> Rational
+arcCycles::Sound.Tidal.Time.Arc -> [Sound.Tidal.Time.Arc]
+arcCyclesZW::Sound.Tidal.Time.Arc -> [Sound.Tidal.Time.Arc]
+arp::Sound.Tidal.Pattern.Pattern String -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+arpWith::([Sound.Tidal.Pattern.EventF (Sound.Tidal.Time.ArcF Sound.Tidal.Time.Time) a] -> [Sound.Tidal.Pattern.EventF (Sound.Tidal.Time.ArcF Sound.Tidal.Time.Time) b]) -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern b
+arpeggiate::Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+arpg::Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+ascii::Sound.Tidal.Pattern.Pattern String -> Sound.Tidal.Pattern.Pattern Bool
+bDefault::Bool -> Maybe Sound.Tidal.Pattern.Value
+binary::Sound.Tidal.Pattern.Pattern Int -> Sound.Tidal.Pattern.Pattern Bool
+binaryN::Sound.Tidal.Pattern.Pattern Int -> Sound.Tidal.Pattern.Pattern Int -> Sound.Tidal.Pattern.Pattern Bool
+bite::Sound.Tidal.Pattern.Pattern Int -> Sound.Tidal.Pattern.Pattern Int -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+braces::Sound.Tidal.ParseBP.MyParser a -> Sound.Tidal.ParseBP.MyParser a
+brackets::Sound.Tidal.ParseBP.MyParser a -> Sound.Tidal.ParseBP.MyParser a
+brak::Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+brand::Sound.Tidal.Pattern.Pattern Bool
+brandBy::Sound.Tidal.Pattern.Pattern Double -> Sound.Tidal.Pattern.Pattern Bool
 cB0::String -> Sound.Tidal.Pattern.Pattern Bool
+cB::Bool -> String -> Sound.Tidal.Pattern.Pattern Bool
 cB_::String -> Sound.Tidal.Pattern.Pattern Bool
-cF::Double -> String -> Sound.Tidal.Pattern.Pattern Double
 cF0::String -> Sound.Tidal.Pattern.Pattern Double
+cF::Double -> String -> Sound.Tidal.Pattern.Pattern Double
 cF_::String -> Sound.Tidal.Pattern.Pattern Double
-cI::Int -> String -> Sound.Tidal.Pattern.Pattern Int
 cI0::String -> Sound.Tidal.Pattern.Pattern Int
+cI::Int -> String -> Sound.Tidal.Pattern.Pattern Int
 cI_::String -> Sound.Tidal.Pattern.Pattern Int
-cN::Sound.Tidal.Pattern.Note -> String -> Sound.Tidal.Pattern.Pattern Sound.Tidal.Pattern.Note
 cN0::String -> Sound.Tidal.Pattern.Pattern Sound.Tidal.Pattern.Note
+cN::Sound.Tidal.Pattern.Note -> String -> Sound.Tidal.Pattern.Pattern Sound.Tidal.Pattern.Note
 cN_::String -> Sound.Tidal.Pattern.Pattern Sound.Tidal.Pattern.Note
-cR::Rational -> String -> Sound.Tidal.Pattern.Pattern Rational
+cP::(Sound.Tidal.ParseBP.Enumerable a, Sound.Tidal.ParseBP.Parseable a) => String -> Sound.Tidal.Pattern.Pattern a
 cR0::String -> Sound.Tidal.Pattern.Pattern Rational
+cR::Rational -> String -> Sound.Tidal.Pattern.Pattern Rational
 cR_::String -> Sound.Tidal.Pattern.Pattern Rational
-cS::String -> String -> Sound.Tidal.Pattern.Pattern String
 cS0::String -> Sound.Tidal.Pattern.Pattern String
+cS::String -> String -> Sound.Tidal.Pattern.Pattern String
 cS_::String -> Sound.Tidal.Pattern.Pattern String
-cT::Sound.Tidal.Time.Time -> String -> Sound.Tidal.Pattern.Pattern Sound.Tidal.Time.Time
 cT0::String -> Sound.Tidal.Pattern.Pattern Sound.Tidal.Time.Time
+cT::Sound.Tidal.Time.Time -> String -> Sound.Tidal.Pattern.Pattern Sound.Tidal.Time.Time
 cT_::String -> Sound.Tidal.Pattern.Pattern Sound.Tidal.Time.Time
 cat::[Sound.Tidal.Pattern.Pattern a] -> Sound.Tidal.Pattern.Pattern a
+chew::Sound.Tidal.Pattern.Pattern Int -> Sound.Tidal.Pattern.Pattern Int -> Sound.Tidal.Pattern.ControlPattern -> Sound.Tidal.Pattern.ControlPattern
+choose::[a] -> Sound.Tidal.Pattern.Pattern a
+chooseBy::Sound.Tidal.Pattern.Pattern Double -> [a] -> Sound.Tidal.Pattern.Pattern a
+chop::Sound.Tidal.Pattern.Pattern Int -> Sound.Tidal.Pattern.ControlPattern -> Sound.Tidal.Pattern.ControlPattern
+chopArc::Sound.Tidal.Time.Arc -> Int -> [Sound.Tidal.Time.Arc]
+chunk'::Integral a1 => Sound.Tidal.Pattern.Pattern a1 -> (Sound.Tidal.Pattern.Pattern a2 -> Sound.Tidal.Pattern.Pattern a2) -> Sound.Tidal.Pattern.Pattern a2 -> Sound.Tidal.Pattern.Pattern a2
+chunk::Sound.Tidal.Pattern.Pattern Int -> (Sound.Tidal.Pattern.Pattern b -> Sound.Tidal.Pattern.Pattern b) -> Sound.Tidal.Pattern.Pattern b -> Sound.Tidal.Pattern.Pattern b
+clutch::Sound.Tidal.Time.Time -> [Sound.Tidal.Pattern.Pattern a] -> Sound.Tidal.Pattern.Pattern a
+clutchIn::Sound.Tidal.Time.Time -> Sound.Tidal.Time.Time -> [Sound.Tidal.Pattern.Pattern a] -> Sound.Tidal.Pattern.Pattern a
+collect::Eq a => Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern [a]
+collectBy::Eq a => (Sound.Tidal.Pattern.Event a -> Sound.Tidal.Pattern.Event a -> Bool) -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern [a]
+collectEvent::[Sound.Tidal.Pattern.Event a] -> Maybe (Sound.Tidal.Pattern.Event [a])
+collectEventsBy::Eq a => (Sound.Tidal.Pattern.Event a -> Sound.Tidal.Pattern.Event a -> Bool) -> [Sound.Tidal.Pattern.Event a] -> [Sound.Tidal.Pattern.Event [a]]
+combineContexts::[Sound.Tidal.Pattern.Context] -> Sound.Tidal.Pattern.Context
 compress::(Sound.Tidal.Time.Time, Sound.Tidal.Time.Time) -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+compressArc::Sound.Tidal.Time.Arc -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+compressArcTo::Sound.Tidal.Time.Arc -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
 compressTo::(Sound.Tidal.Time.Time, Sound.Tidal.Time.Time) -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-cosine::Fractional a => Sound.Tidal.Pattern.Pattern a
+contrast::(Sound.Tidal.Pattern.ControlPattern -> Sound.Tidal.Pattern.ControlPattern) -> (Sound.Tidal.Pattern.ControlPattern -> Sound.Tidal.Pattern.ControlPattern) -> Sound.Tidal.Pattern.ControlPattern -> Sound.Tidal.Pattern.ControlPattern -> Sound.Tidal.Pattern.ControlPattern
+contrastBy::(a -> Sound.Tidal.Pattern.Value -> Bool) -> (Sound.Tidal.Pattern.ControlPattern -> Sound.Tidal.Pattern.Pattern b) -> (Sound.Tidal.Pattern.ControlPattern -> Sound.Tidal.Pattern.Pattern b) -> Sound.Tidal.Pattern.Pattern (Data.Map.Internal.Map String a) -> Sound.Tidal.Pattern.Pattern (Data.Map.Internal.Map String Sound.Tidal.Pattern.Value) -> Sound.Tidal.Pattern.Pattern b
+contrastRange::(Sound.Tidal.Pattern.ControlPattern -> Sound.Tidal.Pattern.Pattern a) -> (Sound.Tidal.Pattern.ControlPattern -> Sound.Tidal.Pattern.Pattern a) -> Sound.Tidal.Pattern.Pattern (Data.Map.Internal.Map String (Sound.Tidal.Pattern.Value, Sound.Tidal.Pattern.Value)) -> Sound.Tidal.Pattern.ControlPattern -> Sound.Tidal.Pattern.Pattern a
 cosine2::Fractional a => Sound.Tidal.Pattern.Pattern a
+cosine::Fractional a => Sound.Tidal.Pattern.Pattern a
+crunch::Sound.Tidal.Pattern.ControlPattern -> Sound.Tidal.Pattern.ControlPattern
+ctrigger::Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+ctrlResponder::Int -> Sound.Tidal.Config.Config -> Sound.Tidal.Stream.Stream -> IO ()
+cycleArc::Sound.Tidal.Time.Arc -> Sound.Tidal.Time.Arc
+cycleArcsInArc::Sound.Tidal.Time.Arc -> [Sound.Tidal.Time.Arc]
+cycleChoose::[a] -> Sound.Tidal.Pattern.Pattern a
+cyclePos::Sound.Tidal.Time.Time -> Sound.Tidal.Time.Time
+cyclesInArc::Integral a => Sound.Tidal.Time.Arc -> [a]
+decimal::Sound.Tidal.ParseBP.MyParser Integer
+deconstruct::Int -> Sound.Tidal.Pattern.Pattern String -> String
+defaultConfig::Sound.Tidal.Config.Config
+defaultCps::hosc-0.19.1:Sound.OSC.Time.Time
+defragParts::Eq a => [Sound.Tidal.Pattern.Event a] -> [Sound.Tidal.Pattern.Event a]
+degrade::Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+degradeBy::Sound.Tidal.Pattern.Pattern Double -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+degradeOverBy::Int -> Sound.Tidal.Pattern.Pattern Double -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+deltaMini::String -> String
+denominator::GHC.Real.Ratio a -> a
+density::Sound.Tidal.Pattern.Pattern Sound.Tidal.Time.Time -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
 densityGap::Sound.Tidal.Pattern.Pattern Sound.Tidal.Time.Time -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+dirtShape::Sound.Tidal.Stream.OSC
+dirtTarget::Sound.Tidal.Stream.Target
+discretise::Sound.Tidal.Pattern.Pattern Sound.Tidal.Time.Time -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+distrib::[Sound.Tidal.Pattern.Pattern Int] -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+doTick::Sound.Tidal.Stream.Stream -> Sound.Tidal.StreamTypes.TickState -> Sound.Tidal.Tempo.LinkOperations -> Sound.Tidal.Pattern.ValueMap -> IO Sound.Tidal.Pattern.ValueMap
+draw::Sound.Tidal.Pattern.Pattern Char -> Sound.Tidal.Show.Render
+drawLine::Sound.Tidal.Pattern.Pattern Char -> Sound.Tidal.Show.Render
+drawLineSz::Int -> Sound.Tidal.Pattern.Pattern Char -> Sound.Tidal.Show.Render
+echo::Sound.Tidal.Pattern.Pattern Integer -> Sound.Tidal.Pattern.Pattern Rational -> Sound.Tidal.Pattern.Pattern Double -> Sound.Tidal.Pattern.ControlPattern -> Sound.Tidal.Pattern.ControlPattern
+echoWith::Sound.Tidal.Pattern.Pattern Int -> Sound.Tidal.Pattern.Pattern Sound.Tidal.Time.Time -> (Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a) -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+empty::Sound.Tidal.Pattern.Pattern a
+enclosingArc::[Sound.Tidal.Time.Arc] -> Sound.Tidal.Time.Arc
+enumFromThenTo'::(Ord a, Enum a, Num a) => a -> a -> a -> Sound.Tidal.Pattern.Pattern a
+enumFromTo'::(Ord a, Enum a) => a -> a -> Sound.Tidal.Pattern.Pattern a
 envEq::Sound.Tidal.Pattern.Pattern Double
 envEqR::Sound.Tidal.Pattern.Pattern Double
 envL::Sound.Tidal.Pattern.Pattern Double
 envLR::Sound.Tidal.Pattern.Pattern Double
-every::Sound.Tidal.Pattern.Pattern Int -> (Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a) -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+eoff::Sound.Tidal.Pattern.Pattern Int -> Sound.Tidal.Pattern.Pattern Int -> Sound.Tidal.Pattern.Pattern Int -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+euclid::Sound.Tidal.Pattern.Pattern Int -> Sound.Tidal.Pattern.Pattern Int -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+euclidFull::Sound.Tidal.Pattern.Pattern Int -> Sound.Tidal.Pattern.Pattern Int -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+euclidInv::Sound.Tidal.Pattern.Pattern Int -> Sound.Tidal.Pattern.Pattern Int -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+euclidOff::Sound.Tidal.Pattern.Pattern Int -> Sound.Tidal.Pattern.Pattern Int -> Sound.Tidal.Pattern.Pattern Int -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+euclidOffBool::Sound.Tidal.Pattern.Pattern Int -> Sound.Tidal.Pattern.Pattern Int -> Sound.Tidal.Pattern.Pattern Int -> Sound.Tidal.Pattern.Pattern Bool -> Sound.Tidal.Pattern.Pattern Bool
+eventHasOnset::Sound.Tidal.Pattern.Event a -> Bool
+eventPart::Sound.Tidal.Pattern.Event a -> Sound.Tidal.Time.Arc
+eventPartStart::Sound.Tidal.Pattern.Event a -> Sound.Tidal.Time.Time
+eventPartStop::Sound.Tidal.Pattern.Event a -> Sound.Tidal.Time.Time
+eventValue::Sound.Tidal.Pattern.Event a -> a
 every'::Sound.Tidal.Pattern.Pattern Int -> Sound.Tidal.Pattern.Pattern Int -> (Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a) -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+every::Sound.Tidal.Pattern.Pattern Int -> (Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a) -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+extractB::String -> Sound.Tidal.Pattern.ControlPattern -> Sound.Tidal.Pattern.Pattern Bool
+extractF::String -> Sound.Tidal.Pattern.ControlPattern -> Sound.Tidal.Pattern.Pattern Double
+extractI::String -> Sound.Tidal.Pattern.ControlPattern -> Sound.Tidal.Pattern.Pattern Int
+extractR::String -> Sound.Tidal.Pattern.ControlPattern -> Sound.Tidal.Pattern.Pattern Rational
+extractS::String -> Sound.Tidal.Pattern.ControlPattern -> Sound.Tidal.Pattern.Pattern String
+fDefault::Double -> Maybe Sound.Tidal.Pattern.Value
+fNum2::(Int -> Int -> Int) -> (Double -> Double -> Double) -> Sound.Tidal.Pattern.Value -> Sound.Tidal.Pattern.Value -> Sound.Tidal.Pattern.Value
+fadeIn::Sound.Tidal.Time.Time -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+fadeInFrom::Sound.Tidal.Time.Time -> Sound.Tidal.Time.Time -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+fadeOut::Sound.Tidal.Time.Time -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+fadeOutFrom::Sound.Tidal.Time.Time -> Sound.Tidal.Time.Time -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+fast::Sound.Tidal.Pattern.Pattern Sound.Tidal.Time.Time -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
 fastAppend::Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
 fastCat::[Sound.Tidal.Pattern.Pattern a] -> Sound.Tidal.Pattern.Pattern a
 fastFromList::[a] -> Sound.Tidal.Pattern.Pattern a
 fastGap::Sound.Tidal.Pattern.Pattern Sound.Tidal.Time.Time -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
 fastRepeatCycles::Int -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+fastSqueeze::Sound.Tidal.Pattern.Pattern Sound.Tidal.Time.Time -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
 fastappend::Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
 fastcat::[Sound.Tidal.Pattern.Pattern a] -> Sound.Tidal.Pattern.Pattern a
+faster::Sound.Tidal.Pattern.ControlPattern -> Sound.Tidal.Pattern.ControlPattern
+fastspread::(a -> t -> Sound.Tidal.Pattern.Pattern b) -> [a] -> t -> Sound.Tidal.Pattern.Pattern b
+filterAnalog::Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+filterDigital::Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+filterEvents::(Sound.Tidal.Pattern.Event a -> Bool) -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+filterJust::Sound.Tidal.Pattern.Pattern (Maybe a) -> Sound.Tidal.Pattern.Pattern a
+filterOnsets::Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+filterValues::(a -> Bool) -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+filterWhen::(Sound.Tidal.Time.Time -> Bool) -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+fit'::Sound.Tidal.Pattern.Pattern Sound.Tidal.Time.Time -> Int -> Sound.Tidal.Pattern.Pattern Int -> Sound.Tidal.Pattern.Pattern Int -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+fit::Sound.Tidal.Pattern.Pattern Int -> [a] -> Sound.Tidal.Pattern.Pattern Int -> Sound.Tidal.Pattern.Pattern a
+fix::(Sound.Tidal.Pattern.ControlPattern -> Sound.Tidal.Pattern.ControlPattern) -> Sound.Tidal.Pattern.ControlPattern -> Sound.Tidal.Pattern.ControlPattern -> Sound.Tidal.Pattern.ControlPattern
+fixRange::(Sound.Tidal.Pattern.ControlPattern -> Sound.Tidal.Pattern.Pattern Sound.Tidal.Pattern.ValueMap) -> Sound.Tidal.Pattern.Pattern (Data.Map.Internal.Map String (Sound.Tidal.Pattern.Value, Sound.Tidal.Pattern.Value)) -> Sound.Tidal.Pattern.ControlPattern -> Sound.Tidal.Pattern.ControlPattern
+flatpat::Sound.Tidal.Pattern.Pattern [a] -> Sound.Tidal.Pattern.Pattern a
+float::Sound.Tidal.ParseBP.MyParser Double
+focusArc::Sound.Tidal.Time.Arc -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
 foldEvery::[Int] -> (Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a) -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
 fromList::[a] -> Sound.Tidal.Pattern.Pattern a
 fromMaybes::[Maybe a] -> Sound.Tidal.Pattern.Pattern a
+fromNote::Num a => Sound.Tidal.Pattern.Pattern String -> Sound.Tidal.Pattern.Pattern a
+fromTime::Fractional a => Sound.Tidal.Time.Time -> a
+ftrigger::Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+gap::Sound.Tidal.Pattern.Pattern Int -> Sound.Tidal.Pattern.ControlPattern -> Sound.Tidal.Pattern.ControlPattern
+getB::Sound.Tidal.Pattern.Value -> Maybe Bool
+getBlob::Sound.Tidal.Pattern.Value -> Maybe [GHC.Word.Word8]
+getF::Sound.Tidal.Pattern.Value -> Maybe Double
+getI::Sound.Tidal.Pattern.Value -> Maybe Int
+getList::Sound.Tidal.Pattern.Value -> Maybe [Sound.Tidal.Pattern.Value]
+getN::Sound.Tidal.Pattern.Value -> Maybe Sound.Tidal.Pattern.Note
+getR::Sound.Tidal.Pattern.Value -> Maybe Rational
+getS::Sound.Tidal.Pattern.Value -> Maybe String
+getScale::Fractional a => [(String, [a])] -> Sound.Tidal.Pattern.Pattern String -> Sound.Tidal.Pattern.Pattern Int -> Sound.Tidal.Pattern.Pattern a
+getString::Sound.Tidal.Pattern.ValueMap -> String -> Maybe String
+ghost''::Sound.Tidal.Time.Time -> (Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a) -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+ghost'::Sound.Tidal.Time.Time -> Sound.Tidal.Pattern.Pattern Sound.Tidal.Pattern.ValueMap -> Sound.Tidal.Pattern.Pattern Sound.Tidal.Pattern.ValueMap
+ghost::Sound.Tidal.Pattern.Pattern Sound.Tidal.Pattern.ValueMap -> Sound.Tidal.Pattern.Pattern Sound.Tidal.Pattern.ValueMap
+grain::Sound.Tidal.Pattern.Pattern Double -> Sound.Tidal.Pattern.Pattern Double -> Sound.Tidal.Pattern.ControlPattern
+groupEventsBy::Eq a => (Sound.Tidal.Pattern.Event a -> Sound.Tidal.Pattern.Event a -> Bool) -> [Sound.Tidal.Pattern.Event a] -> [[Sound.Tidal.Pattern.Event a]]
+hasSolo::Data.Map.Internal.Map k Sound.Tidal.StreamTypes.PlayState -> Bool
+higher::Sound.Tidal.Pattern.ControlPattern -> Sound.Tidal.Pattern.ControlPattern
+histpan::Int -> Sound.Tidal.Time.Time -> [Sound.Tidal.Pattern.ControlPattern] -> Sound.Tidal.Pattern.ControlPattern
+hull::Sound.Tidal.Time.Arc -> Sound.Tidal.Time.Arc -> Sound.Tidal.Time.Arc
+hurry::Sound.Tidal.Pattern.Pattern Rational -> Sound.Tidal.Pattern.ControlPattern -> Sound.Tidal.Pattern.ControlPattern
+iDefault::Int -> Maybe Sound.Tidal.Pattern.Value
+ifp::(Int -> Bool) -> (Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a) -> (Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a) -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
 in0::Sound.Tidal.Pattern.Pattern Double
-in1::Sound.Tidal.Pattern.Pattern Double
-in10::Sound.Tidal.Pattern.Pattern Double
 in100::Sound.Tidal.Pattern.Pattern Double
 in101::Sound.Tidal.Pattern.Pattern Double
 in102::Sound.Tidal.Pattern.Pattern Double
@@ -127,7 +288,7 @@ in106::Sound.Tidal.Pattern.Pattern Double
 in107::Sound.Tidal.Pattern.Pattern Double
 in108::Sound.Tidal.Pattern.Pattern Double
 in109::Sound.Tidal.Pattern.Pattern Double
-in11::Sound.Tidal.Pattern.Pattern Double
+in10::Sound.Tidal.Pattern.Pattern Double
 in110::Sound.Tidal.Pattern.Pattern Double
 in111::Sound.Tidal.Pattern.Pattern Double
 in112::Sound.Tidal.Pattern.Pattern Double
@@ -138,7 +299,7 @@ in116::Sound.Tidal.Pattern.Pattern Double
 in117::Sound.Tidal.Pattern.Pattern Double
 in118::Sound.Tidal.Pattern.Pattern Double
 in119::Sound.Tidal.Pattern.Pattern Double
-in12::Sound.Tidal.Pattern.Pattern Double
+in11::Sound.Tidal.Pattern.Pattern Double
 in120::Sound.Tidal.Pattern.Pattern Double
 in121::Sound.Tidal.Pattern.Pattern Double
 in122::Sound.Tidal.Pattern.Pattern Double
@@ -147,6 +308,7 @@ in124::Sound.Tidal.Pattern.Pattern Double
 in125::Sound.Tidal.Pattern.Pattern Double
 in126::Sound.Tidal.Pattern.Pattern Double
 in127::Sound.Tidal.Pattern.Pattern Double
+in12::Sound.Tidal.Pattern.Pattern Double
 in13::Sound.Tidal.Pattern.Pattern Double
 in14::Sound.Tidal.Pattern.Pattern Double
 in15::Sound.Tidal.Pattern.Pattern Double
@@ -154,7 +316,7 @@ in16::Sound.Tidal.Pattern.Pattern Double
 in17::Sound.Tidal.Pattern.Pattern Double
 in18::Sound.Tidal.Pattern.Pattern Double
 in19::Sound.Tidal.Pattern.Pattern Double
-in2::Sound.Tidal.Pattern.Pattern Double
+in1::Sound.Tidal.Pattern.Pattern Double
 in20::Sound.Tidal.Pattern.Pattern Double
 in21::Sound.Tidal.Pattern.Pattern Double
 in22::Sound.Tidal.Pattern.Pattern Double
@@ -165,7 +327,7 @@ in26::Sound.Tidal.Pattern.Pattern Double
 in27::Sound.Tidal.Pattern.Pattern Double
 in28::Sound.Tidal.Pattern.Pattern Double
 in29::Sound.Tidal.Pattern.Pattern Double
-in3::Sound.Tidal.Pattern.Pattern Double
+in2::Sound.Tidal.Pattern.Pattern Double
 in30::Sound.Tidal.Pattern.Pattern Double
 in31::Sound.Tidal.Pattern.Pattern Double
 in32::Sound.Tidal.Pattern.Pattern Double
@@ -176,7 +338,7 @@ in36::Sound.Tidal.Pattern.Pattern Double
 in37::Sound.Tidal.Pattern.Pattern Double
 in38::Sound.Tidal.Pattern.Pattern Double
 in39::Sound.Tidal.Pattern.Pattern Double
-in4::Sound.Tidal.Pattern.Pattern Double
+in3::Sound.Tidal.Pattern.Pattern Double
 in40::Sound.Tidal.Pattern.Pattern Double
 in41::Sound.Tidal.Pattern.Pattern Double
 in42::Sound.Tidal.Pattern.Pattern Double
@@ -187,7 +349,7 @@ in46::Sound.Tidal.Pattern.Pattern Double
 in47::Sound.Tidal.Pattern.Pattern Double
 in48::Sound.Tidal.Pattern.Pattern Double
 in49::Sound.Tidal.Pattern.Pattern Double
-in5::Sound.Tidal.Pattern.Pattern Double
+in4::Sound.Tidal.Pattern.Pattern Double
 in50::Sound.Tidal.Pattern.Pattern Double
 in51::Sound.Tidal.Pattern.Pattern Double
 in52::Sound.Tidal.Pattern.Pattern Double
@@ -198,7 +360,7 @@ in56::Sound.Tidal.Pattern.Pattern Double
 in57::Sound.Tidal.Pattern.Pattern Double
 in58::Sound.Tidal.Pattern.Pattern Double
 in59::Sound.Tidal.Pattern.Pattern Double
-in6::Sound.Tidal.Pattern.Pattern Double
+in5::Sound.Tidal.Pattern.Pattern Double
 in60::Sound.Tidal.Pattern.Pattern Double
 in61::Sound.Tidal.Pattern.Pattern Double
 in62::Sound.Tidal.Pattern.Pattern Double
@@ -209,7 +371,7 @@ in66::Sound.Tidal.Pattern.Pattern Double
 in67::Sound.Tidal.Pattern.Pattern Double
 in68::Sound.Tidal.Pattern.Pattern Double
 in69::Sound.Tidal.Pattern.Pattern Double
-in7::Sound.Tidal.Pattern.Pattern Double
+in6::Sound.Tidal.Pattern.Pattern Double
 in70::Sound.Tidal.Pattern.Pattern Double
 in71::Sound.Tidal.Pattern.Pattern Double
 in72::Sound.Tidal.Pattern.Pattern Double
@@ -220,7 +382,7 @@ in76::Sound.Tidal.Pattern.Pattern Double
 in77::Sound.Tidal.Pattern.Pattern Double
 in78::Sound.Tidal.Pattern.Pattern Double
 in79::Sound.Tidal.Pattern.Pattern Double
-in8::Sound.Tidal.Pattern.Pattern Double
+in7::Sound.Tidal.Pattern.Pattern Double
 in80::Sound.Tidal.Pattern.Pattern Double
 in81::Sound.Tidal.Pattern.Pattern Double
 in82::Sound.Tidal.Pattern.Pattern Double
@@ -231,7 +393,7 @@ in86::Sound.Tidal.Pattern.Pattern Double
 in87::Sound.Tidal.Pattern.Pattern Double
 in88::Sound.Tidal.Pattern.Pattern Double
 in89::Sound.Tidal.Pattern.Pattern Double
-in9::Sound.Tidal.Pattern.Pattern Double
+in8::Sound.Tidal.Pattern.Pattern Double
 in90::Sound.Tidal.Pattern.Pattern Double
 in91::Sound.Tidal.Pattern.Pattern Double
 in92::Sound.Tidal.Pattern.Pattern Double
@@ -242,80 +404,80 @@ in96::Sound.Tidal.Pattern.Pattern Double
 in97::Sound.Tidal.Pattern.Pattern Double
 in98::Sound.Tidal.Pattern.Pattern Double
 in99::Sound.Tidal.Pattern.Pattern Double
-isaw::(Fractional a, Real a) => Sound.Tidal.Pattern.Pattern a
-isaw2::(Fractional a, Real a) => Sound.Tidal.Pattern.Pattern a
-listToPat::[a] -> Sound.Tidal.Pattern.Pattern a
-overlay::Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-repeatCycles::Sound.Tidal.Pattern.Pattern Int -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-run::(Enum a, Num a) => Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-saw::(Fractional a, Real a) => Sound.Tidal.Pattern.Pattern a
-saw2::(Fractional a, Real a) => Sound.Tidal.Pattern.Pattern a
-scan::(Enum a, Num a) => Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-sig::(Sound.Tidal.Time.Time -> a) -> Sound.Tidal.Pattern.Pattern a
-sine::Fractional a => Sound.Tidal.Pattern.Pattern a
-sine2::Fractional a => Sound.Tidal.Pattern.Pattern a
-slowAppend::Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-slowCat::[Sound.Tidal.Pattern.Pattern a] -> Sound.Tidal.Pattern.Pattern a
-slowSqueeze::Sound.Tidal.Pattern.Pattern Sound.Tidal.Time.Time -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-slowappend::Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-slowcat::[Sound.Tidal.Pattern.Pattern a] -> Sound.Tidal.Pattern.Pattern a
-sparsity::Sound.Tidal.Pattern.Pattern Sound.Tidal.Time.Time -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-square::Fractional a => Sound.Tidal.Pattern.Pattern a
-square2::Fractional a => Sound.Tidal.Pattern.Pattern a
-stack::[Sound.Tidal.Pattern.Pattern a] -> Sound.Tidal.Pattern.Pattern a
-timeCat::[(Sound.Tidal.Time.Time, Sound.Tidal.Pattern.Pattern a)] -> Sound.Tidal.Pattern.Pattern a
-timecat::[(Sound.Tidal.Time.Time, Sound.Tidal.Pattern.Pattern a)] -> Sound.Tidal.Pattern.Pattern a
-tri::(Fractional a, Real a) => Sound.Tidal.Pattern.Pattern a
-tri2::(Fractional a, Real a) => Sound.Tidal.Pattern.Pattern a
-when::(Int -> Bool) -> (Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a) -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-whenT::(Sound.Tidal.Time.Time -> Bool) -> (Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a) -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-zoom::(Sound.Tidal.Time.Time, Sound.Tidal.Time.Time) -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-zoomArc::Sound.Tidal.Time.Arc -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-|%::Sound.Tidal.Pattern.Moddable a => Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-|%|::(Applicative a, Sound.Tidal.Pattern.Moddable b) => a b -> a b -> a b
-|*::Num a => Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-|**::Floating a => Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-|**|::(Applicative a, Floating b) => a b -> a b -> a b
-|*|::(Applicative a, Num b) => a b -> a b -> a b
-|+::Num a => Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-|++::Sound.Tidal.Pattern.Pattern String -> Sound.Tidal.Pattern.Pattern String -> Sound.Tidal.Pattern.Pattern String
-|++|::Applicative a => a String -> a String -> a String
-|+|::(Applicative a, Num b) => a b -> a b -> a b
-|-::Num a => Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-|-|::(Applicative a, Num b) => a b -> a b -> a b
-|/::Fractional a => Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-|/|::(Applicative a, Fractional b) => a b -> a b -> a b
-|<::Sound.Tidal.Core.Unionable a => Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-|<|::(Applicative a, Sound.Tidal.Core.Unionable b) => a b -> a b -> a b
-|>::Sound.Tidal.Core.Unionable a => Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-|>|::(Applicative a, Sound.Tidal.Core.Unionable b) => a b -> a b -> a b
-||%::Sound.Tidal.Pattern.Moddable a => Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-||*::Num a => Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-||**::Floating a => Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-||+::Num a => Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-||++::Sound.Tidal.Pattern.Pattern String -> Sound.Tidal.Pattern.Pattern String -> Sound.Tidal.Pattern.Pattern String
-||-::Num a => Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-||/::Fractional a => Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-||<::Sound.Tidal.Core.Unionable a => Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-||>::Sound.Tidal.Core.Unionable a => Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-~>::Sound.Tidal.Pattern.Pattern Sound.Tidal.Time.Time -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-angles::Sound.Tidal.ParseBP.MyParser a -> Sound.Tidal.ParseBP.MyParser a
-applySign::Num a => Sound.Tidal.ParseBP.Sign -> a -> a
-braces::Sound.Tidal.ParseBP.MyParser a -> Sound.Tidal.ParseBP.MyParser a
-brackets::Sound.Tidal.ParseBP.MyParser a -> Sound.Tidal.ParseBP.MyParser a
-cP::(Sound.Tidal.ParseBP.Enumerable a, Sound.Tidal.ParseBP.Parseable a) => String -> Sound.Tidal.Pattern.Pattern a
-decimal::Sound.Tidal.ParseBP.MyParser Integer
-enumFromThenTo'::(Ord a, Enum a, Num a) => a -> a -> a -> Sound.Tidal.Pattern.Pattern a
-enumFromTo'::(Ord a, Enum a) => a -> a -> Sound.Tidal.Pattern.Pattern a
-float::Sound.Tidal.ParseBP.MyParser Double
-fromNote::Num a => Sound.Tidal.Pattern.Pattern String -> Sound.Tidal.Pattern.Pattern a
+in9::Sound.Tidal.Pattern.Pattern Double
+index::Real b => b -> Sound.Tidal.Pattern.Pattern b -> Sound.Tidal.Pattern.Pattern c -> Sound.Tidal.Pattern.Pattern c
+inhabit::[(String, Sound.Tidal.Pattern.Pattern a)] -> Sound.Tidal.Pattern.Pattern String -> Sound.Tidal.Pattern.Pattern a
+innerJoin::Sound.Tidal.Pattern.Pattern (Sound.Tidal.Pattern.Pattern a) -> Sound.Tidal.Pattern.Pattern a
+inside::Sound.Tidal.Pattern.Pattern Sound.Tidal.Time.Time -> (Sound.Tidal.Pattern.Pattern a1 -> Sound.Tidal.Pattern.Pattern a) -> Sound.Tidal.Pattern.Pattern a1 -> Sound.Tidal.Pattern.Pattern a
 intOrFloat::Sound.Tidal.ParseBP.MyParser Double
+intSeedToRand::Fractional a => Int -> a
 integer::Sound.Tidal.ParseBP.MyParser Integer
+interlace::Sound.Tidal.Pattern.ControlPattern -> Sound.Tidal.Pattern.ControlPattern -> Sound.Tidal.Pattern.ControlPattern
+interpolate::Sound.Tidal.Time.Time -> [Sound.Tidal.Pattern.ControlPattern] -> Sound.Tidal.Pattern.ControlPattern
+interpolateIn::Sound.Tidal.Time.Time -> Sound.Tidal.Time.Time -> [Sound.Tidal.Pattern.ControlPattern] -> Sound.Tidal.Pattern.ControlPattern
+inv::Functor f => f Bool -> f Bool
+irand::Num a => Sound.Tidal.Pattern.Pattern Int -> Sound.Tidal.Pattern.Pattern a
+isAdjacent::Eq a => Sound.Tidal.Pattern.Event a -> Sound.Tidal.Pattern.Event a -> Bool
+isAnalog::Sound.Tidal.Pattern.Event a -> Bool
+isDigital::Sound.Tidal.Pattern.Event a -> Bool
+isIn::Sound.Tidal.Time.Arc -> Sound.Tidal.Time.Time -> Bool
 isInt::RealFrac a => a -> Bool
+isaw2::(Fractional a, Real a) => Sound.Tidal.Pattern.Pattern a
+isaw::(Fractional a, Real a) => Sound.Tidal.Pattern.Pattern a
+iter'::Sound.Tidal.Pattern.Pattern Int -> Sound.Tidal.Pattern.Pattern c -> Sound.Tidal.Pattern.Pattern c
+iter::Sound.Tidal.Pattern.Pattern Int -> Sound.Tidal.Pattern.Pattern c -> Sound.Tidal.Pattern.Pattern c
+jump::Sound.Tidal.Time.Time -> [Sound.Tidal.Pattern.ControlPattern] -> Sound.Tidal.Pattern.ControlPattern
+jumpIn'::Int -> Sound.Tidal.Time.Time -> [Sound.Tidal.Pattern.ControlPattern] -> Sound.Tidal.Pattern.ControlPattern
+jumpIn::Int -> Sound.Tidal.Time.Time -> [Sound.Tidal.Pattern.ControlPattern] -> Sound.Tidal.Pattern.ControlPattern
+jumpMod'::Int -> Int -> Sound.Tidal.Time.Time -> [Sound.Tidal.Pattern.ControlPattern] -> Sound.Tidal.Pattern.ControlPattern
+jumpMod::Int -> Sound.Tidal.Time.Time -> [Sound.Tidal.Pattern.ControlPattern] -> Sound.Tidal.Pattern.ControlPattern
+jux'::[t -> Sound.Tidal.Pattern.Pattern Sound.Tidal.Pattern.ValueMap] -> t -> Sound.Tidal.Pattern.Pattern Sound.Tidal.Pattern.ValueMap
+jux4::(Sound.Tidal.Pattern.Pattern Sound.Tidal.Pattern.ValueMap -> Sound.Tidal.Pattern.Pattern Sound.Tidal.Pattern.ValueMap) -> Sound.Tidal.Pattern.Pattern Sound.Tidal.Pattern.ValueMap -> Sound.Tidal.Pattern.Pattern Sound.Tidal.Pattern.ValueMap
+jux::(Sound.Tidal.Pattern.Pattern Sound.Tidal.Pattern.ValueMap -> Sound.Tidal.Pattern.Pattern Sound.Tidal.Pattern.ValueMap) -> Sound.Tidal.Pattern.Pattern Sound.Tidal.Pattern.ValueMap -> Sound.Tidal.Pattern.Pattern Sound.Tidal.Pattern.ValueMap
+juxBy::Sound.Tidal.Pattern.Pattern Double -> (Sound.Tidal.Pattern.Pattern Sound.Tidal.Pattern.ValueMap -> Sound.Tidal.Pattern.Pattern Sound.Tidal.Pattern.ValueMap) -> Sound.Tidal.Pattern.Pattern Sound.Tidal.Pattern.ValueMap -> Sound.Tidal.Pattern.Pattern Sound.Tidal.Pattern.ValueMap
+juxcut'::[t -> Sound.Tidal.Pattern.Pattern Sound.Tidal.Pattern.ValueMap] -> t -> Sound.Tidal.Pattern.Pattern Sound.Tidal.Pattern.ValueMap
+juxcut::(Sound.Tidal.Pattern.Pattern Sound.Tidal.Pattern.ValueMap -> Sound.Tidal.Pattern.Pattern Sound.Tidal.Pattern.ValueMap) -> Sound.Tidal.Pattern.Pattern Sound.Tidal.Pattern.ValueMap -> Sound.Tidal.Pattern.Pattern Sound.Tidal.Pattern.ValueMap
+layer::[a -> Sound.Tidal.Pattern.Pattern b] -> a -> Sound.Tidal.Pattern.Pattern b
+left::Sound.Tidal.Pattern.ControlPattern -> Sound.Tidal.Pattern.ControlPattern
 lexer::parsec-3.1.15.0:Text.Parsec.Token.GenTokenParser String u Data.Functor.Identity.Identity
+lindenmayer::Int -> String -> String -> String
+lindenmayerI::Num b => Int -> String -> String -> [b]
+linger::Sound.Tidal.Pattern.Pattern Sound.Tidal.Time.Time -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+listToPat::[a] -> Sound.Tidal.Pattern.Pattern a
+loopAt::Sound.Tidal.Pattern.Pattern Sound.Tidal.Time.Time -> Sound.Tidal.Pattern.ControlPattern -> Sound.Tidal.Pattern.ControlPattern
+loopFirst::Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+louder::Sound.Tidal.Pattern.ControlPattern -> Sound.Tidal.Pattern.ControlPattern
+lower::Sound.Tidal.Pattern.ControlPattern -> Sound.Tidal.Pattern.ControlPattern
+mapCycle::(Sound.Tidal.Time.Time -> Sound.Tidal.Time.Time) -> Sound.Tidal.Time.Arc -> Sound.Tidal.Time.Arc
+markovPat::Sound.Tidal.Pattern.Pattern Int -> Sound.Tidal.Pattern.Pattern Int -> [[Double]] -> Sound.Tidal.Pattern.Pattern Int
+mask::Sound.Tidal.Pattern.Pattern Bool -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+matchManyToOne::(b -> a -> Bool) -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern b -> Sound.Tidal.Pattern.Pattern (Bool, b)
+mergePlayRange::(Double, Double) -> Sound.Tidal.Pattern.ValueMap -> Sound.Tidal.Pattern.ValueMap
+mono::Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+mortal::Sound.Tidal.Time.Time -> Sound.Tidal.Time.Time -> Sound.Tidal.Time.Time -> [Sound.Tidal.Pattern.ControlPattern] -> Sound.Tidal.Pattern.ControlPattern
+mortalOverlay::Sound.Tidal.Time.Time -> Sound.Tidal.Time.Time -> [Sound.Tidal.Pattern.Pattern a] -> Sound.Tidal.Pattern.Pattern a
+msec::Fractional a => Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+mt::Int -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+mtrigger::Int -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
 natural::Sound.Tidal.ParseBP.MyParser Integer
 naturalOrFloat::Sound.Tidal.ParseBP.MyParser (Either Integer Double)
+necklace::Rational -> [Int] -> Sound.Tidal.Pattern.Pattern Bool
+never::(Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a) -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
 newSeed::Sound.Tidal.ParseBP.MyParser Int
+nextSam::Sound.Tidal.Time.Time -> Sound.Tidal.Time.Time
+noOv::String -> a
+numerator::GHC.Real.Ratio a -> a
+off::Sound.Tidal.Pattern.Pattern Sound.Tidal.Time.Time -> (Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a) -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+offadd::Num a => Sound.Tidal.Pattern.Pattern Sound.Tidal.Time.Time -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+often'::(Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a) -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+often::(Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a) -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+onSingleTick::Sound.Tidal.Stream.Stream -> Sound.Tidal.Tempo.LinkOperations -> Sound.Tidal.Pattern.ValueMap -> Sound.Tidal.Pattern.ControlPattern -> IO Sound.Tidal.Pattern.ValueMap
+onTick::Sound.Tidal.Stream.Stream -> Sound.Tidal.StreamTypes.TickState -> Sound.Tidal.Tempo.LinkOperations -> Sound.Tidal.Pattern.ValueMap -> IO Sound.Tidal.Pattern.ValueMap
+onsetIn::Sound.Tidal.Time.Arc -> Sound.Tidal.Pattern.Event a -> Bool
+openListener::Sound.Tidal.Config.Config -> IO (Maybe hosc-0.19.1:Sound.OSC.Transport.FD.UDP.UDP)
+outerJoin::Sound.Tidal.Pattern.Pattern (Sound.Tidal.Pattern.Pattern a) -> Sound.Tidal.Pattern.Pattern a
+outside::Sound.Tidal.Pattern.Pattern Sound.Tidal.Time.Time -> (Sound.Tidal.Pattern.Pattern a1 -> Sound.Tidal.Pattern.Pattern a) -> Sound.Tidal.Pattern.Pattern a1 -> Sound.Tidal.Pattern.Pattern a
+overlay::Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
 pBool::Sound.Tidal.ParseBP.MyParser (Sound.Tidal.ParseBP.TPat Bool)
 pChar::Sound.Tidal.ParseBP.MyParser (Sound.Tidal.ParseBP.TPat Char)
 pCharNum::Sound.Tidal.ParseBP.MyParser Char
@@ -348,11 +510,14 @@ pSingle::Sound.Tidal.ParseBP.MyParser (Sound.Tidal.ParseBP.TPat a) -> Sound.Tida
 pString::Sound.Tidal.ParseBP.MyParser String
 pVar::Sound.Tidal.ParseBP.MyParser (Sound.Tidal.ParseBP.TPat a)
 pVocable::Sound.Tidal.ParseBP.MyParser (Sound.Tidal.ParseBP.TPat String)
+palindrome::Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
 parens::Sound.Tidal.ParseBP.MyParser a -> Sound.Tidal.ParseBP.MyParser a
 parseBP::(Sound.Tidal.ParseBP.Enumerable a, Sound.Tidal.ParseBP.Parseable a) => String -> Either parsec-3.1.15.0:Text.Parsec.Error.ParseError (Sound.Tidal.Pattern.Pattern a)
 parseBP_E::(Sound.Tidal.ParseBP.Enumerable a, Sound.Tidal.ParseBP.Parseable a) => String -> Sound.Tidal.Pattern.Pattern a
 parseChord::(Enum a, Num a) => Sound.Tidal.ParseBP.MyParser [a]
 parseIntNote::Integral i => Sound.Tidal.ParseBP.MyParser i
+parseLMRule'::String -> [(Char, String)]
+parseLMRule::String -> [(String, String)]
 parseModDrop::Sound.Tidal.ParseBP.MyParser [Sound.Tidal.Chords.Modifier]
 parseModInv::Sound.Tidal.ParseBP.MyParser Sound.Tidal.Chords.Modifier
 parseModInvNum::Sound.Tidal.ParseBP.MyParser [Sound.Tidal.Chords.Modifier]
@@ -361,166 +526,149 @@ parseModRange::Sound.Tidal.ParseBP.MyParser Sound.Tidal.Chords.Modifier
 parseModifiers::Sound.Tidal.ParseBP.MyParser [Sound.Tidal.Chords.Modifier]
 parseNote::Num a => Sound.Tidal.ParseBP.MyParser a
 parseTPat::Sound.Tidal.ParseBP.Parseable a => String -> Either parsec-3.1.15.0:Text.Parsec.Error.ParseError (Sound.Tidal.ParseBP.TPat a)
+patternTimeID::String
+perlin2::Sound.Tidal.Pattern.Pattern Double -> Sound.Tidal.Pattern.Pattern Double
+perlin2With::Sound.Tidal.Pattern.Pattern Double -> Sound.Tidal.Pattern.Pattern Double -> Sound.Tidal.Pattern.Pattern Double
+perlin::Fractional a => Sound.Tidal.Pattern.Pattern a
+perlinWith::Fractional a => Sound.Tidal.Pattern.Pattern Double -> Sound.Tidal.Pattern.Pattern a
+permstep::RealFrac b => Int -> [a] -> Sound.Tidal.Pattern.Pattern b -> Sound.Tidal.Pattern.Pattern a
+pick::String -> Int -> String
+pickF::Sound.Tidal.Pattern.Pattern Int -> [Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a] -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+playFor::Sound.Tidal.Time.Time -> Sound.Tidal.Time.Time -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+playStack::Sound.Tidal.StreamTypes.PlayMap -> Sound.Tidal.Pattern.ControlPattern
+ply::Sound.Tidal.Pattern.Pattern Rational -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+plyWith::(Ord t, Num t) => Sound.Tidal.Pattern.Pattern t -> (Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a) -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+press::Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+pressBy::Sound.Tidal.Pattern.Pattern Sound.Tidal.Time.Time -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+processCps::Sound.Tidal.Tempo.LinkOperations -> [Sound.Tidal.Pattern.Event Sound.Tidal.Pattern.ValueMap] -> IO [Sound.Tidal.Stream.ProcessedEvent]
+qceiling::(Functor f, RealFrac b) => b -> f b -> f b
+qfloor::(Functor f, RealFrac b) => b -> f b -> f b
+qround::(Functor f, RealFrac b) => b -> f b -> f b
+qt::Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+qtrigger::Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+quantise::(Functor f, RealFrac b) => b -> f b -> f b
+queryArc::Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Time.Arc -> [Sound.Tidal.Pattern.Event a]
+quieter::Sound.Tidal.Pattern.ControlPattern -> Sound.Tidal.Pattern.ControlPattern
+rDefault::Rational -> Maybe Sound.Tidal.Pattern.Value
+rand::Fractional a => Sound.Tidal.Pattern.Pattern a
+randArcs::Int -> Sound.Tidal.Pattern.Pattern [Sound.Tidal.Time.Arc]
+randStruct::Int -> Sound.Tidal.Pattern.Pattern Int
+randcat::[Sound.Tidal.Pattern.Pattern a] -> Sound.Tidal.Pattern.Pattern a
+randrun::Int -> Sound.Tidal.Pattern.Pattern Int
+randslice::Sound.Tidal.Pattern.Pattern Int -> Sound.Tidal.Pattern.ControlPattern -> Sound.Tidal.Pattern.ControlPattern
+range::Num a => Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+rangex::(Functor f, Floating b) => b -> b -> f b -> f b
+rarely'::(Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a) -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+rarely::(Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a) -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+recvMessagesTimeout::hosc-0.19.1:Sound.OSC.Transport.FD.Transport t => Double -> t -> IO [hosc-0.19.1:Sound.OSC.Packet.Message]
+repeatCycles::Sound.Tidal.Pattern.Pattern Int -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+required::Maybe Sound.Tidal.Pattern.Value
+resolve::String -> String -> IO network-3.1.2.7:Network.Socket.Info.AddrInfo
+resolveState::Sound.Tidal.Pattern.ValueMap -> [Sound.Tidal.Pattern.Event Sound.Tidal.Pattern.ValueMap] -> (Sound.Tidal.Pattern.ValueMap, [Sound.Tidal.Pattern.Event Sound.Tidal.Pattern.ValueMap])
 resolve_seq::(Sound.Tidal.ParseBP.Enumerable a, Sound.Tidal.ParseBP.Parseable a) => [Sound.Tidal.ParseBP.TPat a] -> (Rational, Sound.Tidal.Pattern.Pattern a)
 resolve_size::[Sound.Tidal.ParseBP.TPat a] -> [(Rational, Sound.Tidal.ParseBP.TPat a)]
 resolve_tpat::(Sound.Tidal.ParseBP.Enumerable a, Sound.Tidal.ParseBP.Parseable a) => Sound.Tidal.ParseBP.TPat a -> (Rational, Sound.Tidal.Pattern.Pattern a)
-sign::Sound.Tidal.ParseBP.MyParser Sound.Tidal.ParseBP.Sign
-steps_seq::Show a => [Sound.Tidal.ParseBP.TPat a] -> (Rational, String)
-steps_size::Show a => [Sound.Tidal.ParseBP.TPat a] -> [(Rational, String)]
-steps_tpat::Show a => Sound.Tidal.ParseBP.TPat a -> (Rational, String)
-symbol::String -> Sound.Tidal.ParseBP.MyParser String
-tShow::Show a => Sound.Tidal.ParseBP.TPat a -> String
-tShowList::Show a => [Sound.Tidal.ParseBP.TPat a] -> String
-toPat::(Sound.Tidal.ParseBP.Parseable a, Sound.Tidal.ParseBP.Enumerable a) => Sound.Tidal.ParseBP.TPat a -> Sound.Tidal.Pattern.Pattern a
-wrapPos::Sound.Tidal.ParseBP.MyParser (Sound.Tidal.ParseBP.TPat a) -> Sound.Tidal.ParseBP.MyParser (Sound.Tidal.ParseBP.TPat a)
-*>::Sound.Tidal.Pattern.Pattern (a -> b) -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern b
-<*::Sound.Tidal.Pattern.Pattern (a -> b) -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern b
-<<*::Sound.Tidal.Pattern.Pattern (a -> b) -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern b
-_extract::(Sound.Tidal.Pattern.Value -> Maybe a) -> String -> Sound.Tidal.Pattern.ControlPattern -> Sound.Tidal.Pattern.Pattern a
-_fast::Sound.Tidal.Time.Time -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-_fastGap::Sound.Tidal.Time.Time -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-_slow::Sound.Tidal.Time.Time -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-applyFIS::(Double -> Double) -> (Int -> Int) -> (String -> String) -> Sound.Tidal.Pattern.Value -> Sound.Tidal.Pattern.Value
-applyPatToPat::(Maybe Sound.Tidal.Time.Arc -> Maybe Sound.Tidal.Time.Arc -> Maybe (Maybe Sound.Tidal.Time.Arc)) -> Sound.Tidal.Pattern.Pattern (a -> b) -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern b
-applyPatToPatBoth::Sound.Tidal.Pattern.Pattern (a -> b) -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern b
-applyPatToPatLeft::Sound.Tidal.Pattern.Pattern (a -> b) -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern b
-applyPatToPatRight::Sound.Tidal.Pattern.Pattern (a -> b) -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern b
-applyPatToPatSqueeze::Sound.Tidal.Pattern.Pattern (a -> b) -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern b
-collect::Eq a => Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern [a]
-collectBy::Eq a => (Sound.Tidal.Pattern.Event a -> Sound.Tidal.Pattern.Event a -> Bool) -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern [a]
-collectEvent::[Sound.Tidal.Pattern.Event a] -> Maybe (Sound.Tidal.Pattern.Event [a])
-collectEventsBy::Eq a => (Sound.Tidal.Pattern.Event a -> Sound.Tidal.Pattern.Event a -> Bool) -> [Sound.Tidal.Pattern.Event a] -> [Sound.Tidal.Pattern.Event [a]]
-combineContexts::[Sound.Tidal.Pattern.Context] -> Sound.Tidal.Pattern.Context
-compressArc::Sound.Tidal.Time.Arc -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-compressArcTo::Sound.Tidal.Time.Arc -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-defragParts::Eq a => [Sound.Tidal.Pattern.Event a] -> [Sound.Tidal.Pattern.Event a]
-deltaMini::String -> String
-density::Sound.Tidal.Pattern.Pattern Sound.Tidal.Time.Time -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-empty::Sound.Tidal.Pattern.Pattern a
-eventHasOnset::Sound.Tidal.Pattern.Event a -> Bool
-eventPart::Sound.Tidal.Pattern.Event a -> Sound.Tidal.Time.Arc
-eventPartStart::Sound.Tidal.Pattern.Event a -> Sound.Tidal.Time.Time
-eventPartStop::Sound.Tidal.Pattern.Event a -> Sound.Tidal.Time.Time
-eventValue::Sound.Tidal.Pattern.Event a -> a
-extractB::String -> Sound.Tidal.Pattern.ControlPattern -> Sound.Tidal.Pattern.Pattern Bool
-extractF::String -> Sound.Tidal.Pattern.ControlPattern -> Sound.Tidal.Pattern.Pattern Double
-extractI::String -> Sound.Tidal.Pattern.ControlPattern -> Sound.Tidal.Pattern.Pattern Int
-extractR::String -> Sound.Tidal.Pattern.ControlPattern -> Sound.Tidal.Pattern.Pattern Rational
-extractS::String -> Sound.Tidal.Pattern.ControlPattern -> Sound.Tidal.Pattern.Pattern String
-fNum2::(Int -> Int -> Int) -> (Double -> Double -> Double) -> Sound.Tidal.Pattern.Value -> Sound.Tidal.Pattern.Value -> Sound.Tidal.Pattern.Value
-fast::Sound.Tidal.Pattern.Pattern Sound.Tidal.Time.Time -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-fastSqueeze::Sound.Tidal.Pattern.Pattern Sound.Tidal.Time.Time -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-filterAnalog::Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-filterDigital::Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-filterEvents::(Sound.Tidal.Pattern.Event a -> Bool) -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-filterJust::Sound.Tidal.Pattern.Pattern (Maybe a) -> Sound.Tidal.Pattern.Pattern a
-filterOnsets::Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-filterValues::(a -> Bool) -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-filterWhen::(Sound.Tidal.Time.Time -> Bool) -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-focusArc::Sound.Tidal.Time.Arc -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-getB::Sound.Tidal.Pattern.Value -> Maybe Bool
-getBlob::Sound.Tidal.Pattern.Value -> Maybe [GHC.Word.Word8]
-getF::Sound.Tidal.Pattern.Value -> Maybe Double
-getI::Sound.Tidal.Pattern.Value -> Maybe Int
-getList::Sound.Tidal.Pattern.Value -> Maybe [Sound.Tidal.Pattern.Value]
-getN::Sound.Tidal.Pattern.Value -> Maybe Sound.Tidal.Pattern.Note
-getR::Sound.Tidal.Pattern.Value -> Maybe Rational
-getS::Sound.Tidal.Pattern.Value -> Maybe String
-groupEventsBy::Eq a => (Sound.Tidal.Pattern.Event a -> Sound.Tidal.Pattern.Event a -> Bool) -> [Sound.Tidal.Pattern.Event a] -> [[Sound.Tidal.Pattern.Event a]]
-innerJoin::Sound.Tidal.Pattern.Pattern (Sound.Tidal.Pattern.Pattern a) -> Sound.Tidal.Pattern.Pattern a
-isAdjacent::Eq a => Sound.Tidal.Pattern.Event a -> Sound.Tidal.Pattern.Event a -> Bool
-isAnalog::Sound.Tidal.Pattern.Event a -> Bool
-isDigital::Sound.Tidal.Pattern.Event a -> Bool
-matchManyToOne::(b -> a -> Bool) -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern b -> Sound.Tidal.Pattern.Pattern (Bool, b)
-noOv::String -> a
-onsetIn::Sound.Tidal.Time.Arc -> Sound.Tidal.Pattern.Event a -> Bool
-outerJoin::Sound.Tidal.Pattern.Pattern (Sound.Tidal.Pattern.Pattern a) -> Sound.Tidal.Pattern.Pattern a
-playFor::Sound.Tidal.Time.Time -> Sound.Tidal.Time.Time -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-queryArc::Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Time.Arc -> [Sound.Tidal.Pattern.Event a]
-resolveState::Sound.Tidal.Pattern.ValueMap -> [Sound.Tidal.Pattern.Event Sound.Tidal.Pattern.ValueMap] -> (Sound.Tidal.Pattern.ValueMap, [Sound.Tidal.Pattern.Event Sound.Tidal.Pattern.ValueMap])
 rev::Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+revArc::(Sound.Tidal.Time.Time, Sound.Tidal.Time.Time) -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+right::Sound.Tidal.Pattern.ControlPattern -> Sound.Tidal.Pattern.ControlPattern
+rolled::Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+rolledBy::Sound.Tidal.Pattern.Pattern (GHC.Real.Ratio Integer) -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+rolledWith::GHC.Real.Ratio Integer -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+rot::Ord a => Sound.Tidal.Pattern.Pattern Int -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
 rotL::Sound.Tidal.Time.Time -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
 rotR::Sound.Tidal.Time.Time -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+rtrigger::Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+run::(Enum a, Num a) => Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+runMarkov::Int -> [[Double]] -> Int -> Sound.Tidal.Time.Time -> [Int]
+sDefault::String -> Maybe Sound.Tidal.Pattern.Value
+sam::Sound.Tidal.Time.Time -> Sound.Tidal.Time.Time
 sameDur::Sound.Tidal.Pattern.Event a -> Sound.Tidal.Pattern.Event a -> Bool
-setContext::Sound.Tidal.Pattern.Context -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-silence::Sound.Tidal.Pattern.Pattern a
-slow::Sound.Tidal.Pattern.Pattern Sound.Tidal.Time.Time -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-splitQueries::Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-squeezeJoin::Sound.Tidal.Pattern.Pattern (Sound.Tidal.Pattern.Pattern a) -> Sound.Tidal.Pattern.Pattern a
-tParam::(t1 -> t2 -> Sound.Tidal.Pattern.Pattern a) -> Sound.Tidal.Pattern.Pattern t1 -> t2 -> Sound.Tidal.Pattern.Pattern a
-tParam2::(a -> b -> c -> Sound.Tidal.Pattern.Pattern d) -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern b -> c -> Sound.Tidal.Pattern.Pattern d
-tParam3::(a -> b -> c -> Sound.Tidal.Pattern.Pattern d -> Sound.Tidal.Pattern.Pattern e) -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern b -> Sound.Tidal.Pattern.Pattern c -> Sound.Tidal.Pattern.Pattern d -> Sound.Tidal.Pattern.Pattern e
-tParamSqueeze::(a -> Sound.Tidal.Pattern.Pattern b -> Sound.Tidal.Pattern.Pattern c) -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern b -> Sound.Tidal.Pattern.Pattern c
-toEvent::(((Sound.Tidal.Time.Time, Sound.Tidal.Time.Time), (Sound.Tidal.Time.Time, Sound.Tidal.Time.Time)), a) -> Sound.Tidal.Pattern.Event a
-uncollect::Sound.Tidal.Pattern.Pattern [a] -> Sound.Tidal.Pattern.Pattern a
-uncollectEvent::Sound.Tidal.Pattern.Event [a] -> [Sound.Tidal.Pattern.Event a]
-uncollectEvents::[Sound.Tidal.Pattern.Event [a]] -> [Sound.Tidal.Pattern.Event a]
-unwrap::Sound.Tidal.Pattern.Pattern (Sound.Tidal.Pattern.Pattern a) -> Sound.Tidal.Pattern.Pattern a
-valueToPattern::Sound.Tidal.Pattern.Value -> Sound.Tidal.Pattern.Pattern Sound.Tidal.Pattern.Value
-wholeOrPart::Sound.Tidal.Pattern.Event a -> Sound.Tidal.Time.Arc
-wholeStart::Sound.Tidal.Pattern.Event a -> Sound.Tidal.Time.Time
-wholeStop::Sound.Tidal.Pattern.Event a -> Sound.Tidal.Time.Time
-withContext::(Sound.Tidal.Pattern.Context -> Sound.Tidal.Pattern.Context) -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-withEvent::(Sound.Tidal.Pattern.Event a -> Sound.Tidal.Pattern.Event b) -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern b
-withEvents::([Sound.Tidal.Pattern.Event a] -> [Sound.Tidal.Pattern.Event b]) -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern b
-withPart::(Sound.Tidal.Time.Arc -> Sound.Tidal.Time.Arc) -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-withQueryArc::(Sound.Tidal.Time.Arc -> Sound.Tidal.Time.Arc) -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-withQueryControls::(Sound.Tidal.Pattern.ValueMap -> Sound.Tidal.Pattern.ValueMap) -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-withQueryTime::(Sound.Tidal.Time.Time -> Sound.Tidal.Time.Time) -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-withResultArc::(Sound.Tidal.Time.Arc -> Sound.Tidal.Time.Arc) -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-withResultTime::(Sound.Tidal.Time.Time -> Sound.Tidal.Time.Time) -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-withValue::(a -> b) -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern b
-getScale::Fractional a => [(String, [a])] -> Sound.Tidal.Pattern.Pattern String -> Sound.Tidal.Pattern.Pattern Int -> Sound.Tidal.Pattern.Pattern a
+samples'::Applicative f => f String -> f Int -> f String
+samples::Applicative f => f String -> f Int -> f String
+saw2::(Fractional a, Real a) => Sound.Tidal.Pattern.Pattern a
+saw::(Fractional a, Real a) => Sound.Tidal.Pattern.Pattern a
 scale::Fractional a => Sound.Tidal.Pattern.Pattern String -> Sound.Tidal.Pattern.Pattern Int -> Sound.Tidal.Pattern.Pattern a
 scaleList::String
 scaleTable::Fractional a => [(String, [a])]
-draw::Sound.Tidal.Pattern.Pattern Char -> Sound.Tidal.Show.Render
-drawLine::Sound.Tidal.Pattern.Pattern Char -> Sound.Tidal.Show.Render
-drawLineSz::Int -> Sound.Tidal.Pattern.Pattern Char -> Sound.Tidal.Show.Render
-showAll::Show a => Sound.Tidal.Time.Arc -> Sound.Tidal.Pattern.Pattern a -> String
-showStateful::Sound.Tidal.Pattern.ControlPattern -> String
-stepcount::Sound.Tidal.Pattern.Pattern a -> Int
-crunch::Sound.Tidal.Pattern.ControlPattern -> Sound.Tidal.Pattern.ControlPattern
-faster::Sound.Tidal.Pattern.ControlPattern -> Sound.Tidal.Pattern.ControlPattern
-higher::Sound.Tidal.Pattern.ControlPattern -> Sound.Tidal.Pattern.ControlPattern
-left::Sound.Tidal.Pattern.ControlPattern -> Sound.Tidal.Pattern.ControlPattern
-louder::Sound.Tidal.Pattern.ControlPattern -> Sound.Tidal.Pattern.ControlPattern
-lower::Sound.Tidal.Pattern.ControlPattern -> Sound.Tidal.Pattern.ControlPattern
-quieter::Sound.Tidal.Pattern.ControlPattern -> Sound.Tidal.Pattern.ControlPattern
-right::Sound.Tidal.Pattern.ControlPattern -> Sound.Tidal.Pattern.ControlPattern
+scan::(Enum a, Num a) => Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+scramble::Sound.Tidal.Pattern.Pattern Int -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
 scratch::Sound.Tidal.Pattern.ControlPattern -> Sound.Tidal.Pattern.ControlPattern
-silent::Sound.Tidal.Pattern.ControlPattern -> Sound.Tidal.Pattern.ControlPattern
-skip::Sound.Tidal.Pattern.ControlPattern -> Sound.Tidal.Pattern.ControlPattern
-slower::Sound.Tidal.Pattern.ControlPattern -> Sound.Tidal.Pattern.ControlPattern
-bDefault::Bool -> Maybe Sound.Tidal.Pattern.Value
-ctrlResponder::Int -> Sound.Tidal.Config.Config -> Sound.Tidal.Stream.Stream -> IO ()
-defaultCps::hosc-0.19.1:Sound.OSC.Time.Time
-dirtShape::Sound.Tidal.Stream.OSC
-dirtTarget::Sound.Tidal.Stream.Target
-doTick::Sound.Tidal.Stream.Stream -> Sound.Tidal.StreamTypes.TickState -> Sound.Tidal.Tempo.LinkOperations -> Sound.Tidal.Pattern.ValueMap -> IO Sound.Tidal.Pattern.ValueMap
-fDefault::Double -> Maybe Sound.Tidal.Pattern.Value
-getString::Sound.Tidal.Pattern.ValueMap -> String -> Maybe String
-hasSolo::Data.Map.Internal.Map k Sound.Tidal.StreamTypes.PlayState -> Bool
-iDefault::Int -> Maybe Sound.Tidal.Pattern.Value
-onSingleTick::Sound.Tidal.Stream.Stream -> Sound.Tidal.Tempo.LinkOperations -> Sound.Tidal.Pattern.ValueMap -> Sound.Tidal.Pattern.ControlPattern -> IO Sound.Tidal.Pattern.ValueMap
-onTick::Sound.Tidal.Stream.Stream -> Sound.Tidal.StreamTypes.TickState -> Sound.Tidal.Tempo.LinkOperations -> Sound.Tidal.Pattern.ValueMap -> IO Sound.Tidal.Pattern.ValueMap
-openListener::Sound.Tidal.Config.Config -> IO (Maybe hosc-0.19.1:Sound.OSC.Transport.FD.UDP.UDP)
-patternTimeID::String
-playStack::Sound.Tidal.StreamTypes.PlayMap -> Sound.Tidal.Pattern.ControlPattern
-processCps::Sound.Tidal.Tempo.LinkOperations -> [Sound.Tidal.Pattern.Event Sound.Tidal.Pattern.ValueMap] -> IO [Sound.Tidal.Stream.ProcessedEvent]
-rDefault::Rational -> Maybe Sound.Tidal.Pattern.Value
-recvMessagesTimeout::hosc-0.19.1:Sound.OSC.Transport.FD.Transport t => Double -> t -> IO [hosc-0.19.1:Sound.OSC.Packet.Message]
-required::Maybe Sound.Tidal.Pattern.Value
-resolve::String -> String -> IO network-3.1.2.7:Network.Socket.Info.AddrInfo
-sDefault::String -> Maybe Sound.Tidal.Pattern.Value
+sec::Fractional a => Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+sect::Sound.Tidal.Time.Arc -> Sound.Tidal.Time.Arc -> Sound.Tidal.Time.Arc
+segment::Sound.Tidal.Pattern.Pattern Sound.Tidal.Time.Time -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+select::Sound.Tidal.Pattern.Pattern Double -> [Sound.Tidal.Pattern.Pattern a] -> Sound.Tidal.Pattern.Pattern a
+selectF::Sound.Tidal.Pattern.Pattern Double -> [Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a] -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
 send::Maybe hosc-0.19.1:Sound.OSC.Transport.FD.UDP.UDP -> Sound.Tidal.Stream.Cx -> Double -> Double -> (Double, Bool, hosc-0.19.1:Sound.OSC.Packet.Message) -> IO ()
 sendBndl::Bool -> Maybe hosc-0.19.1:Sound.OSC.Transport.FD.UDP.UDP -> Sound.Tidal.Stream.Cx -> hosc-0.19.1:Sound.OSC.Packet.Bundle -> IO ()
 sendHandshakes::Sound.Tidal.Stream.Stream -> IO ()
 sendO::Bool -> Maybe hosc-0.19.1:Sound.OSC.Transport.FD.UDP.UDP -> Sound.Tidal.Stream.Cx -> hosc-0.19.1:Sound.OSC.Packet.Message -> IO ()
+seqP::[(Sound.Tidal.Time.Time, Sound.Tidal.Time.Time, Sound.Tidal.Pattern.Pattern a)] -> Sound.Tidal.Pattern.Pattern a
+seqPLoop::[(Sound.Tidal.Time.Time, Sound.Tidal.Time.Time, Sound.Tidal.Pattern.Pattern a)] -> Sound.Tidal.Pattern.Pattern a
+setContext::Sound.Tidal.Pattern.Context -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
 setPreviousPatternOrSilence::Sound.Tidal.Stream.Stream -> IO ()
+sew::Sound.Tidal.Pattern.Pattern Bool -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+showAll::Show a => Sound.Tidal.Time.Arc -> Sound.Tidal.Pattern.Pattern a -> String
+showStateful::Sound.Tidal.Pattern.ControlPattern -> String
+shuffle::Sound.Tidal.Pattern.Pattern Int -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+sig::(Sound.Tidal.Time.Time -> a) -> Sound.Tidal.Pattern.Pattern a
+sign::Sound.Tidal.ParseBP.MyParser Sound.Tidal.ParseBP.Sign
+silence::Sound.Tidal.Pattern.Pattern a
+silent::Sound.Tidal.Pattern.ControlPattern -> Sound.Tidal.Pattern.ControlPattern
+sine2::Fractional a => Sound.Tidal.Pattern.Pattern a
+sine::Fractional a => Sound.Tidal.Pattern.Pattern a
+skip::Sound.Tidal.Pattern.ControlPattern -> Sound.Tidal.Pattern.ControlPattern
+slice::Sound.Tidal.Pattern.Pattern Int -> Sound.Tidal.Pattern.Pattern Int -> Sound.Tidal.Pattern.ControlPattern -> Sound.Tidal.Pattern.ControlPattern
+slow::Sound.Tidal.Pattern.Pattern Sound.Tidal.Time.Time -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+slowAppend::Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+slowCat::[Sound.Tidal.Pattern.Pattern a] -> Sound.Tidal.Pattern.Pattern a
+slowSqueeze::Sound.Tidal.Pattern.Pattern Sound.Tidal.Time.Time -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+slowappend::Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+slowcat::[Sound.Tidal.Pattern.Pattern a] -> Sound.Tidal.Pattern.Pattern a
+slower::Sound.Tidal.Pattern.ControlPattern -> Sound.Tidal.Pattern.ControlPattern
+slowspread::(a -> t -> Sound.Tidal.Pattern.Pattern b) -> [a] -> t -> Sound.Tidal.Pattern.Pattern b
+slowstripe::Sound.Tidal.Pattern.Pattern Int -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+smash'::Int -> [Sound.Tidal.Pattern.Pattern Sound.Tidal.Time.Time] -> Sound.Tidal.Pattern.ControlPattern -> Sound.Tidal.Pattern.ControlPattern
+smash::Sound.Tidal.Pattern.Pattern Int -> [Sound.Tidal.Pattern.Pattern Sound.Tidal.Time.Time] -> Sound.Tidal.Pattern.ControlPattern -> Sound.Tidal.Pattern.Pattern Sound.Tidal.Pattern.ValueMap
+smooth::Fractional a => Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+snowball::Int -> (Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a) -> (Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a) -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+soak::Int -> (Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a) -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+someCycles::(Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a) -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+someCyclesBy::Sound.Tidal.Pattern.Pattern Double -> (Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a) -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+somecycles::(Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a) -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+somecyclesBy::Sound.Tidal.Pattern.Pattern Double -> (Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a) -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+sometimes'::(Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a) -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+sometimes::(Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a) -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+sometimesBy'::Sound.Tidal.Pattern.Pattern Double -> (Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a) -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+sometimesBy::Sound.Tidal.Pattern.Pattern Double -> (Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a) -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+spaceOut::[Sound.Tidal.Time.Time] -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+sparsity::Sound.Tidal.Pattern.Pattern Sound.Tidal.Time.Time -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+spin::Sound.Tidal.Pattern.Pattern Int -> Sound.Tidal.Pattern.ControlPattern -> Sound.Tidal.Pattern.ControlPattern
+splat::Sound.Tidal.Pattern.Pattern Int -> Sound.Tidal.Pattern.ControlPattern -> Sound.Tidal.Pattern.ControlPattern -> Sound.Tidal.Pattern.ControlPattern
+splice::Sound.Tidal.Pattern.Pattern Int -> Sound.Tidal.Pattern.Pattern Int -> Sound.Tidal.Pattern.ControlPattern -> Sound.Tidal.Pattern.Pattern (Data.Map.Internal.Map String Sound.Tidal.Pattern.Value)
+splitQueries::Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+spread'::Monad m => (a -> b -> m c) -> m a -> b -> m c
+spread::(a -> t -> Sound.Tidal.Pattern.Pattern b) -> [a] -> t -> Sound.Tidal.Pattern.Pattern b
+spreadChoose::(t -> t1 -> Sound.Tidal.Pattern.Pattern b) -> [t] -> t1 -> Sound.Tidal.Pattern.Pattern b
+spreadf::[a -> Sound.Tidal.Pattern.Pattern b] -> a -> Sound.Tidal.Pattern.Pattern b
+spreadr::(t -> t1 -> Sound.Tidal.Pattern.Pattern b) -> [t] -> t1 -> Sound.Tidal.Pattern.Pattern b
+square2::Fractional a => Sound.Tidal.Pattern.Pattern a
+square::Fractional a => Sound.Tidal.Pattern.Pattern a
+squeeze::Sound.Tidal.Pattern.Pattern Int -> [Sound.Tidal.Pattern.Pattern a] -> Sound.Tidal.Pattern.Pattern a
+squeezeJoin::Sound.Tidal.Pattern.Pattern (Sound.Tidal.Pattern.Pattern a) -> Sound.Tidal.Pattern.Pattern a
+squeezeJoinUp::Sound.Tidal.Pattern.Pattern Sound.Tidal.Pattern.ControlPattern -> Sound.Tidal.Pattern.ControlPattern
+stack::[Sound.Tidal.Pattern.Pattern a] -> Sound.Tidal.Pattern.Pattern a
+stackwith::Sound.Tidal.Core.Unionable a => Sound.Tidal.Pattern.Pattern a -> [Sound.Tidal.Pattern.Pattern a] -> Sound.Tidal.Pattern.Pattern a
 startMulti::[Sound.Tidal.Stream.Target] -> Sound.Tidal.Config.Config -> IO ()
 startStream::Sound.Tidal.Config.Config -> [(Sound.Tidal.Stream.Target, [Sound.Tidal.Stream.OSC])] -> IO Sound.Tidal.Stream.Stream
 startTidal::Sound.Tidal.Stream.Target -> Sound.Tidal.Config.Config -> IO Sound.Tidal.Stream.Stream
+step'::[String] -> String -> Sound.Tidal.Pattern.Pattern String
+step::String -> String -> Sound.Tidal.Pattern.Pattern String
+stepcount::Sound.Tidal.Pattern.Pattern a -> Int
+steps::[(String, String)] -> Sound.Tidal.Pattern.Pattern String
+steps_seq::Show a => [Sound.Tidal.ParseBP.TPat a] -> (Rational, String)
+steps_size::Show a => [Sound.Tidal.ParseBP.TPat a] -> [(Rational, String)]
+steps_tpat::Show a => Sound.Tidal.ParseBP.TPat a -> (Rational, String)
+stitch::Sound.Tidal.Pattern.Pattern Bool -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
 streamAll::Sound.Tidal.Stream.Stream -> (Sound.Tidal.Pattern.ControlPattern -> Sound.Tidal.Pattern.ControlPattern) -> IO ()
 streamFirst::Sound.Tidal.Stream.Stream -> Sound.Tidal.Pattern.ControlPattern -> IO ()
 streamGet::Sound.Tidal.Stream.Stream -> String -> IO (Maybe Sound.Tidal.Pattern.Value)
@@ -548,282 +696,134 @@ streamUnmute::Sound.Tidal.Stream.Stream -> Sound.Tidal.ID.ID -> IO ()
 streamUnmuteAll::Sound.Tidal.Stream.Stream -> IO ()
 streamUnsolo::Sound.Tidal.Stream.Stream -> Sound.Tidal.ID.ID -> IO ()
 streamUnsoloAll::Sound.Tidal.Stream.Stream -> IO ()
-substitutePath::String -> Sound.Tidal.Pattern.ValueMap -> Maybe String
-superdirtShape::Sound.Tidal.Stream.OSC
-superdirtTarget::Sound.Tidal.Stream.Target
-toData::Sound.Tidal.Stream.OSC -> Sound.Tidal.Pattern.Event Sound.Tidal.Pattern.ValueMap -> Maybe [hosc-0.19.1:Sound.OSC.Datum.Datum]
-toDatum::Sound.Tidal.Pattern.Value -> hosc-0.19.1:Sound.OSC.Datum.Datum
-toOSC::[Int] -> Sound.Tidal.Stream.ProcessedEvent -> Sound.Tidal.Stream.OSC -> [(Double, Bool, hosc-0.19.1:Sound.OSC.Packet.Message)]
-updatePattern::Sound.Tidal.Stream.Stream -> Sound.Tidal.ID.ID -> Sound.Tidal.Time.Time -> Sound.Tidal.Pattern.ControlPattern -> IO ()
-verbose::Sound.Tidal.Config.Config -> String -> IO ()
-withPatIds::Sound.Tidal.Stream.Stream -> [Sound.Tidal.ID.ID] -> (Sound.Tidal.StreamTypes.PlayState -> Sound.Tidal.StreamTypes.PlayState) -> IO ()
-xDefault::[GHC.Word.Word8] -> Maybe Sound.Tidal.Pattern.Value
-arcCycles::Sound.Tidal.Time.Arc -> [Sound.Tidal.Time.Arc]
-arcCyclesZW::Sound.Tidal.Time.Arc -> [Sound.Tidal.Time.Arc]
-cycleArc::Sound.Tidal.Time.Arc -> Sound.Tidal.Time.Arc
-cycleArcsInArc::Sound.Tidal.Time.Arc -> [Sound.Tidal.Time.Arc]
-cyclePos::Sound.Tidal.Time.Time -> Sound.Tidal.Time.Time
-cyclesInArc::Integral a => Sound.Tidal.Time.Arc -> [a]
-fromTime::Fractional a => Sound.Tidal.Time.Time -> a
-hull::Sound.Tidal.Time.Arc -> Sound.Tidal.Time.Arc -> Sound.Tidal.Time.Arc
-isIn::Sound.Tidal.Time.Arc -> Sound.Tidal.Time.Time -> Bool
-mapCycle::(Sound.Tidal.Time.Time -> Sound.Tidal.Time.Time) -> Sound.Tidal.Time.Arc -> Sound.Tidal.Time.Arc
-nextSam::Sound.Tidal.Time.Time -> Sound.Tidal.Time.Time
-sam::Sound.Tidal.Time.Time -> Sound.Tidal.Time.Time
-sect::Sound.Tidal.Time.Arc -> Sound.Tidal.Time.Arc -> Sound.Tidal.Time.Arc
-subArc::Sound.Tidal.Time.Arc -> Sound.Tidal.Time.Arc -> Maybe Sound.Tidal.Time.Arc
-subMaybeArc::Maybe Sound.Tidal.Time.Arc -> Maybe Sound.Tidal.Time.Arc -> Maybe (Maybe Sound.Tidal.Time.Arc)
-timeToCycleArc::Sound.Tidal.Time.Time -> Sound.Tidal.Time.Arc
-toTime::Real a => a -> Rational
-anticipate::Sound.Tidal.Time.Time -> [Sound.Tidal.Pattern.ControlPattern] -> Sound.Tidal.Pattern.ControlPattern
-anticipateIn::Sound.Tidal.Time.Time -> Sound.Tidal.Time.Time -> [Sound.Tidal.Pattern.ControlPattern] -> Sound.Tidal.Pattern.ControlPattern
-clutch::Sound.Tidal.Time.Time -> [Sound.Tidal.Pattern.Pattern a] -> Sound.Tidal.Pattern.Pattern a
-clutchIn::Sound.Tidal.Time.Time -> Sound.Tidal.Time.Time -> [Sound.Tidal.Pattern.Pattern a] -> Sound.Tidal.Pattern.Pattern a
-histpan::Int -> Sound.Tidal.Time.Time -> [Sound.Tidal.Pattern.ControlPattern] -> Sound.Tidal.Pattern.ControlPattern
-interpolate::Sound.Tidal.Time.Time -> [Sound.Tidal.Pattern.ControlPattern] -> Sound.Tidal.Pattern.ControlPattern
-interpolateIn::Sound.Tidal.Time.Time -> Sound.Tidal.Time.Time -> [Sound.Tidal.Pattern.ControlPattern] -> Sound.Tidal.Pattern.ControlPattern
-jump::Sound.Tidal.Time.Time -> [Sound.Tidal.Pattern.ControlPattern] -> Sound.Tidal.Pattern.ControlPattern
-jumpIn::Int -> Sound.Tidal.Time.Time -> [Sound.Tidal.Pattern.ControlPattern] -> Sound.Tidal.Pattern.ControlPattern
-jumpIn'::Int -> Sound.Tidal.Time.Time -> [Sound.Tidal.Pattern.ControlPattern] -> Sound.Tidal.Pattern.ControlPattern
-jumpMod::Int -> Sound.Tidal.Time.Time -> [Sound.Tidal.Pattern.ControlPattern] -> Sound.Tidal.Pattern.ControlPattern
-jumpMod'::Int -> Int -> Sound.Tidal.Time.Time -> [Sound.Tidal.Pattern.ControlPattern] -> Sound.Tidal.Pattern.ControlPattern
-mortal::Sound.Tidal.Time.Time -> Sound.Tidal.Time.Time -> Sound.Tidal.Time.Time -> [Sound.Tidal.Pattern.ControlPattern] -> Sound.Tidal.Pattern.ControlPattern
-mortalOverlay::Sound.Tidal.Time.Time -> Sound.Tidal.Time.Time -> [Sound.Tidal.Pattern.Pattern a] -> Sound.Tidal.Pattern.Pattern a
-transition::Sound.Tidal.Stream.Stream -> Bool -> (Sound.Tidal.Time.Time -> [Sound.Tidal.Pattern.ControlPattern] -> Sound.Tidal.Pattern.ControlPattern) -> Sound.Tidal.ID.ID -> Sound.Tidal.Pattern.ControlPattern -> IO ()
-wait::Sound.Tidal.Time.Time -> Sound.Tidal.Time.Time -> [Sound.Tidal.Pattern.ControlPattern] -> Sound.Tidal.Pattern.ControlPattern
-waitT::(Sound.Tidal.Time.Time -> [Sound.Tidal.Pattern.ControlPattern] -> Sound.Tidal.Pattern.ControlPattern) -> Sound.Tidal.Time.Time -> Sound.Tidal.Time.Time -> [Sound.Tidal.Pattern.ControlPattern] -> Sound.Tidal.Pattern.ControlPattern
-wash::(Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a) -> (Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a) -> Sound.Tidal.Time.Time -> Sound.Tidal.Time.Time -> Sound.Tidal.Time.Time -> Sound.Tidal.Time.Time -> [Sound.Tidal.Pattern.Pattern a] -> Sound.Tidal.Pattern.Pattern a
-washIn::(Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a) -> Sound.Tidal.Time.Time -> Sound.Tidal.Time.Time -> [Sound.Tidal.Pattern.Pattern a] -> Sound.Tidal.Pattern.Pattern a
-xfadeIn::Sound.Tidal.Time.Time -> Sound.Tidal.Time.Time -> [Sound.Tidal.Pattern.ControlPattern] -> Sound.Tidal.Pattern.ControlPattern
-__binary::GHC.Bits.Bits b => Int -> b -> [Bool]
-_arp::String -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-_binary::GHC.Bits.Bits b => Int -> b -> Sound.Tidal.Pattern.Pattern Bool
-_binaryN::Int -> Sound.Tidal.Pattern.Pattern Int -> Sound.Tidal.Pattern.Pattern Bool
-_bite::Int -> Sound.Tidal.Pattern.Pattern Int -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-_brandBy::Double -> Sound.Tidal.Pattern.Pattern Bool
-_chew::Int -> Sound.Tidal.Pattern.Pattern Int -> Sound.Tidal.Pattern.ControlPattern -> Sound.Tidal.Pattern.ControlPattern
-_chunk::Integral a => a -> (Sound.Tidal.Pattern.Pattern b -> Sound.Tidal.Pattern.Pattern b) -> Sound.Tidal.Pattern.Pattern b -> Sound.Tidal.Pattern.Pattern b
-_chunk'::Integral a => a -> (Sound.Tidal.Pattern.Pattern b -> Sound.Tidal.Pattern.Pattern b) -> Sound.Tidal.Pattern.Pattern b -> Sound.Tidal.Pattern.Pattern b
-_degradeBy::Double -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-_degradeByUsing::Sound.Tidal.Pattern.Pattern Double -> Double -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-_distrib::[Int] -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-_euclid::Int -> Int -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-_euclid'::Int -> Int -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-_euclidBool::Int -> Int -> Sound.Tidal.Pattern.Pattern Bool
-_euclidInv::Int -> Int -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-_euclidOff::Int -> Int -> Int -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-_euclidOffBool::Int -> Int -> Int -> Sound.Tidal.Pattern.Pattern Bool -> Sound.Tidal.Pattern.Pattern Bool
-_fit::Int -> [a] -> Sound.Tidal.Pattern.Pattern Int -> Sound.Tidal.Pattern.Pattern a
-_inside::Sound.Tidal.Time.Time -> (Sound.Tidal.Pattern.Pattern a1 -> Sound.Tidal.Pattern.Pattern a) -> Sound.Tidal.Pattern.Pattern a1 -> Sound.Tidal.Pattern.Pattern a
-_irand::Num a => Int -> Sound.Tidal.Pattern.Pattern a
-_iter::Int -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-_iter'::Int -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-_linger::Sound.Tidal.Time.Time -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-_markovPat::Int -> Int -> [[Double]] -> Sound.Tidal.Pattern.Pattern Int
-_off::Sound.Tidal.Time.Time -> (Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a) -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-_outside::Sound.Tidal.Time.Time -> (Sound.Tidal.Pattern.Pattern a1 -> Sound.Tidal.Pattern.Pattern a) -> Sound.Tidal.Pattern.Pattern a1 -> Sound.Tidal.Pattern.Pattern a
-_pickF::Int -> [Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a] -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-_ply::Rational -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-_plyWith::(Ord t, Num t) => t -> (Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a) -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-_pressBy::Sound.Tidal.Time.Time -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-_range::(Functor f, Num b) => b -> b -> f b -> f b
-_rearrangeWith::Sound.Tidal.Pattern.Pattern Int -> Int -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-_rot::Ord a => Int -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-_scramble::Int -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-_segment::Sound.Tidal.Time.Time -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-_select::Double -> [Sound.Tidal.Pattern.Pattern a] -> Sound.Tidal.Pattern.Pattern a
-_selectF::Double -> [Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a] -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-_shuffle::Int -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-_someCyclesBy::Double -> (Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a) -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-_stripe::Int -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-_trunc::Sound.Tidal.Time.Time -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-_unDegradeBy::Double -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-_wedge::Sound.Tidal.Time.Time -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-_whenmod::Sound.Tidal.Time.Time -> Sound.Tidal.Time.Time -> (Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a) -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-almostAlways::(Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a) -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-almostAlways'::(Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a) -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-almostNever::(Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a) -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-almostNever'::(Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a) -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-always::(Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a) -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-arp::Sound.Tidal.Pattern.Pattern String -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-arpWith::([Sound.Tidal.Pattern.EventF (Sound.Tidal.Time.ArcF Sound.Tidal.Time.Time) a] -> [Sound.Tidal.Pattern.EventF (Sound.Tidal.Time.ArcF Sound.Tidal.Time.Time) b]) -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern b
-arpeggiate::Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-arpg::Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-ascii::Sound.Tidal.Pattern.Pattern String -> Sound.Tidal.Pattern.Pattern Bool
-binary::Sound.Tidal.Pattern.Pattern Int -> Sound.Tidal.Pattern.Pattern Bool
-binaryN::Sound.Tidal.Pattern.Pattern Int -> Sound.Tidal.Pattern.Pattern Int -> Sound.Tidal.Pattern.Pattern Bool
-bite::Sound.Tidal.Pattern.Pattern Int -> Sound.Tidal.Pattern.Pattern Int -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-brak::Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-brand::Sound.Tidal.Pattern.Pattern Bool
-brandBy::Sound.Tidal.Pattern.Pattern Double -> Sound.Tidal.Pattern.Pattern Bool
-chew::Sound.Tidal.Pattern.Pattern Int -> Sound.Tidal.Pattern.Pattern Int -> Sound.Tidal.Pattern.ControlPattern -> Sound.Tidal.Pattern.ControlPattern
-choose::[a] -> Sound.Tidal.Pattern.Pattern a
-chooseBy::Sound.Tidal.Pattern.Pattern Double -> [a] -> Sound.Tidal.Pattern.Pattern a
-chunk::Sound.Tidal.Pattern.Pattern Int -> (Sound.Tidal.Pattern.Pattern b -> Sound.Tidal.Pattern.Pattern b) -> Sound.Tidal.Pattern.Pattern b -> Sound.Tidal.Pattern.Pattern b
-chunk'::Integral a1 => Sound.Tidal.Pattern.Pattern a1 -> (Sound.Tidal.Pattern.Pattern a2 -> Sound.Tidal.Pattern.Pattern a2) -> Sound.Tidal.Pattern.Pattern a2 -> Sound.Tidal.Pattern.Pattern a2
-contrast::(Sound.Tidal.Pattern.ControlPattern -> Sound.Tidal.Pattern.ControlPattern) -> (Sound.Tidal.Pattern.ControlPattern -> Sound.Tidal.Pattern.ControlPattern) -> Sound.Tidal.Pattern.ControlPattern -> Sound.Tidal.Pattern.ControlPattern -> Sound.Tidal.Pattern.ControlPattern
-contrastBy::(a -> Sound.Tidal.Pattern.Value -> Bool) -> (Sound.Tidal.Pattern.ControlPattern -> Sound.Tidal.Pattern.Pattern b) -> (Sound.Tidal.Pattern.ControlPattern -> Sound.Tidal.Pattern.Pattern b) -> Sound.Tidal.Pattern.Pattern (Data.Map.Internal.Map String a) -> Sound.Tidal.Pattern.Pattern (Data.Map.Internal.Map String Sound.Tidal.Pattern.Value) -> Sound.Tidal.Pattern.Pattern b
-contrastRange::(Sound.Tidal.Pattern.ControlPattern -> Sound.Tidal.Pattern.Pattern a) -> (Sound.Tidal.Pattern.ControlPattern -> Sound.Tidal.Pattern.Pattern a) -> Sound.Tidal.Pattern.Pattern (Data.Map.Internal.Map String (Sound.Tidal.Pattern.Value, Sound.Tidal.Pattern.Value)) -> Sound.Tidal.Pattern.ControlPattern -> Sound.Tidal.Pattern.Pattern a
-cycleChoose::[a] -> Sound.Tidal.Pattern.Pattern a
-deconstruct::Int -> Sound.Tidal.Pattern.Pattern String -> String
-degrade::Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-degradeBy::Sound.Tidal.Pattern.Pattern Double -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-degradeOverBy::Int -> Sound.Tidal.Pattern.Pattern Double -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-discretise::Sound.Tidal.Pattern.Pattern Sound.Tidal.Time.Time -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-distrib::[Sound.Tidal.Pattern.Pattern Int] -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-enclosingArc::[Sound.Tidal.Time.Arc] -> Sound.Tidal.Time.Arc
-eoff::Sound.Tidal.Pattern.Pattern Int -> Sound.Tidal.Pattern.Pattern Int -> Sound.Tidal.Pattern.Pattern Int -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-euclid::Sound.Tidal.Pattern.Pattern Int -> Sound.Tidal.Pattern.Pattern Int -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-euclidFull::Sound.Tidal.Pattern.Pattern Int -> Sound.Tidal.Pattern.Pattern Int -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-euclidInv::Sound.Tidal.Pattern.Pattern Int -> Sound.Tidal.Pattern.Pattern Int -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-euclidOff::Sound.Tidal.Pattern.Pattern Int -> Sound.Tidal.Pattern.Pattern Int -> Sound.Tidal.Pattern.Pattern Int -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-euclidOffBool::Sound.Tidal.Pattern.Pattern Int -> Sound.Tidal.Pattern.Pattern Int -> Sound.Tidal.Pattern.Pattern Int -> Sound.Tidal.Pattern.Pattern Bool -> Sound.Tidal.Pattern.Pattern Bool
-fadeIn::Sound.Tidal.Time.Time -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-fadeInFrom::Sound.Tidal.Time.Time -> Sound.Tidal.Time.Time -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-fadeOut::Sound.Tidal.Time.Time -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-fadeOutFrom::Sound.Tidal.Time.Time -> Sound.Tidal.Time.Time -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-fastspread::(a -> t -> Sound.Tidal.Pattern.Pattern b) -> [a] -> t -> Sound.Tidal.Pattern.Pattern b
-fit::Sound.Tidal.Pattern.Pattern Int -> [a] -> Sound.Tidal.Pattern.Pattern Int -> Sound.Tidal.Pattern.Pattern a
-fit'::Sound.Tidal.Pattern.Pattern Sound.Tidal.Time.Time -> Int -> Sound.Tidal.Pattern.Pattern Int -> Sound.Tidal.Pattern.Pattern Int -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-fix::(Sound.Tidal.Pattern.ControlPattern -> Sound.Tidal.Pattern.ControlPattern) -> Sound.Tidal.Pattern.ControlPattern -> Sound.Tidal.Pattern.ControlPattern -> Sound.Tidal.Pattern.ControlPattern
-fixRange::(Sound.Tidal.Pattern.ControlPattern -> Sound.Tidal.Pattern.Pattern Sound.Tidal.Pattern.ValueMap) -> Sound.Tidal.Pattern.Pattern (Data.Map.Internal.Map String (Sound.Tidal.Pattern.Value, Sound.Tidal.Pattern.Value)) -> Sound.Tidal.Pattern.ControlPattern -> Sound.Tidal.Pattern.ControlPattern
-flatpat::Sound.Tidal.Pattern.Pattern [a] -> Sound.Tidal.Pattern.Pattern a
-ghost::Sound.Tidal.Pattern.Pattern Sound.Tidal.Pattern.ValueMap -> Sound.Tidal.Pattern.Pattern Sound.Tidal.Pattern.ValueMap
-ghost'::Sound.Tidal.Time.Time -> Sound.Tidal.Pattern.Pattern Sound.Tidal.Pattern.ValueMap -> Sound.Tidal.Pattern.Pattern Sound.Tidal.Pattern.ValueMap
-ghost''::Sound.Tidal.Time.Time -> (Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a) -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-grain::Sound.Tidal.Pattern.Pattern Double -> Sound.Tidal.Pattern.Pattern Double -> Sound.Tidal.Pattern.ControlPattern
-ifp::(Int -> Bool) -> (Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a) -> (Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a) -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-index::Real b => b -> Sound.Tidal.Pattern.Pattern b -> Sound.Tidal.Pattern.Pattern c -> Sound.Tidal.Pattern.Pattern c
-inhabit::[(String, Sound.Tidal.Pattern.Pattern a)] -> Sound.Tidal.Pattern.Pattern String -> Sound.Tidal.Pattern.Pattern a
-inside::Sound.Tidal.Pattern.Pattern Sound.Tidal.Time.Time -> (Sound.Tidal.Pattern.Pattern a1 -> Sound.Tidal.Pattern.Pattern a) -> Sound.Tidal.Pattern.Pattern a1 -> Sound.Tidal.Pattern.Pattern a
-intSeedToRand::Fractional a => Int -> a
-inv::Functor f => f Bool -> f Bool
-irand::Num a => Sound.Tidal.Pattern.Pattern Int -> Sound.Tidal.Pattern.Pattern a
-iter::Sound.Tidal.Pattern.Pattern Int -> Sound.Tidal.Pattern.Pattern c -> Sound.Tidal.Pattern.Pattern c
-iter'::Sound.Tidal.Pattern.Pattern Int -> Sound.Tidal.Pattern.Pattern c -> Sound.Tidal.Pattern.Pattern c
-jux::(Sound.Tidal.Pattern.Pattern Sound.Tidal.Pattern.ValueMap -> Sound.Tidal.Pattern.Pattern Sound.Tidal.Pattern.ValueMap) -> Sound.Tidal.Pattern.Pattern Sound.Tidal.Pattern.ValueMap -> Sound.Tidal.Pattern.Pattern Sound.Tidal.Pattern.ValueMap
-jux'::[t -> Sound.Tidal.Pattern.Pattern Sound.Tidal.Pattern.ValueMap] -> t -> Sound.Tidal.Pattern.Pattern Sound.Tidal.Pattern.ValueMap
-jux4::(Sound.Tidal.Pattern.Pattern Sound.Tidal.Pattern.ValueMap -> Sound.Tidal.Pattern.Pattern Sound.Tidal.Pattern.ValueMap) -> Sound.Tidal.Pattern.Pattern Sound.Tidal.Pattern.ValueMap -> Sound.Tidal.Pattern.Pattern Sound.Tidal.Pattern.ValueMap
-juxBy::Sound.Tidal.Pattern.Pattern Double -> (Sound.Tidal.Pattern.Pattern Sound.Tidal.Pattern.ValueMap -> Sound.Tidal.Pattern.Pattern Sound.Tidal.Pattern.ValueMap) -> Sound.Tidal.Pattern.Pattern Sound.Tidal.Pattern.ValueMap -> Sound.Tidal.Pattern.Pattern Sound.Tidal.Pattern.ValueMap
-juxcut::(Sound.Tidal.Pattern.Pattern Sound.Tidal.Pattern.ValueMap -> Sound.Tidal.Pattern.Pattern Sound.Tidal.Pattern.ValueMap) -> Sound.Tidal.Pattern.Pattern Sound.Tidal.Pattern.ValueMap -> Sound.Tidal.Pattern.Pattern Sound.Tidal.Pattern.ValueMap
-juxcut'::[t -> Sound.Tidal.Pattern.Pattern Sound.Tidal.Pattern.ValueMap] -> t -> Sound.Tidal.Pattern.Pattern Sound.Tidal.Pattern.ValueMap
-layer::[a -> Sound.Tidal.Pattern.Pattern b] -> a -> Sound.Tidal.Pattern.Pattern b
-lindenmayer::Int -> String -> String -> String
-lindenmayerI::Num b => Int -> String -> String -> [b]
-linger::Sound.Tidal.Pattern.Pattern Sound.Tidal.Time.Time -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-loopFirst::Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-markovPat::Sound.Tidal.Pattern.Pattern Int -> Sound.Tidal.Pattern.Pattern Int -> [[Double]] -> Sound.Tidal.Pattern.Pattern Int
-mask::Sound.Tidal.Pattern.Pattern Bool -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-mono::Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-necklace::Rational -> [Int] -> Sound.Tidal.Pattern.Pattern Bool
-never::(Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a) -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-off::Sound.Tidal.Pattern.Pattern Sound.Tidal.Time.Time -> (Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a) -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-offadd::Num a => Sound.Tidal.Pattern.Pattern Sound.Tidal.Time.Time -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-often::(Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a) -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-often'::(Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a) -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-outside::Sound.Tidal.Pattern.Pattern Sound.Tidal.Time.Time -> (Sound.Tidal.Pattern.Pattern a1 -> Sound.Tidal.Pattern.Pattern a) -> Sound.Tidal.Pattern.Pattern a1 -> Sound.Tidal.Pattern.Pattern a
-palindrome::Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-parseLMRule::String -> [(String, String)]
-parseLMRule'::String -> [(Char, String)]
-perlin::Fractional a => Sound.Tidal.Pattern.Pattern a
-perlin2::Sound.Tidal.Pattern.Pattern Double -> Sound.Tidal.Pattern.Pattern Double
-perlin2With::Sound.Tidal.Pattern.Pattern Double -> Sound.Tidal.Pattern.Pattern Double -> Sound.Tidal.Pattern.Pattern Double
-perlinWith::Fractional a => Sound.Tidal.Pattern.Pattern Double -> Sound.Tidal.Pattern.Pattern a
-permstep::RealFrac b => Int -> [a] -> Sound.Tidal.Pattern.Pattern b -> Sound.Tidal.Pattern.Pattern a
-pick::String -> Int -> String
-pickF::Sound.Tidal.Pattern.Pattern Int -> [Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a] -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-ply::Sound.Tidal.Pattern.Pattern Rational -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-plyWith::(Ord t, Num t) => Sound.Tidal.Pattern.Pattern t -> (Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a) -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-press::Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-pressBy::Sound.Tidal.Pattern.Pattern Sound.Tidal.Time.Time -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-qceiling::(Functor f, RealFrac b) => b -> f b -> f b
-qfloor::(Functor f, RealFrac b) => b -> f b -> f b
-qround::(Functor f, RealFrac b) => b -> f b -> f b
-quantise::(Functor f, RealFrac b) => b -> f b -> f b
-rand::Fractional a => Sound.Tidal.Pattern.Pattern a
-randArcs::Int -> Sound.Tidal.Pattern.Pattern [Sound.Tidal.Time.Arc]
-randStruct::Int -> Sound.Tidal.Pattern.Pattern Int
-randcat::[Sound.Tidal.Pattern.Pattern a] -> Sound.Tidal.Pattern.Pattern a
-randrun::Int -> Sound.Tidal.Pattern.Pattern Int
-range::Num a => Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-rangex::(Functor f, Floating b) => b -> b -> f b -> f b
-rarely::(Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a) -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-rarely'::(Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a) -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-revArc::(Sound.Tidal.Time.Time, Sound.Tidal.Time.Time) -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-rolled::Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-rolledBy::Sound.Tidal.Pattern.Pattern (GHC.Real.Ratio Integer) -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-rolledWith::GHC.Real.Ratio Integer -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-rot::Ord a => Sound.Tidal.Pattern.Pattern Int -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-runMarkov::Int -> [[Double]] -> Int -> Sound.Tidal.Time.Time -> [Int]
-samples::Applicative f => f String -> f Int -> f String
-samples'::Applicative f => f String -> f Int -> f String
-scramble::Sound.Tidal.Pattern.Pattern Int -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-segment::Sound.Tidal.Pattern.Pattern Sound.Tidal.Time.Time -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-select::Sound.Tidal.Pattern.Pattern Double -> [Sound.Tidal.Pattern.Pattern a] -> Sound.Tidal.Pattern.Pattern a
-selectF::Sound.Tidal.Pattern.Pattern Double -> [Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a] -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-seqP::[(Sound.Tidal.Time.Time, Sound.Tidal.Time.Time, Sound.Tidal.Pattern.Pattern a)] -> Sound.Tidal.Pattern.Pattern a
-seqPLoop::[(Sound.Tidal.Time.Time, Sound.Tidal.Time.Time, Sound.Tidal.Pattern.Pattern a)] -> Sound.Tidal.Pattern.Pattern a
-sew::Sound.Tidal.Pattern.Pattern Bool -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-shuffle::Sound.Tidal.Pattern.Pattern Int -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-slowspread::(a -> t -> Sound.Tidal.Pattern.Pattern b) -> [a] -> t -> Sound.Tidal.Pattern.Pattern b
-slowstripe::Sound.Tidal.Pattern.Pattern Int -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-smooth::Fractional a => Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-snowball::Int -> (Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a) -> (Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a) -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-soak::Int -> (Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a) -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-someCycles::(Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a) -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-someCyclesBy::Sound.Tidal.Pattern.Pattern Double -> (Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a) -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-somecycles::(Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a) -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-somecyclesBy::Sound.Tidal.Pattern.Pattern Double -> (Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a) -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-sometimes::(Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a) -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-sometimes'::(Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a) -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-sometimesBy::Sound.Tidal.Pattern.Pattern Double -> (Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a) -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-sometimesBy'::Sound.Tidal.Pattern.Pattern Double -> (Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a) -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-spaceOut::[Sound.Tidal.Time.Time] -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-spread::(a -> t -> Sound.Tidal.Pattern.Pattern b) -> [a] -> t -> Sound.Tidal.Pattern.Pattern b
-spread'::Monad m => (a -> b -> m c) -> m a -> b -> m c
-spreadChoose::(t -> t1 -> Sound.Tidal.Pattern.Pattern b) -> [t] -> t1 -> Sound.Tidal.Pattern.Pattern b
-spreadf::[a -> Sound.Tidal.Pattern.Pattern b] -> a -> Sound.Tidal.Pattern.Pattern b
-spreadr::(t -> t1 -> Sound.Tidal.Pattern.Pattern b) -> [t] -> t1 -> Sound.Tidal.Pattern.Pattern b
-squeeze::Sound.Tidal.Pattern.Pattern Int -> [Sound.Tidal.Pattern.Pattern a] -> Sound.Tidal.Pattern.Pattern a
-squeezeJoinUp::Sound.Tidal.Pattern.Pattern Sound.Tidal.Pattern.ControlPattern -> Sound.Tidal.Pattern.ControlPattern
-stackwith::Sound.Tidal.Core.Unionable a => Sound.Tidal.Pattern.Pattern a -> [Sound.Tidal.Pattern.Pattern a] -> Sound.Tidal.Pattern.Pattern a
-step::String -> String -> Sound.Tidal.Pattern.Pattern String
-step'::[String] -> String -> Sound.Tidal.Pattern.Pattern String
-steps::[(String, String)] -> Sound.Tidal.Pattern.Pattern String
-stitch::Sound.Tidal.Pattern.Pattern Bool -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
 stretch::Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+striate'::Sound.Tidal.Pattern.Pattern Int -> Sound.Tidal.Pattern.Pattern Double -> Sound.Tidal.Pattern.ControlPattern -> Sound.Tidal.Pattern.ControlPattern
+striate::Sound.Tidal.Pattern.Pattern Int -> Sound.Tidal.Pattern.ControlPattern -> Sound.Tidal.Pattern.ControlPattern
+striateBy::Sound.Tidal.Pattern.Pattern Int -> Sound.Tidal.Pattern.Pattern Double -> Sound.Tidal.Pattern.ControlPattern -> Sound.Tidal.Pattern.ControlPattern
 stripe::Sound.Tidal.Pattern.Pattern Int -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
 struct::Sound.Tidal.Pattern.Pattern Bool -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+stut'::Sound.Tidal.Pattern.Pattern Int -> Sound.Tidal.Pattern.Pattern Sound.Tidal.Time.Time -> (Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a) -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+stut::Sound.Tidal.Pattern.Pattern Integer -> Sound.Tidal.Pattern.Pattern Double -> Sound.Tidal.Pattern.Pattern Rational -> Sound.Tidal.Pattern.ControlPattern -> Sound.Tidal.Pattern.ControlPattern
+stutWith::Sound.Tidal.Pattern.Pattern Int -> Sound.Tidal.Pattern.Pattern Sound.Tidal.Time.Time -> (Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a) -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
 stutter::Integral i => i -> Sound.Tidal.Time.Time -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-substruct::Sound.Tidal.Pattern.Pattern Bool -> Sound.Tidal.Pattern.Pattern b -> Sound.Tidal.Pattern.Pattern b
+subArc::Sound.Tidal.Time.Arc -> Sound.Tidal.Time.Arc -> Maybe Sound.Tidal.Time.Arc
+subMaybeArc::Maybe Sound.Tidal.Time.Arc -> Maybe Sound.Tidal.Time.Arc -> Maybe (Maybe Sound.Tidal.Time.Arc)
+substitutePath::String -> Sound.Tidal.Pattern.ValueMap -> Maybe String
 substruct'::Sound.Tidal.Pattern.Pattern Int -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+substruct::Sound.Tidal.Pattern.Pattern Bool -> Sound.Tidal.Pattern.Pattern b -> Sound.Tidal.Pattern.Pattern b
+superdirtShape::Sound.Tidal.Stream.OSC
+superdirtTarget::Sound.Tidal.Stream.Target
 superimpose::(Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a) -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
 swap::Eq a => [(a, b)] -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern b
 swing::Sound.Tidal.Pattern.Pattern Sound.Tidal.Time.Time -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
 swingBy::Sound.Tidal.Pattern.Pattern Sound.Tidal.Time.Time -> Sound.Tidal.Pattern.Pattern Sound.Tidal.Time.Time -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+symbol::String -> Sound.Tidal.ParseBP.MyParser String
+tParam2::(a -> b -> c -> Sound.Tidal.Pattern.Pattern d) -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern b -> c -> Sound.Tidal.Pattern.Pattern d
+tParam3::(a -> b -> c -> Sound.Tidal.Pattern.Pattern d -> Sound.Tidal.Pattern.Pattern e) -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern b -> Sound.Tidal.Pattern.Pattern c -> Sound.Tidal.Pattern.Pattern d -> Sound.Tidal.Pattern.Pattern e
+tParam::(t1 -> t2 -> Sound.Tidal.Pattern.Pattern a) -> Sound.Tidal.Pattern.Pattern t1 -> t2 -> Sound.Tidal.Pattern.Pattern a
+tParamSqueeze::(a -> Sound.Tidal.Pattern.Pattern b -> Sound.Tidal.Pattern.Pattern c) -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern b -> Sound.Tidal.Pattern.Pattern c
+tShow::Show a => Sound.Tidal.ParseBP.TPat a -> String
+tShowList::Show a => [Sound.Tidal.ParseBP.TPat a] -> String
 tabby::Int -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-timeLoop::Sound.Tidal.Pattern.Pattern Sound.Tidal.Time.Time -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-timeToIntSeed::RealFrac a => a -> Int
-timeToRand::(RealFrac a, Fractional b) => a -> b
-timeToRands::(RealFrac a, Fractional b) => a -> Int -> [b]
-timeToRands'::Fractional a => Int -> Int -> [a]
-toScale::Num a => [a] -> Sound.Tidal.Pattern.Pattern Int -> Sound.Tidal.Pattern.Pattern a
-toScale'::Num a => Int -> [a] -> Sound.Tidal.Pattern.Pattern Int -> Sound.Tidal.Pattern.Pattern a
-trunc::Sound.Tidal.Pattern.Pattern Sound.Tidal.Time.Time -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-unDegradeBy::Sound.Tidal.Pattern.Pattern Double -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-unfix::(Sound.Tidal.Pattern.ControlPattern -> Sound.Tidal.Pattern.ControlPattern) -> Sound.Tidal.Pattern.ControlPattern -> Sound.Tidal.Pattern.ControlPattern -> Sound.Tidal.Pattern.ControlPattern
-unfixRange::(Sound.Tidal.Pattern.ControlPattern -> Sound.Tidal.Pattern.Pattern Sound.Tidal.Pattern.ValueMap) -> Sound.Tidal.Pattern.Pattern (Data.Map.Internal.Map String (Sound.Tidal.Pattern.Value, Sound.Tidal.Pattern.Value)) -> Sound.Tidal.Pattern.ControlPattern -> Sound.Tidal.Pattern.ControlPattern
-ur::Sound.Tidal.Time.Time -> Sound.Tidal.Pattern.Pattern String -> [(String, Sound.Tidal.Pattern.Pattern a)] -> [(String, Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a)] -> Sound.Tidal.Pattern.Pattern a
-wchoose::[(a, Double)] -> Sound.Tidal.Pattern.Pattern a
-wchooseBy::Sound.Tidal.Pattern.Pattern Double -> [(a, Double)] -> Sound.Tidal.Pattern.Pattern a
-wedge::Sound.Tidal.Pattern.Pattern Sound.Tidal.Time.Time -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-whenmod::Sound.Tidal.Pattern.Pattern Sound.Tidal.Time.Time -> Sound.Tidal.Pattern.Pattern Sound.Tidal.Time.Time -> (Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a) -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-while::Sound.Tidal.Pattern.Pattern Bool -> (Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a) -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-within::(Sound.Tidal.Time.Time, Sound.Tidal.Time.Time) -> (Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a) -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-within'::(Sound.Tidal.Time.Time, Sound.Tidal.Time.Time) -> (Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a) -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-withinArc::Sound.Tidal.Time.Arc -> (Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a) -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
-wrandcat::[(Sound.Tidal.Pattern.Pattern a, Double)] -> Sound.Tidal.Pattern.Pattern a
-xorwise::Int -> Int
 tidal_status::IO ()
 tidal_status_string::IO String
 tidal_version::String
+timeCat::[(Sound.Tidal.Time.Time, Sound.Tidal.Pattern.Pattern a)] -> Sound.Tidal.Pattern.Pattern a
+timeLoop::Sound.Tidal.Pattern.Pattern Sound.Tidal.Time.Time -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+timeToCycleArc::Sound.Tidal.Time.Time -> Sound.Tidal.Time.Arc
+timeToIntSeed::RealFrac a => a -> Int
+timeToRand::(RealFrac a, Fractional b) => a -> b
+timeToRands'::Fractional a => Int -> Int -> [a]
+timeToRands::(RealFrac a, Fractional b) => a -> Int -> [b]
+timecat::[(Sound.Tidal.Time.Time, Sound.Tidal.Pattern.Pattern a)] -> Sound.Tidal.Pattern.Pattern a
+toData::Sound.Tidal.Stream.OSC -> Sound.Tidal.Pattern.Event Sound.Tidal.Pattern.ValueMap -> Maybe [hosc-0.19.1:Sound.OSC.Datum.Datum]
+toDatum::Sound.Tidal.Pattern.Value -> hosc-0.19.1:Sound.OSC.Datum.Datum
+toEvent::(((Sound.Tidal.Time.Time, Sound.Tidal.Time.Time), (Sound.Tidal.Time.Time, Sound.Tidal.Time.Time)), a) -> Sound.Tidal.Pattern.Event a
+toOSC::[Int] -> Sound.Tidal.Stream.ProcessedEvent -> Sound.Tidal.Stream.OSC -> [(Double, Bool, hosc-0.19.1:Sound.OSC.Packet.Message)]
+toPat::(Sound.Tidal.ParseBP.Parseable a, Sound.Tidal.ParseBP.Enumerable a) => Sound.Tidal.ParseBP.TPat a -> Sound.Tidal.Pattern.Pattern a
+toScale'::Num a => Int -> [a] -> Sound.Tidal.Pattern.Pattern Int -> Sound.Tidal.Pattern.Pattern a
+toScale::Num a => [a] -> Sound.Tidal.Pattern.Pattern Int -> Sound.Tidal.Pattern.Pattern a
+toTime::Real a => a -> Rational
+transition::Sound.Tidal.Stream.Stream -> Bool -> (Sound.Tidal.Time.Time -> [Sound.Tidal.Pattern.ControlPattern] -> Sound.Tidal.Pattern.ControlPattern) -> Sound.Tidal.ID.ID -> Sound.Tidal.Pattern.ControlPattern -> IO ()
+tri2::(Fractional a, Real a) => Sound.Tidal.Pattern.Pattern a
+tri::(Fractional a, Real a) => Sound.Tidal.Pattern.Pattern a
+trigger::Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+triggerWith::(Sound.Tidal.Time.Time -> Sound.Tidal.Time.Time) -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+trunc::Sound.Tidal.Pattern.Pattern Sound.Tidal.Time.Time -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+unDegradeBy::Sound.Tidal.Pattern.Pattern Double -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+uncollect::Sound.Tidal.Pattern.Pattern [a] -> Sound.Tidal.Pattern.Pattern a
+uncollectEvent::Sound.Tidal.Pattern.Event [a] -> [Sound.Tidal.Pattern.Event a]
+uncollectEvents::[Sound.Tidal.Pattern.Event [a]] -> [Sound.Tidal.Pattern.Event a]
+unfix::(Sound.Tidal.Pattern.ControlPattern -> Sound.Tidal.Pattern.ControlPattern) -> Sound.Tidal.Pattern.ControlPattern -> Sound.Tidal.Pattern.ControlPattern -> Sound.Tidal.Pattern.ControlPattern
+unfixRange::(Sound.Tidal.Pattern.ControlPattern -> Sound.Tidal.Pattern.Pattern Sound.Tidal.Pattern.ValueMap) -> Sound.Tidal.Pattern.Pattern (Data.Map.Internal.Map String (Sound.Tidal.Pattern.Value, Sound.Tidal.Pattern.Value)) -> Sound.Tidal.Pattern.ControlPattern -> Sound.Tidal.Pattern.ControlPattern
+unwrap::Sound.Tidal.Pattern.Pattern (Sound.Tidal.Pattern.Pattern a) -> Sound.Tidal.Pattern.Pattern a
+updatePattern::Sound.Tidal.Stream.Stream -> Sound.Tidal.ID.ID -> Sound.Tidal.Time.Time -> Sound.Tidal.Pattern.ControlPattern -> IO ()
+ur::Sound.Tidal.Time.Time -> Sound.Tidal.Pattern.Pattern String -> [(String, Sound.Tidal.Pattern.Pattern a)] -> [(String, Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a)] -> Sound.Tidal.Pattern.Pattern a
+valueToPattern::Sound.Tidal.Pattern.Value -> Sound.Tidal.Pattern.Pattern Sound.Tidal.Pattern.Value
+verbose::Sound.Tidal.Config.Config -> String -> IO ()
+wait::Sound.Tidal.Time.Time -> Sound.Tidal.Time.Time -> [Sound.Tidal.Pattern.ControlPattern] -> Sound.Tidal.Pattern.ControlPattern
+waitT::(Sound.Tidal.Time.Time -> [Sound.Tidal.Pattern.ControlPattern] -> Sound.Tidal.Pattern.ControlPattern) -> Sound.Tidal.Time.Time -> Sound.Tidal.Time.Time -> [Sound.Tidal.Pattern.ControlPattern] -> Sound.Tidal.Pattern.ControlPattern
+wash::(Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a) -> (Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a) -> Sound.Tidal.Time.Time -> Sound.Tidal.Time.Time -> Sound.Tidal.Time.Time -> Sound.Tidal.Time.Time -> [Sound.Tidal.Pattern.Pattern a] -> Sound.Tidal.Pattern.Pattern a
+washIn::(Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a) -> Sound.Tidal.Time.Time -> Sound.Tidal.Time.Time -> [Sound.Tidal.Pattern.Pattern a] -> Sound.Tidal.Pattern.Pattern a
+wchoose::[(a, Double)] -> Sound.Tidal.Pattern.Pattern a
+wchooseBy::Sound.Tidal.Pattern.Pattern Double -> [(a, Double)] -> Sound.Tidal.Pattern.Pattern a
+weave'::Sound.Tidal.Time.Time -> Sound.Tidal.Pattern.Pattern a -> [Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a] -> Sound.Tidal.Pattern.Pattern a
+weave::Sound.Tidal.Time.Time -> Sound.Tidal.Pattern.ControlPattern -> [Sound.Tidal.Pattern.ControlPattern] -> Sound.Tidal.Pattern.ControlPattern
+weaveWith::Sound.Tidal.Time.Time -> Sound.Tidal.Pattern.Pattern a -> [Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a] -> Sound.Tidal.Pattern.Pattern a
+wedge::Sound.Tidal.Pattern.Pattern Sound.Tidal.Time.Time -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+when::(Int -> Bool) -> (Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a) -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+whenT::(Sound.Tidal.Time.Time -> Bool) -> (Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a) -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+whenmod::Sound.Tidal.Pattern.Pattern Sound.Tidal.Time.Time -> Sound.Tidal.Pattern.Pattern Sound.Tidal.Time.Time -> (Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a) -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+while::Sound.Tidal.Pattern.Pattern Bool -> (Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a) -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+wholeOrPart::Sound.Tidal.Pattern.Event a -> Sound.Tidal.Time.Arc
+wholeStart::Sound.Tidal.Pattern.Event a -> Sound.Tidal.Time.Time
+wholeStop::Sound.Tidal.Pattern.Event a -> Sound.Tidal.Time.Time
+withContext::(Sound.Tidal.Pattern.Context -> Sound.Tidal.Pattern.Context) -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+withEvent::(Sound.Tidal.Pattern.Event a -> Sound.Tidal.Pattern.Event b) -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern b
+withEvents::([Sound.Tidal.Pattern.Event a] -> [Sound.Tidal.Pattern.Event b]) -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern b
+withPart::(Sound.Tidal.Time.Arc -> Sound.Tidal.Time.Arc) -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+withPatIds::Sound.Tidal.Stream.Stream -> [Sound.Tidal.ID.ID] -> (Sound.Tidal.StreamTypes.PlayState -> Sound.Tidal.StreamTypes.PlayState) -> IO ()
+withQueryArc::(Sound.Tidal.Time.Arc -> Sound.Tidal.Time.Arc) -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+withQueryControls::(Sound.Tidal.Pattern.ValueMap -> Sound.Tidal.Pattern.ValueMap) -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+withQueryTime::(Sound.Tidal.Time.Time -> Sound.Tidal.Time.Time) -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+withResultArc::(Sound.Tidal.Time.Arc -> Sound.Tidal.Time.Arc) -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+withResultTime::(Sound.Tidal.Time.Time -> Sound.Tidal.Time.Time) -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+withValue::(a -> b) -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern b
+within'::(Sound.Tidal.Time.Time, Sound.Tidal.Time.Time) -> (Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a) -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+within::(Sound.Tidal.Time.Time, Sound.Tidal.Time.Time) -> (Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a) -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+withinArc::Sound.Tidal.Time.Arc -> (Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a) -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+wrandcat::[(Sound.Tidal.Pattern.Pattern a, Double)] -> Sound.Tidal.Pattern.Pattern a
+wrapPos::Sound.Tidal.ParseBP.MyParser (Sound.Tidal.ParseBP.TPat a) -> Sound.Tidal.ParseBP.MyParser (Sound.Tidal.ParseBP.TPat a)
+xDefault::[GHC.Word.Word8] -> Maybe Sound.Tidal.Pattern.Value
+xfadeIn::Sound.Tidal.Time.Time -> Sound.Tidal.Time.Time -> [Sound.Tidal.Pattern.ControlPattern] -> Sound.Tidal.Pattern.ControlPattern
+xorwise::Int -> Int
+zoom::(Sound.Tidal.Time.Time, Sound.Tidal.Time.Time) -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+zoomArc::Sound.Tidal.Time.Arc -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+|%::Sound.Tidal.Pattern.Moddable a => Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+|%|::(Applicative a, Sound.Tidal.Pattern.Moddable b) => a b -> a b -> a b
+|**::Floating a => Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+|**|::(Applicative a, Floating b) => a b -> a b -> a b
+|*::Num a => Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+|*|::(Applicative a, Num b) => a b -> a b -> a b
+|++::Sound.Tidal.Pattern.Pattern String -> Sound.Tidal.Pattern.Pattern String -> Sound.Tidal.Pattern.Pattern String
+|++|::Applicative a => a String -> a String -> a String
+|+::Num a => Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+|+|::(Applicative a, Num b) => a b -> a b -> a b
+|-::Num a => Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+|-|::(Applicative a, Num b) => a b -> a b -> a b
+|/::Fractional a => Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+|/|::(Applicative a, Fractional b) => a b -> a b -> a b
+|<::Sound.Tidal.Core.Unionable a => Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+|<|::(Applicative a, Sound.Tidal.Core.Unionable b) => a b -> a b -> a b
+|>::Sound.Tidal.Core.Unionable a => Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+|>|::(Applicative a, Sound.Tidal.Core.Unionable b) => a b -> a b -> a b
+||%::Sound.Tidal.Pattern.Moddable a => Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+||**::Floating a => Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+||*::Num a => Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+||++::Sound.Tidal.Pattern.Pattern String -> Sound.Tidal.Pattern.Pattern String -> Sound.Tidal.Pattern.Pattern String
+||+::Num a => Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+||-::Num a => Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+||/::Fractional a => Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+||<::Sound.Tidal.Core.Unionable a => Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+||>::Sound.Tidal.Core.Unionable a => Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a
+~>::Sound.Tidal.Pattern.Pattern Sound.Tidal.Time.Time -> Sound.Tidal.Pattern.Pattern a -> Sound.Tidal.Pattern.Pattern a

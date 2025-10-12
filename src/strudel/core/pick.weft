@@ -1,0 +1,22 @@
+pick :: [Pattern a] -> Pattern Number -> Pattern a
+pickmod :: [Pattern a] -> Pattern Number -> Pattern a
+
+pickF :: Pattern Number -> [Pattern a -> Pattern b] -> Pattern a -> Pattern b
+pickmodF :: Pattern Number -> [Pattern a -> Pattern b] -> Pattern a -> Pattern b
+
+pickOut :: [Pattern a] -> Pattern Number -> Pattern a
+pickmodOut :: [Pattern a] -> Pattern Number -> Pattern a
+
+pickRestart :: [Pattern a] -> Pattern Number -> Pattern a
+pickmodRestart :: [Pattern a] -> Pattern Number -> Pattern a
+
+pickReset :: [Pattern a] -> Pattern Number -> Pattern a
+pickmodReset :: [Pattern a] -> Pattern Number -> Pattern a
+
+inhabit :: [Pattern a] -> Pattern Number -> Pattern a
+inhabitmod :: [Pattern a] -> Pattern Number -> Pattern a
+
+pickSqueeze :: [Pattern a] -> Pattern Number -> Pattern a
+pickmodSqueeze :: [Pattern a] -> Pattern Number -> Pattern a
+
+squeeze :: Pattern Number -> [Pattern a] -> Pattern a

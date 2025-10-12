@@ -1,0 +1,171 @@
+add :: Pattern Number -> Pattern Number -> Pattern Number
+and :: Pattern Bool -> Pattern Bool -> Pattern Bool
+apply :: Pattern (a -> b) -> Pattern a -> Pattern b
+arp :: Pattern String -> Pattern a -> Pattern a
+arpWith :: Pattern ([a] -> b) -> Pattern a -> Pattern b
+arrange :: [(Number, Pattern a)] -> Pattern a
+band :: Pattern Number -> Pattern Number -> Pattern Number
+beat :: Any
+bind :: (a -> Pattern b) -> Pattern a -> Pattern b
+bite :: Pattern Number -> Pattern Number -> Pattern a -> Pattern a
+blshift :: Pattern Number -> Pattern Number -> Pattern Number
+bor :: Pattern Number -> Pattern Number -> Pattern Number
+brak :: Pattern a -> Pattern a
+brshift :: Pattern Number -> Pattern Number -> Pattern Number
+bxor :: Pattern Number -> Pattern Number -> Pattern Number
+bypass :: Pattern Number -> Pattern a -> Pattern a
+cat :: [Pattern a] -> Pattern a
+ceil :: Pattern Number -> Pattern Number
+chop :: Pattern Number -> Pattern Controls -> Pattern Controls
+chunk :: Pattern Number -> (Pattern a -> Pattern a) -> Pattern a -> Pattern a
+chunkBack :: Pattern Number -> (Pattern a -> Pattern a) -> Pattern a -> Pattern a
+chunkBackInto :: Pattern Number -> (Pattern a -> Pattern a) -> Pattern a -> Pattern a
+chunkInto :: Pattern Number -> (Pattern a -> Pattern a) -> Pattern a -> Pattern a
+chunkback :: Pattern Number -> (Pattern a -> Pattern a) -> Pattern a -> Pattern a
+chunkbackinto :: Pattern Number -> (Pattern a -> Pattern a) -> Pattern a -> Pattern a
+chunkinto :: Pattern Number -> (Pattern a -> Pattern a) -> Pattern a -> Pattern a
+compress :: Pattern Number -> Pattern Number -> Pattern a -> Pattern a
+compressSpan :: Pattern Span -> Pattern a -> Pattern a
+compressspan :: Pattern Span -> Pattern a -> Pattern a
+contract :: Pattern Number -> Pattern a -> Pattern a
+cpm :: Pattern Number -> Pattern a -> Pattern a
+density :: Pattern Number -> Pattern a -> Pattern a
+div :: Pattern Number -> Pattern Number -> Pattern Number
+drop :: Pattern Number -> Pattern a -> Pattern a
+early :: Pattern Number -> Pattern a -> Pattern a
+echo :: Pattern Number -> Pattern Number -> Pattern Number -> Pattern Controls -> Pattern Controls
+echoWith :: Pattern Number -> Pattern Number -> (Pattern a -> Pattern a) -> Pattern a -> Pattern a
+echowith :: Pattern Number -> Pattern Number -> (Pattern a -> Pattern a) -> Pattern a -> Pattern a
+eq :: Eq a => Pattern a -> Pattern a -> Pattern Bool
+eqt :: Eq a => Pattern a -> Pattern a -> Pattern Bool
+every :: Pattern Number -> (Pattern a -> Pattern a) -> Pattern a -> Pattern a
+expand :: Pattern Number -> Pattern a -> Pattern a
+extend :: Pattern Number -> Pattern a -> Pattern a
+fast :: Pattern Number -> Pattern a -> Pattern a
+fastChunk :: Pattern Number -> (Pattern a -> Pattern a) -> Pattern a -> Pattern a
+fastGap :: Pattern Number -> Pattern a -> Pattern a
+fastcat :: [Pattern a] -> Pattern a
+fastchunk :: Pattern Number -> (Pattern a -> Pattern a) -> Pattern a -> Pattern a
+fastgap :: Pattern Number -> Pattern a -> Pattern a
+filter :: Pattern (Hap a -> Bool) -> Pattern a -> Pattern a
+filterWhen :: Pattern (Number -> Bool) -> Pattern a -> Pattern a
+firstOf :: Pattern Number -> (Pattern a -> Pattern a) -> Pattern a -> Pattern a
+fit :: Pattern Number -> [a] -> Pattern Number -> Pattern a
+floor :: Pattern Number -> Pattern Number
+focus :: Pattern Number -> Pattern Number -> Pattern a -> Pattern a
+focusSpan :: Pattern Span -> Pattern a -> Pattern a
+focusspan :: Pattern Span -> Pattern a -> Pattern a
+fromBipolar :: Pattern Number -> Pattern Number
+func :: Pattern a -> Pattern (a -> b) -> Pattern b
+gap :: Number -> Pattern a
+grow :: Pattern Number -> Pattern a -> Pattern a
+gt :: Ord a => Pattern a -> Pattern a -> Pattern Bool
+gte :: Ord a => Pattern a -> Pattern a -> Pattern Bool
+hsl :: Pattern Number -> Pattern Number -> Pattern Number -> Pattern Controls
+hsla :: Pattern Number -> Pattern Number -> Pattern Number -> Pattern Number -> Pattern Controls
+hurry :: Pattern Number -> Pattern Controls -> Pattern Controls
+innerBind :: (a -> Pattern b) -> Pattern a -> Pattern b
+inside :: Pattern Number -> (Pattern a -> Pattern b) -> Pattern a -> Pattern b
+inv :: Pattern Bool -> Pattern Bool
+invert :: Pattern Number -> Pattern Number
+iter :: Pattern Number -> Pattern a -> Pattern a
+iterBack :: Pattern Number -> Pattern a -> Pattern a
+iterback :: Pattern Number -> Pattern a -> Pattern a
+jux :: (Pattern Controls -> Pattern Controls) -> Pattern Controls -> Pattern Controls
+juxBy :: Pattern Number -> (Pattern Controls -> Pattern Controls) -> Pattern Controls -> Pattern Controls
+juxby :: Pattern Number -> (Pattern Controls -> Pattern Controls) -> Pattern Controls -> Pattern Controls
+keep :: Any
+keepif :: Pattern a -> Pattern Bool -> Pattern a
+lastOf :: Pattern Number -> (Pattern a -> Pattern a) -> Pattern a -> Pattern a
+late :: Pattern Number -> Pattern a -> Pattern a
+linger :: Pattern Number -> Pattern a -> Pattern a
+loopAt :: Pattern Number -> Pattern Controls -> Pattern Controls
+loopAtCps :: Any
+loopat :: Any
+loopatcps :: Any
+lt :: Ord a => Pattern a -> Pattern a -> Pattern Bool
+lte :: Ord a => Pattern a -> Pattern a -> Pattern Bool
+mask :: Pattern Bool -> Pattern a -> Pattern a
+mod :: Pattern Number -> Pattern Number -> Pattern Number
+morph :: Any
+mul :: Pattern Number -> Pattern Number -> Pattern Number
+ne :: Eq a => Pattern a -> Pattern a -> Pattern Bool
+net :: Eq a => Pattern a -> Pattern a -> Pattern Bool
+nothing :: Pattern a
+off :: Pattern Number -> (Pattern a -> Pattern a) -> Pattern a -> Pattern a
+or :: Pattern Bool -> Pattern Bool -> Pattern Bool
+outerBind :: (a -> Pattern b) -> Pattern a -> Pattern b
+outside :: Pattern Number -> (Pattern a -> Pattern b) -> Pattern a -> Pattern b
+pace :: Pattern Number -> Pattern a -> Pattern a
+palindrome :: Pattern a -> Pattern a
+ply :: Pattern Number -> Pattern a -> Pattern a
+pm :: [Pattern a] -> Pattern a
+polyBind :: (a -> Pattern b) -> Pattern a -> Pattern b
+polymeter :: [Pattern a] -> Pattern a
+polyrhythm :: [Pattern a] -> Pattern a
+pow :: Pattern Number -> Pattern Number -> Pattern Number
+pr :: [Pattern a] -> Pattern a
+press :: Pattern a -> Pattern a
+pressBy :: Pattern Number -> Pattern a -> Pattern a
+pure :: a -> Pattern a
+range :: Pattern Number -> Pattern Number -> Pattern Number -> Pattern Number
+range2 :: Pattern Number -> Pattern Number -> Pattern Number -> Pattern Number
+rangex :: Pattern Number -> Pattern Number -> Pattern Number -> Pattern Number
+ratio :: Pattern [Number] -> Pattern Number
+ref :: IO a -> Pattern a
+repeatCycles :: Pattern Number -> Pattern a -> Pattern a
+rev :: Pattern a -> Pattern a
+rib :: Pattern Number -> Pattern Number -> Pattern a -> Pattern a
+ribbon :: Pattern Number -> Pattern Number -> Pattern a -> Pattern a
+round :: Pattern Number -> Pattern Number
+seg :: Pattern Number -> Pattern a -> Pattern a
+segment :: Pattern Number -> Pattern a -> Pattern a
+seq :: [Pattern a] -> Pattern a
+seqPLoop :: [(Number, Number, Pattern a)] -> Pattern a
+sequence :: [Pattern a] -> Pattern a
+sequenceP :: [Pattern a] -> Pattern [a]
+set :: Pattern a -> Pattern b -> Pattern b
+shrink :: Pattern Number -> Pattern a -> Pattern a
+shrinklist :: Any
+silence :: Pattern a
+slice :: Pattern Number -> Pattern Number -> Pattern Controls -> Pattern Controls
+slow :: Pattern Number -> Pattern a -> Pattern a
+slowChunk :: Pattern Number -> (Pattern a -> Pattern a) -> Pattern a -> Pattern a
+slowcat :: [Pattern a] -> Pattern a
+slowcatPrime :: Any
+slowchunk :: Pattern Number -> (Pattern a -> Pattern a) -> Pattern a -> Pattern a
+sparsity :: Pattern Number -> Pattern a -> Pattern a
+splice :: Pattern Number -> Pattern Number -> Pattern Controls -> Pattern Controls
+splitQueries :: Pattern a -> Pattern a
+squeezeBind :: (a -> Pattern b) -> Pattern a -> Pattern b
+stack :: [Pattern a] -> Pattern a
+stackBy :: Any
+stackCentre :: Any
+stackLeft :: Any
+stackRight :: Any
+stepBind :: (a -> Pattern b) -> Pattern a -> Pattern b
+stepalt :: Any
+stepCat :: [Pattern a] -> Pattern a
+steps :: Any
+striate :: Pattern Number -> Pattern Controls -> Pattern Controls
+struct :: Pattern Bool -> Pattern a -> Pattern a
+stut :: Pattern Number -> Pattern Number -> Pattern Number -> Pattern Controls -> Pattern Controls
+stutWith :: Pattern Number -> Pattern Number -> (Pattern a -> Pattern a) -> Pattern a -> Pattern a
+stutwith :: Pattern Number -> Pattern Number -> (Pattern a -> Pattern a) -> Pattern a -> Pattern a
+sub :: Pattern Number -> Pattern Number -> Pattern Number
+superimpose :: [Pattern a -> Pattern a] -> Pattern a -> Pattern a
+swing :: Pattern Number -> Pattern a -> Pattern a
+swingBy :: Pattern Number -> Pattern Number -> Pattern a -> Pattern a
+take :: Pattern Number -> Pattern a -> Pattern a
+timeCat :: [Pattern a] -> Pattern a
+timecat :: [Pattern a] -> Pattern a
+toBipolar :: Pattern Number -> Pattern Number
+tour :: Pattern a -> [Pattern a] -> Pattern a
+when :: (Number -> Bool) -> (Pattern a -> Pattern a) -> Pattern a -> Pattern a
+withValue :: (a -> b) -> Pattern a -> Pattern b
+within :: Pattern Number -> Pattern Number -> (Pattern a -> Pattern a) -> Pattern a
+xfade :: Any
+zip :: [Pattern a] -> Pattern a
+zoom :: Pattern Number -> Pattern Number -> Pattern a -> Pattern a
+zoomArc :: Pattern Span -> Pattern a -> Pattern a
+zoomarc :: Pattern Span -> Pattern a -> Pattern a

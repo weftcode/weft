@@ -14,17 +14,19 @@ import { nord } from "@fsegurai/codemirror-theme-nord";
 import { WeftRuntime } from "../weft/src";
 
 import { parseLinter } from "./extensions/linter";
+import { autocomplete } from "./extensions/autocomplete";
 
-import { core, boot, operators, controls } from "../strudel";
+import { core, boot, operators, controls, tonal } from "../strudel";
 import { hush } from "../strudel";
 import standardLib from "../standard-lib";
 
 const runtime = new WeftRuntime();
-runtime.loadLibrary(standardLib);
-runtime.loadLibrary(core);
+runtime.loadModule(standardLib);
+runtime.loadModule(core);
 runtime.loadLibrary(boot);
 runtime.loadLibrary(operators);
 runtime.loadLibrary(controls);
+runtime.loadLibrary(tonal);
 
 async function updateURLField(input: HTMLInputElement, doc: string) {
   const stream = new ReadableStream({
@@ -124,6 +126,7 @@ window.addEventListener("load", async () => {
       editorTheme,
       nord,
       highlighter(handlerSet),
+      autocomplete(runtime.bindings),
     ],
     parent: document.getElementById("editor") ?? undefined,
   });

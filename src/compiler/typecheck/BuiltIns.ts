@@ -1,12 +1,13 @@
 import { Kind, Type } from "./Type";
 
 import { eq } from "../../utils";
+import { TypeScheme } from "./TypeScheme";
 
 export const KType: Kind = {
   is: Kind.Is.Type,
 };
 
-export function KFunc(left: Kind, right: Kind) {
+export function KFunc(left = KType, right = KType) {
   return {
     is: Kind.Is.Function,
     left,
@@ -72,4 +73,8 @@ export function asFnType(type: Type): FnType | null {
   }
 
   return { left: left.right, right };
+}
+
+export function asScheme(type: Type): TypeScheme {
+  return { forAll: [], qual: { preds: [], type } };
 }

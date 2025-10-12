@@ -1,13 +1,11 @@
 import { Expr } from "../parse/AST/Expr";
 import { Stmt } from "../parse/AST/Stmt";
 
-import { TypeScheme } from "./TypeScheme";
 import { Environment } from "../environment";
 import { Constraint } from "./Constraint";
-import { infer, applyToExpr } from "./Generation";
+import { infer, applyToExpr, checkLiterals } from "./Generation";
 import { TypeExt } from "./ASTExtensions";
 import { Infer } from "./Infer";
-import { printConstraint } from "./Printer";
 import { solve, SolverError } from "./Solver";
 
 export function typecheckStmt(
@@ -25,7 +23,9 @@ export function typecheckStmt(
         .run({ num: 0, constraints: [] });
       let { substitution, errors } = solve(constraints);
       expression = applyToExpr(expression, substitution);
-      return [{ ...statement, expression }, errors];
+      let litErrors: SolverError[];
+      [expression, litErrors] = checkLiterals(expression);
+      return [{ ...statement, expression }, [...errors, ...litErrors]];
     case Stmt.Is.Error:
       return [statement, []];
     default:

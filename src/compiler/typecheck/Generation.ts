@@ -1,8 +1,17 @@
 import { Expr } from "../parse/AST/Expr";
 import { Stmt } from "../parse/AST/Stmt";
-import { TApp, TFunc, tList } from "./BuiltIns";
+import {
+  asScheme,
+  KFunc,
+  TApp,
+  TConst,
+  TFunc,
+  tList,
+  tNumber,
+  tString,
+} from "./BuiltIns";
 
-import { Environment } from "../environment";
+import { addBinding, Binding, Environment, TypeEnv } from "../environment";
 
 import { Type } from "./Type";
 import { TypeExt } from "./ASTExtensions";
@@ -10,6 +19,11 @@ import { Substitution, applyToType } from "./Substitution";
 import { mapList } from "../utils/State";
 import { Infer } from "./Infer";
 import { RenamerExt } from "../rename/ASTExtensions";
+import { TokenType } from "../scan/TokenType";
+import { eq } from "../../utils";
+import { SolverError } from "./Solver";
+import { expressionBounds } from "../parse/Utils";
+import { printType } from "./Printer";
 
 export function infer(
   env: Environment,
@@ -129,6 +143,42 @@ export function infer(
         )
       );
 
+    // Lambda abstractions
+    case Expr.Is.Lambda:
+      return Inference.mapList(
+        // Attach a fresh type variable to each parameter
+        (paramExp) => Inference.fresh().map((type) => ({ ...paramExp, type })),
+        expr.parameters
+      ).bind((parameters) => {
+        // Update the binding environment to include the local parameters
+        let newEnv: Environment = {
+          ...env,
+          typeEnv: {
+            ...env.typeEnv,
+            ...Object.fromEntries(
+              parameters.map((param) => [
+                param.name.lexeme,
+                { type: asScheme(param.type), value: undefined },
+              ])
+            ),
+          },
+        };
+
+        return infer(newEnv, expr.expression).bind((expression) =>
+          Inference.fresh().bind((resultType) => {
+            // Generate Lambda expression type
+            let type = parameters.reduceRight<Type>(
+              (prev, param) => TFunc(param.type, prev),
+              resultType
+            );
+
+            return unify(expression.type, resultType, expression).then(
+              Inference.pure({ ...expr, parameters, expression, type })
+            );
+          })
+        );
+      });
+
     case Expr.Is.Empty:
     case Expr.Is.Error:
       // Treat this as an expression of totally unknown type
@@ -184,6 +234,15 @@ export function applyToExpr<T extends Expr<TypeExt>>(
         type: type && applyToType(sub, type),
       };
     }
+    case Expr.Is.Lambda: {
+      const { parameters, expression, type } = expr;
+      return {
+        ...expr,
+        parameters: parameters.map((param) => applyToExpr(param, sub)),
+        expression: applyToExpr(expression, sub),
+        type: type && applyToType(sub, type),
+      };
+    }
     case Expr.Is.List: {
       const { items, type } = expr;
       return {
@@ -191,6 +250,107 @@ export function applyToExpr<T extends Expr<TypeExt>>(
         items: items.map((item) => applyToExpr(item, sub)),
         type: type && applyToType(sub, type),
       };
+    }
+    default:
+      return expr satisfies never;
+  }
+}
+
+export function checkLiterals<T extends Expr<TypeExt>>(
+  expr: T
+): [T, SolverError[]] {
+  switch (expr.is) {
+    // This is the main case. Apply defaulting rules and check
+    // overloaded literal constraints (currently hard-coded)
+    case Expr.Is.Literal: {
+      const {
+        type,
+        token: { type: tokenType },
+      } = expr;
+
+      if (type.is === Type.Is.Var || type.is === Type.Is.Gen) {
+        return [
+          {
+            ...expr,
+            type: tokenType === TokenType.String ? tString : tNumber,
+          },
+          [],
+        ];
+      } else {
+        // Check for Patterns
+        if (
+          type.is === Type.Is.App &&
+          eq(type.left, TConst("Pattern", KFunc()))
+        ) {
+          return [expr, []];
+        } else if (
+          type.is === Type.Is.Const &&
+          ((tokenType === TokenType.String && eq(type, tString)) ||
+            (tokenType === TokenType.Number && eq(type, tNumber)))
+        ) {
+          return [expr, []];
+        } else {
+          return [
+            expr,
+            [
+              {
+                message: `Expecting ${printType(
+                  type
+                )} which can't be represented by a ${
+                  tokenType === TokenType.String ? "string" : "numeric"
+                } literal`,
+                ...expressionBounds(expr),
+              },
+            ],
+          ];
+        }
+      }
+    }
+    case Expr.Is.Empty:
+    case Expr.Is.Error:
+    case Expr.Is.Literal:
+    case Expr.Is.Variable:
+      return [expr, []];
+    case Expr.Is.Application:
+    case Expr.Is.Binary: {
+      const { left, right } = expr;
+      const [newLeft, lErrors] = checkLiterals(left);
+      const [newRight, rErrors] = checkLiterals(right);
+      return [
+        {
+          ...expr,
+          left: newLeft,
+          right: newRight,
+        },
+        [...lErrors, ...rErrors],
+      ];
+    }
+    case Expr.Is.Grouping:
+    case Expr.Is.Section:
+    case Expr.Is.Lambda: {
+      const { expression } = expr;
+      const [newExpression, errors] = checkLiterals(expression);
+      return [{ ...expr, expression: newExpression }, errors];
+    }
+    case Expr.Is.List: {
+      const { items } = expr;
+      const [newItems, errors] = items.reduce(
+        ([prevItems, prevErrors]: [Expr<TypeExt>[], SolverError[]], item) => {
+          const [newItem, newErrors] = checkLiterals(item);
+          return [
+            [newItem, ...prevItems],
+            [...newErrors, ...prevErrors],
+          ];
+        },
+        [[], []]
+      );
+      return [
+        {
+          ...expr,
+          items: newItems,
+        },
+        errors,
+      ];
     }
     default:
       return expr satisfies never;
