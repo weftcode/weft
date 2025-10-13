@@ -1,12 +1,13 @@
 // @ts-nocheck
 
 import { addBinding, BindingSpec } from "../compiler/environment";
+import { validateSpec } from "../weft/src/environment/Type";
 
 import { controls as strudelControls } from "@strudel/core";
 
 export default (env: Environment) => {
   for (let [name, binding] of Object.entries(controls)) {
-    env = addBinding(env, { name, ...binding });
+    env = addBinding(env, name, validateSpec(name, binding));
   }
 
   return env;
@@ -222,7 +223,10 @@ const controls: BindingSpec = {
   // hpr: { type: "", value: strudelControls.hpr },
   // bprelease: { type: "", value: strudelControls.bprelease },
   // bpr: { type: "", value: strudelControls.bpr },
-  // ftype: { type: "", value: strudelControls.ftype },
+  ftype: {
+    type: "Pattern Number -> Pattern Controls",
+    value: strudelControls.ftype,
+  },
   // fanchor: { type: "", value: strudelControls.fanchor },
   // vib: { type: "", value: strudelControls.vib },
   // vibrato: { type: "", value: strudelControls.vibrato },
@@ -434,7 +438,10 @@ const controls: BindingSpec = {
     value: strudelControls.chord,
   },
   // dictionary: { type: "", value: strudelControls.dictionary },
-  // dict: { type: "", value: strudelControls.dict },
+  dict: {
+    type: "Pattern String -> Pattern Controls",
+    value: strudelControls.dict,
+  },
   // anchor: { type: "", value: strudelControls.anchor },
   offset: {
     type: "Pattern Number -> Pattern Controls",
@@ -699,7 +706,10 @@ const controls: BindingSpec = {
     type: "Pattern Number -> Pattern Controls",
     value: strudelControls.cps,
   },
-  // clip: { type: "", value: strudelControls.clip },
+  clip: {
+    type: "Pattern Number -> Pattern Controls",
+    value: strudelControls.clip,
+  },
   // zrand: { type: "", value: strudelControls.zrand },
   // curve: { type: "", value: strudelControls.curve },
   // deltaSlide: { type: "", value: strudelControls.deltaSlide },

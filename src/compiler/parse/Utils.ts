@@ -23,6 +23,11 @@ export function expressionBounds(expr: Expr): {
             from: expressionBounds(expr.expression).from,
             to: expressionBounds(expr.operator).to,
           };
+    case Expr.Is.Lambda:
+      return {
+        from: expr.parameters[0].name.from,
+        to: expressionBounds(expr.expression).to,
+      };
     case Expr.Is.Grouping:
       return {
         from: expr.leftParen.from,

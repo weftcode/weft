@@ -1,0 +1,77 @@
+-- Signal Primitives
+steady :: a -> Pattern a
+signal :: (Number -> a) -> Pattern a
+
+-- Numeric Signals
+saw :: Pattern Number
+saw2 :: Pattern Number
+isaw :: Pattern Number
+isaw2 :: Pattern Number
+sine :: Pattern Number
+sine2 :: Pattern Number
+cosine :: Pattern Number
+cosine2 :: Pattern Number
+square :: Pattern Number
+square2 :: Pattern Number
+tri :: Pattern Number
+tri2 :: Pattern Number
+itri :: Pattern Number
+itri2 :: Pattern Number
+time :: Pattern Number
+
+-- User Input Signals
+mousex :: Pattern Number
+mouseX :: Pattern Number
+mousey :: Pattern Number
+mouseY :: Pattern Number
+keyDown :: Pattern String -> Pattern Bool
+whenKey :: Pattern String -> (Pattern a -> Pattern a) -> Pattern a -> Pattern a
+
+run :: Pattern Number -> Pattern Number
+randrun :: Pattern Number -> Pattern Number
+
+binary :: Pattern Number -> Pattern Bool
+binaryN :: Pattern Number -> Pattern Number -> Pattern Bool
+
+rand :: Pattern Number
+rand2 :: Pattern Number
+brand :: Pattern Number
+brandBy :: Pattern Number -> Pattern Number
+irand :: Pattern Number -> Pattern Number
+shuffle :: Pattern Number -> Pattern a -> Pattern a
+scramble :: Pattern Number -> Pattern a -> Pattern a
+
+chooseWith :: Pattern Number -> [Pattern a] -> Pattern a
+chooseInWith :: Pattern Number -> [Pattern a] -> Pattern a
+choose :: [Pattern a] -> Pattern a
+chooseIn :: [Pattern a] -> Pattern a
+chooseOut :: [Pattern a] -> Pattern a
+chooseCycles :: [Pattern a] -> Pattern a
+randcat :: [Pattern a] -> Pattern a
+
+wchoose :: [(Pattern a, Pattern Number)] -> Pattern a
+wchooseCycles :: [(Pattern a, Pattern Number)] -> Pattern a
+wrandcat :: [(Pattern a, Pattern Number)] -> Pattern a
+
+perlin :: Pattern Number
+perlinWith :: Pattern Number -> Pattern Number
+berlin :: Pattern Number
+berlinWith :: Pattern Number -> Pattern Number
+
+degrade :: Pattern a -> Pattern a
+degradeBy :: Pattern Number -> Pattern a -> Pattern a
+degradeByWith :: Pattern Number -> Pattern Number -> Pattern a -> Pattern a
+undegrade :: Pattern a -> Pattern a
+undegradeBy :: Pattern Number -> Pattern a -> Pattern a
+
+sometimes :: (Pattern a -> Pattern a) -> Pattern a -> Pattern a
+sometimesBy :: Pattern Number -> (Pattern a -> Pattern a) -> Pattern a -> Pattern a
+someCycles :: (Pattern a -> Pattern a) -> Pattern a -> Pattern a
+someCyclesBy :: Pattern Number -> (Pattern a -> Pattern a) -> Pattern a -> Pattern a
+
+never :: (Pattern a -> Pattern a) -> Pattern a -> Pattern a
+almostNever :: (Pattern a -> Pattern a) -> Pattern a -> Pattern a
+rarely :: (Pattern a -> Pattern a) -> Pattern a -> Pattern a
+often :: (Pattern a -> Pattern a) -> Pattern a -> Pattern a
+almostAlways :: (Pattern a -> Pattern a) -> Pattern a -> Pattern a
+always :: (Pattern a -> Pattern a) -> Pattern a -> Pattern a

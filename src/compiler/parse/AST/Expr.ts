@@ -5,6 +5,7 @@ export type Expr<Extend extends Expr.Extension = Expr.Extension> =
   | Expr.Application<Extend>
   | Expr.Binary<Extend>
   | Expr.Section<Extend>
+  | Expr.Lambda<Extend>
   | Expr.Grouping<Extend>
   | Expr.List<Extend>
   | Expr.Literal<Extend>
@@ -17,6 +18,7 @@ export namespace Expr {
     Application = "Application",
     Binary = "Binary",
     Section = "Section",
+    Lambda = "Lambda",
     Grouping = "Grouping",
     List = "List",
     Literal = "Literal",
@@ -29,6 +31,7 @@ export namespace Expr {
     "Expr.Application": object;
     "Expr.Binary": object;
     "Expr.Section": object;
+    "Expr.Lambda": object;
     "Expr.Grouping": object;
     "Expr.List": object;
     "Expr.Literal": object;
@@ -62,6 +65,12 @@ export namespace Expr {
     expression: Expr<Extend>;
     side: "left" | "right";
   } & Extend["Expr.Section"];
+
+  export type Lambda<Extend extends Extension = Extension> = {
+    is: Is.Lambda;
+    parameters: Variable<Extend>[];
+    expression: Expr<Extend>;
+  } & Extend["Expr.Lambda"];
 
   export type Grouping<Extend extends Extension = Extension> = {
     is: Is.Grouping;

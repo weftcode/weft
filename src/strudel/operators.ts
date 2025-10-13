@@ -2,12 +2,13 @@
 
 import { TokenType } from "../compiler/scan/TokenType";
 import { addBinding, BindingSpec } from "../compiler/environment";
+import { validateSpec } from "../weft/src/environment/Type";
 
-import { reify } from "@strudel/core";
+import { reify, early, late } from "@strudel/core";
 
 export default (env: Environment) => {
   for (let [name, binding] of Object.entries(operators)) {
-    env = addBinding(env, { name, ...binding });
+    env = addBinding(env, name, validateSpec(name, binding));
   }
 
   return env;
@@ -154,5 +155,16 @@ const operators: BindingSpec = {
     value: (a, b) => reify(a).set.out(reify(b)),
 
     prec: [8, "left"],
+  },
+
+  // Time shifts
+  "~>": {
+    type: "Pattern Number -> Pattern a -> Pattern a",
+    value: early,
+  },
+
+  "<~": {
+    type: "Pattern Number -> Pattern a -> Pattern a",
+    value: late,
   },
 };

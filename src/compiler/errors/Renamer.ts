@@ -59,6 +59,9 @@ function collectRenameExprErrors(expr: Expr<RenamerExt>): Diagnostic[] {
         ...collectRenameExprErrors(expr.expression),
       ];
 
+    case Expr.Is.Lambda:
+      return collectRenameExprErrors(expr.expression);
+
     case Expr.Is.List:
       return expr.items.flatMap(collectRenameExprErrors);
 
