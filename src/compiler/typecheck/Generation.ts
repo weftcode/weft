@@ -16,7 +16,8 @@ import { addBinding, Binding, Environment, TypeEnv } from "../environment";
 import { Type } from "./Type";
 import { TypeExt } from "./ASTExtensions";
 import { Substitution, applyToType } from "./Substitution";
-import { Inference, freshInst, unify } from "./Monad";
+import { mapList } from "../utils/State";
+import { Infer } from "./Infer";
 import { RenamerExt } from "../rename/ASTExtensions";
 import { TokenType } from "../scan/TokenType";
 import { eq } from "../../utils";
@@ -27,11 +28,11 @@ import { printType } from "./Printer";
 export function infer(
   env: Environment,
   expr: Expr<RenamerExt>
-): Inference<Expr<TypeExt>> {
+): Infer<Expr<TypeExt>> {
   switch (expr.is) {
     // Literals
     case Expr.Is.Literal:
-      return Inference.fresh().map((type) => ({
+      return Infer.fresh().map((type) => ({
         ...expr,
         type,
       }));
@@ -40,10 +41,10 @@ export function infer(
     case Expr.Is.Variable:
       if (expr.missing) {
         // If we're missing a variable, treat it as a typed hole
-        return Inference.fresh().map((type) => ({ ...expr, type }));
+        return Infer.fresh().map((type) => ({ ...expr, type }));
       } else {
         let scheme = env.typeEnv[expr.name.lexeme].type;
-        return freshInst(scheme).map(({ type }) => ({ ...expr, type }));
+        return Infer.freshInst(scheme).map(({ type }) => ({ ...expr, type }));
       }
 
     // Grouping
@@ -52,15 +53,15 @@ export function infer(
 
     // List Literals
     case Expr.Is.List:
-      return Inference.fresh().bind((itemType) =>
-        Inference.mapList(
+      return Infer.fresh().bind((itemType) =>
+        mapList(
           (rawItem) =>
             infer(env, rawItem).bind((item) =>
-              unify(itemType, item.type, item).then(Inference.pure(item))
+              Infer.unify(itemType, item.type, item).then(Infer.of(item))
             ),
           expr.items
         ).bind((items) =>
-          Inference.pure({
+          Infer.of({
             ...expr,
             items,
             type: TApp(tList, itemType),
@@ -72,11 +73,11 @@ export function infer(
     case Expr.Is.Application:
       return infer(env, expr.left).bind((left) =>
         infer(env, expr.right).bind((right) =>
-          Inference.fresh().bind((argType) =>
-            Inference.fresh().bind((resultType) =>
-              unify(left.type, TFunc(argType, resultType), left).then(
-                unify(argType, right.type, right).then(
-                  Inference.pure({
+          Infer.fresh().bind((argType) =>
+            Infer.fresh().bind((resultType) =>
+              Infer.unify(left.type, TFunc(argType, resultType), left).then(
+                Infer.unify(argType, right.type, right).then(
+                  Infer.of({
                     ...expr,
                     left,
                     right,
@@ -94,13 +95,13 @@ export function infer(
       return infer(env, expr.left).bind((left) =>
         infer(env, expr.operator).bind((operator) =>
           infer(env, expr.right).bind((right) =>
-            Inference.fresh().bind((resultType) =>
-              unify(
+            Infer.fresh().bind((resultType) =>
+              Infer.unify(
                 operator.type,
                 TFunc(left.type, TFunc(right.type, resultType)),
                 right
               ).then(
-                Inference.pure({
+                Infer.of({
                   ...expr,
                   left,
                   right,
@@ -120,16 +121,16 @@ export function infer(
     case Expr.Is.Section:
       return infer(env, expr.expression).bind((expression) =>
         infer(env, expr.operator).bind((operator) =>
-          Inference.fresh().bind((argType) =>
-            Inference.fresh().bind((resultType) =>
-              unify(
+          Infer.fresh().bind((argType) =>
+            Infer.fresh().bind((resultType) =>
+              Infer.unify(
                 operator.type,
                 expr.side === "left"
                   ? TFunc(argType, TFunc(expression.type, resultType))
                   : TFunc(expression.type, TFunc(argType, resultType)),
                 expression
               ).then(
-                Inference.pure({
+                Infer.of({
                   ...expr,
                   expression,
                   // See above
@@ -181,7 +182,7 @@ export function infer(
     case Expr.Is.Empty:
     case Expr.Is.Error:
       // Treat this as an expression of totally unknown type
-      return Inference.fresh().map((type) => ({ ...expr, type }));
+      return Infer.fresh().map((type) => ({ ...expr, type }));
 
     default:
       return expr satisfies never;
