@@ -2,7 +2,7 @@ import { Stmt } from "../../compiler/parse/AST/Stmt";
 import { expressionBounds } from "../../compiler/parse/Utils";
 
 import { Scanner } from "../../compiler/scan/Scanner";
-import { Parser } from "../../compiler/parse/Parser";
+import { Parser } from "../../compiler/parse/ParseExpr";
 import { renameStmt } from "../../compiler/rename/Renamer";
 import { typecheckStmt } from "../../compiler/typecheck/TypeCheck";
 import { Interpreter, Location } from "../../compiler/Interpreter";

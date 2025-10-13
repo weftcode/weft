@@ -8,6 +8,52 @@ import { Stmt } from "./AST/Stmt";
 
 import { TypeEnv } from "../environment";
 
+export function expression(precedence: number): Parse<Expr> {
+  return lexpr().bind(left => );
+
+  let left = this.lexpr();
+
+  while (this.peek().type === TokenType.Operator) {
+    let op = this.environment[this.peek().lexeme];
+    if (!op) {
+      throw new ParseError(
+        this.peek(),
+        `Undefined operator "${this.peek().lexeme}"`
+      );
+    }
+    let [opPrecedence, opAssociativity] = op.prec ?? [9, "left"];
+
+    // If we encounter a lower-precedence operator, stop consuming tokens
+    if (opPrecedence < precedence) break;
+
+    // Check for a paren after operator, which may indicate a section
+    if (this.peekNext().type === TokenType.RightParen) break;
+
+    // Consume operator
+    let operator = { is: Expr.Is.Variable, name: this.advance() } as const;
+    let right = this.expression(
+      opAssociativity === "left" ? opPrecedence + 1 : opPrecedence
+    );
+
+    // Check for empty expressions
+    let lNull = left.is === Expr.Is.Empty;
+    let rNull = right.is === Expr.Is.Empty;
+    if (lNull || rNull) {
+      throw new ParseError(
+        operator.name,
+        `Missing expression ${lNull ? "before" : ""}${
+          lNull && rNull ? " and " : ""
+        }${rNull ? "after" : ""} the "${operator.name.lexeme}" operator`
+      );
+    }
+
+    // Associate operator
+    left = { is: Expr.Is.Binary, left, operator, right, precedence };
+  }
+
+  return left;
+}
+
 export class Parser extends BaseParser<Stmt[]> {
   constructor(tokens: Token[], private environment: TypeEnv) {
     super(tokens);
@@ -280,4 +326,5 @@ export class Parser extends BaseParser<Stmt[]> {
   }
 }
 
-import { ParseError } from "./BaseParser";
+import { ParseError } from "./BaseParser";import { Parse } from "./Parse";
+

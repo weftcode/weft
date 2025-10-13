@@ -1,7 +1,7 @@
 import { describe, it, expect } from "@jest/globals";
 
 import { Scanner } from "../../scan/Scanner";
-import { Parser } from "../Parser";
+import { Parser } from "../ParseExpr";
 
 import { makeEnv } from "../../environment";
 import prelude from "../../../standard-lib";
