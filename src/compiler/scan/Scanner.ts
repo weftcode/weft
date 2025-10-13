@@ -16,6 +16,8 @@ type Scan<A> = State<ScanState, A>;
 export namespace Scan {
   const get: Scan<ScanState> = State.get();
 
+  const put = State.put<ScanState>;
+
   const modify = State.modify<ScanState>;
 
   export function peek() {
@@ -47,22 +49,74 @@ export namespace Scan {
     ({ current, source }) => current >= source.length
   );
 
-  export function advance(): Scan<string> {
-    return get.bind(({ current, ...state }) =>
-      State.put({ current: current + 1, ...state }).then(
-        State.of(state.source.charAt(current))
+  export const advance = get.bind(({ current, ...state }) =>
+    State.put({ current: current + 1, ...state }).then(
+      State.of(state.source.charAt(current))
+    )
+  );
+
+  export const advanceLine = modify(({ line, lineStart, ...state }) => ({
+    ...state,
+    line: line + 1,
+    lineStart: state.current,
+  }));
+
+  export function token(
+    type: Exclude<TokenType, TokenType.Error>
+  ): Scan<Token> {
+    return get.bind(({ source, start, current, ...rest }) =>
+      put({ source, start: current, current, ...rest }).then(
+        State.of({
+          type,
+          lexeme: source.substring(start, current),
+          from: start,
+        })
       )
     );
   }
 
-  export function advanceLine() {
-    return modify(({ line, lineStart, ...state }) => ({
-      ...state,
-      line: line + 1,
-      lineStart: state.current,
-    }));
-  }
+  export const discard = modify(({ start, current, ...rest }) => ({
+    start: current,
+    current,
+    ...rest,
+  }));
 }
+
+export const scanTokens: Scan<Token[]> = Scan.isAtEnd.bind((isAtEnd) =>
+  isAtEnd
+    ? Scan.token(TokenType.EOF).map((token) => [token])
+    : scanToken.bind((token) =>
+        scanTokens.bind((tokens) => State.of([token, ...tokens]))
+      )
+);
+
+const scanToken: Scan<Token> = Scan.advance.bind((c) => {
+  if (c in special) {
+    return Scan.token(special[c]);
+  } else if (ascSymbol.has(c)) {
+    // An initial colon means we have a constructor symbol (not used)
+    c !== ":" ? this.symbolOrComment() : this.conSymbol();
+  } else if (c === ":") {
+    // Special constructor symbols not in use here yet
+    this.conSymbol();
+  } else if (c === " " || c === "\r" || c === "\t") {
+    // Ignore whitespace for now
+    return Scan.discard.then(scanToken);
+  } else if (c === "\n") {
+    if (!this.peek().match(/[ \r\t]/)) {
+      this.addToken(TokenType.LineBreak);
+    }
+    this.advanceLine();
+  } else if (c === '"') {
+    this.string();
+  } else if (this.isDigit(c)) {
+    this.number();
+  } else if (this.isAlpha(c)) {
+    this.identifier();
+  } else {
+    this.addErrorToken(`Unexpected character "${c}".`);
+  }
+});
 
 export class Scanner {
   private tokens: Token[] = [];
