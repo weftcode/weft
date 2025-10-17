@@ -56,7 +56,7 @@ export namespace Expr {
     left: Expr<Extend>;
     operator: Variable<Extend>;
     right: Expr<Extend>;
-    precedence: number;
+    // precedence: number;
   } & Extend["Expr.Binary"];
 
   export type Section<Extend extends Extension = Extension> = {
@@ -75,8 +75,8 @@ export namespace Expr {
   export type Grouping<Extend extends Extension = Extension> = {
     is: Is.Grouping;
     expression: Expr<Extend>;
-    leftParen: Token;
-    rightParen: Token;
+    // leftParen: Token;
+    // rightParen: Token;
   } & Extend["Expr.Grouping"];
 
   export type List<Extend extends Extension = Extension> = {

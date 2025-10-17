@@ -1,6 +1,7 @@
 import { Token } from "../scan/Token";
 import { TokenType } from "../scan/TokenType";
 import { State } from "../utils/State";
+import { Expr } from "./AST/Expr";
 
 interface ParseState {
   tokens: Token[];
