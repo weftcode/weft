@@ -196,6 +196,42 @@ export function application(): Parse<Expr> {
 //     return statements;
 //   }
 
+// private declaration(): Stmt {
+//     const expression = this.expression(0);
+
+//     if (!this.isAtEnd()) {
+//       if (this.peek().type === TokenType.ColonColon) {
+//         const name: Stmt.Annotation["name"] =
+//           expression.is === Expr.Is.Variable
+//             ? expression
+//             : {
+//                 is: Expr.Is.Error,
+//                 contents: [{ is: "Expr", item: expression }],
+//               };
+
+//         // Consume double-colon
+//         this.advance();
+
+//         // Parse type annotation
+//         const typeSig = this.qualifiedType();
+//         this.consume(TokenType.LineBreak, "Expect new line after expression.");
+
+//         return { is: Stmt.Is.Annotation, name, typeSig };
+//       }
+
+//       // This surely means we've encountered an error
+//       if (expression.is === Expr.Is.Empty) {
+//         let next = this.advance();
+//         throw new ParseError(next, `Unexpected token "${next.lexeme}"`);
+//       }
+
+//       this.consume(TokenType.LineBreak, "Expect new line after expression.");
+//     }
+
+//     // We've got a plain expression statement
+//     return { is: Stmt.Is.Expression, expression };
+//   }
+
 //   private expressionStatement(): Stmt {
 //     const expression = this.expression(0);
 

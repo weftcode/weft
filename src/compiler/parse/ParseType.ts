@@ -1,15 +1,8 @@
-import { TokenType } from "../scan/TokenType";
-import { BaseParser } from "../parse/BaseParser";
 
-import { TypeNode } from "./AST/TypeNode";
 
-export class TypeParser extends BaseParser<TypeNode> {
-  parse() {
-    // TODO: Check if we've reached the end
-    return this.qualifiedType();
-  }
 
-  private qualifiedType(): TypeNode {
+  // Type Nodes
+  qualifiedType(): TypeNode {
     let context = this.functionType();
 
     if (this.match(TokenType.DoubleArrow)) {
@@ -131,4 +124,3 @@ export class TypeParser extends BaseParser<TypeNode> {
 
     return null;
   }
-}

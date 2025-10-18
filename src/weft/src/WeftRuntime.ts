@@ -24,7 +24,7 @@ import { collectRenameErrors } from "../../compiler/errors/Renamer";
 import { TypeExt } from "../../compiler/typecheck/ASTExtensions";
 import { SolverError } from "../../compiler/typecheck/Solver";
 import { Expr } from "../../compiler/parse/AST/Expr";
-import { printType } from "../../compiler/typecheck/Printer";
+import { printQualType, printType } from "../../compiler/typecheck/Printer";
 
 import { BindingSpec, validateSpec } from "./environment/Type";
 import { ModuleSpec, validateModule } from "./environment/ModuleSpec";
@@ -221,6 +221,14 @@ export function collectTypeInfo(stmts: Stmt<TypeExt>[]): Diagnostic[] {
         return collectTypeInfoExpr(stmt.expression);
       case Stmt.Is.Error:
         return [];
+      case Stmt.Is.Annotation:
+        return [
+          {
+            severity: "info",
+            message: printQualType(stmt.type),
+            ...expressionBounds(stmt.name),
+          },
+        ];
       default:
         return stmt satisfies never;
     }

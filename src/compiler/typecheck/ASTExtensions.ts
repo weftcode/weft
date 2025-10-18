@@ -1,6 +1,7 @@
 import { Expr } from "../parse/AST/Expr";
 import { Stmt } from "../parse/AST/Stmt";
 import { Type } from "./Type";
+import { QualType } from "./TypeClass";
 
 export interface NodeTypeInfo {
   type: Type;
@@ -8,6 +9,7 @@ export interface NodeTypeInfo {
 
 export type TypeExt = Stmt.Extension & {
   "Stmt.Expression": { expression: Expr<TypeExt> };
+  "Stmt.Annotation": { type: QualType };
   "Expr.Variable": NodeTypeInfo;
   "Expr.Literal": NodeTypeInfo;
   "Expr.Application": NodeTypeInfo;

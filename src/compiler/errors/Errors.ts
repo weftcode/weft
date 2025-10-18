@@ -15,6 +15,10 @@ export function collectStmtErrors(stmt: Stmt): Diagnostic[] {
     case Stmt.Is.Error:
       let { message, from, to } = stmt;
       return [{ severity: "error", message, from, to }];
+    case Stmt.Is.Annotation:
+      return collectExprErrors(stmt.name);
+    default:
+      return stmt satisfies never;
   }
 }
 

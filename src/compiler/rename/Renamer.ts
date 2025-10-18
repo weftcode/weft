@@ -11,6 +11,9 @@ export function renameStmt(stmt: Stmt, context: TypeEnv): Stmt<RenamerExt> {
         ...stmt,
         expression: renameExpr(stmt.expression, context),
       };
+    case Stmt.Is.Annotation:
+      // TODO: Check that types are in scope
+      return stmt;
     case Stmt.Is.Error:
       return stmt;
     default:

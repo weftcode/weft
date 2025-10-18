@@ -3,6 +3,7 @@ export enum TokenType {
   Error = "ERROR",
 
   // Formatting
+  BlockComment = "BLOCK_COMMENT",
   LineBreak = "LINE_BREAK",
 
   // Special characters

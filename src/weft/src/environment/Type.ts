@@ -1,7 +1,8 @@
 import { Environment, Binding } from "../../../compiler/environment";
 import { quantify } from "../../../compiler/typecheck/TypeScheme";
 
-import { validateQualType, parseTypeString } from "./utils";
+import { parseTypeString } from "./utils";
+import { validateQualType } from "../../../compiler/typecheck/CheckSignature";
 
 export type BindingSpec = Omit<Binding, "type" | "value"> & {
   type: string;
