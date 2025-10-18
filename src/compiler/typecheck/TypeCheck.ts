@@ -10,6 +10,7 @@ import { infer, applyToExpr, checkLiterals } from "./Generation";
 import { TypeExt } from "./ASTExtensions";
 import { Inference } from "./Monad";
 import { solve, SolverError } from "./Solver";
+import { validateQualType } from "./CheckSignature";
 
 export function typecheckStmt(
   statement: Stmt,
@@ -30,6 +31,19 @@ export function typecheckStmt(
       let litErrors: SolverError[];
       [expression, litErrors] = checkLiterals(expression);
       return [{ ...statement, expression }, [...errors, ...litErrors]];
+    case Stmt.Is.Annotation:
+      // TODO: Check kind etc
+      let { name, typeSig } = statement;
+      let type = validateQualType(typeSig);
+
+      return [
+        {
+          ...statement,
+          name: { ...name, type: type.type },
+          type,
+        },
+        [],
+      ];
     case Stmt.Is.Error:
       return [statement, []];
     default:

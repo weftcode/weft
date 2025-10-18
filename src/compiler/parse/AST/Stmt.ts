@@ -4,7 +4,8 @@ import { TypeNode } from "./TypeNode";
 
 export type Stmt<Extend extends Stmt.Extension = Stmt.Extension> =
   | Stmt.Expression<Extend>
-  | Stmt.Error<Extend>;
+  | Stmt.Error<Extend>
+  | Stmt.Annotation<Extend>;
 
 export namespace Stmt {
   export enum Is {
@@ -23,15 +24,15 @@ export namespace Stmt {
 
   export type Annotation<Extend extends Extension = Extension> = {
     is: Is.Annotation;
-    name: Expr.Variable<Extend>;
-    type: TypeNode.Qual;
-  };
+    name: Expr.Variable<Extend> | Expr.Error<Extend>;
+    typeSig: TypeNode;
+  } & Extend["Stmt.Annotation"];
 
   export type Binding<Extend extends Extension = Extension> = {
     is: Is.Binding;
     pattern: Expr.Variable<Extend>; // Just plain patterns for now
     expression: Expr<Extend>;
-  };
+  } & Extend["Stmt.Binding"];
 
   export type Expression<Extend extends Extension = Extension> = {
     is: Is.Expression;
