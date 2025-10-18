@@ -61,10 +61,32 @@ export class Scanner {
 
     // Check for reserved symbols
     const string = this.source.slice(this.start, this.current);
-    if (/^---*$/.test(string)) {
-      // If the symbol matches the token "dashes",
-      // then consume a single-line comment
-      while (this.peek() != "\n" && !this.isAtEnd()) this.advance();
+    let match = string.match(/^--(-*)$/);
+    if (match) {
+      if (match[1] === "") {
+        // Consume a single-line comment
+        while (this.peek() != "\n" && !this.isAtEnd()) this.advance();
+      } else {
+        // Consume a multi-line comment
+        let close = "";
+        while (!this.isAtEnd()) {
+          if (this.peek() === "-") {
+            close += "-";
+          } else if (close !== "") {
+            // We collected one or two dashes
+            if (close.length <= 2) {
+              // False alarm
+              close = "";
+            } else {
+              // We've collected an appropriate end delimeter
+              this.addToken(TokenType.BlockComment);
+              break;
+            }
+          }
+
+          this.advance();
+        }
+      }
     } else if (string in reservedop) {
       this.addToken(reservedop[string]);
     } else {

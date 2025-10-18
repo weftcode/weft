@@ -20,6 +20,8 @@ export class Parser extends BaseParser<Stmt[]> {
       if (this.check(TokenType.LineBreak)) {
         // Ignore empty lines
         this.advance();
+      } else if (this.check(TokenType.BlockComment)) {
+        console.log(this.advance().lexeme);
       } else {
         try {
           statements.push(this.expressionStatement());
