@@ -23,6 +23,8 @@ interface Solution {
 export function solve(constraints: Constraint[], env: TypeClassEnv): Solution {
   let { substitution, errors } = solveEq(constraints.filter(isEqConstraint));
 
+  console.log(constraints);
+
   errors.push(
     ...solveClass(substitution, constraints.filter(isClassConstraint), env)
   );

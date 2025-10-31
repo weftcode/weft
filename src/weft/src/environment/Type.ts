@@ -1,4 +1,4 @@
-import { Environment, Binding } from "../../../compiler/environment";
+import { Binding } from "../../../compiler/environment";
 import { quantify } from "../../../compiler/typecheck/TypeScheme";
 
 import { validateQualType, parseTypeString } from "./utils";

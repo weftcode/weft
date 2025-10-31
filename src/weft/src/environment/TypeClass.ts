@@ -1,11 +1,14 @@
 import { Predicate } from "../../../compiler/typecheck/TypeClass";
 import { ClassDec, Precedence } from "../../../compiler/environment";
-import { parseTypeString } from "./utils";
+import { parseTypeString, validateQualType } from "./utils";
 import { TypeNode } from "../../../compiler/parse/AST/TypeNode";
 import { printQualType, printType } from "../../../compiler/typecheck/Printer";
 import { Type } from "../../../compiler/typecheck/Type";
 import { KType } from "../../../compiler/typecheck/BuiltIns";
 import { validateSpec } from "./Type";
+import { Binding } from "../../../compiler/environment";
+import { BindingSpec } from "./Type";
+import { quantify } from "../../../compiler/typecheck/TypeScheme";
 
 export interface ClassSpec {
   methods: {
@@ -64,10 +67,12 @@ export function validateClassSpec(
     kind: KType,
   };
 
+  let classPred: Predicate = { isIn: name, type: variable };
+
   let methods = Object.fromEntries(
     Object.entries(spec.methods).map(([name, methodSpec]) => [
       name,
-      validateSpec(name, methodSpec),
+      validateMethodSpec(name, methodSpec, classPred),
     ])
   );
 
@@ -98,6 +103,41 @@ function validateAssertion(
   }
 }
 
-function validateInstance(signatureString: string, spec: InstanceSpec) {
+function validateMethodSpec(
+  name: string,
+  { type: typeString, value, prec }: BindingSpec,
+  classPred: Predicate
+): Binding {
+  try {
+    let { preds, type } = validateQualType(parseTypeString(typeString));
+    let typeScheme = quantify([], { preds: [classPred, ...preds], type });
+
+    return { type: typeScheme, value, prec };
+  } catch (e) {
+    if (e instanceof Error) {
+      throw new Error(`Error with "${name}" binding: ${e.message}`);
+    } else {
+      throw e;
+    }
+  }
+}
+
+function validateInstance(
+  signatureString: string,
+  spec: InstanceSpec
+): [string, ClassDec] {
   let signature = parseTypeString(signatureString);
+
+  let className: TypeNode.Type;
+  let context: TypeNode.Context | null = null;
+
+  // A "qualified type" is a superclass context
+  if (signature.is === TypeNode.Is.Qual) {
+    className = signature.type;
+    context = signature.context;
+  } else {
+    className = signature;
+  }
+
+  return [className, {}];
 }
