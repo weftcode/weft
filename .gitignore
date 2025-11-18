@@ -1,3 +1,5 @@
 node_modules
 .parcel-cache
 dist
+# Local Netlify folder
+.netlify

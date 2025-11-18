@@ -1,0 +1,6 @@
+[build]
+  # Location of built editor
+  publish = "src/editor/dist"
+
+  # Default build command.
+  command = "npm run clean & npm run build"
