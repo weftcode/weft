@@ -1,0 +1,51 @@
+@top Program { declaration* }
+
+@precedence {
+  application @left,
+  arrow @right,
+  operator @right
+}
+
+declaration[@isGroup=Declaration] {
+  Comment { Dashes "\n" } |
+  AssignmentDec |
+  AnnotationDec
+}
+
+AnnotationDec { Name ":" type }
+
+AssignmentDec { Name "=" expression }
+
+expression { Name | Number | BinaryExpression }
+
+FunctionApp { expression !application expression }
+
+BinaryExpression { expression !operator VarSym expression }
+
+// Types
+
+type[@isGroup=Type] {
+  ArrowType |
+  TypeVar |
+  TypeApp
+}
+
+TypeVar { Name }
+
+TypeApp { type !application type }
+
+ArrowType { type !arrow @specialize<VarSym, "->"> type }
+
+@external specialize {VarSym} specializeDashes from "./tokens" {
+  Dashes
+}
+
+@tokens {
+  whitespace { " " | "\t" }
+  Name { @asciiLetter+ }
+  Number { @digit+ }
+  Comment { @specialize<VarSym, "--"> ![\n]* "\n" }
+
+  symbol { "!" | "+" | "-" }
+  VarSym { symbol+ }
+}

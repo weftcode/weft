@@ -1,0 +1,17 @@
+{
+  "name": "@weftcode/codemirror",
+  "version": "0.1.0",
+  "description": "",
+  "license": "MIT",
+  "author": "",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "dev": "vite",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "devDependencies": {
+    "unplugin-lezer": "^1.0.1",
+    "vite": "^6.4.3"
+  }
+}

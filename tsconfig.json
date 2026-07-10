@@ -5,7 +5,8 @@
     "module": "ESNext",
     "moduleResolution": "bundler",
     "jsx": "react-jsx",
-    "jsxImportSource": "preact"
+    "jsxImportSource": "preact",
+    "erasableSyntaxOnly": true
   },
-  "exclude": ["src/strudel/*"]
+  "exclude": ["src/*"]
 }
