@@ -7,14 +7,13 @@
 }
 
 declaration[@isGroup=Declaration] {
-  Comment { Dashes "\n" } |
   AssignmentDec |
   AnnotationDec
 }
 
-AnnotationDec { Name ":" type }
+AnnotationDec { Name @specialize<ConSym, ":"> type }
 
-AssignmentDec { Name "=" expression }
+AssignmentDec { Name @specialize<VarSym, "="> expression }
 
 expression { Name | Number | BinaryExpression }
 
@@ -36,16 +35,12 @@ TypeApp { type !application type }
 
 ArrowType { type !arrow @specialize<VarSym, "->"> type }
 
-@external specialize {VarSym} specializeDashes from "./tokens" {
-  Dashes
-}
+@external tokens tokenizeSymbol from "./tokens.js" { Comment, VarSym, ConSym }
+
+@skip { whitespace | Comment }
 
 @tokens {
   whitespace { " " | "\t" }
   Name { @asciiLetter+ }
   Number { @digit+ }
-  Comment { @specialize<VarSym, "--"> ![\n]* "\n" }
-
-  symbol { "!" | "+" | "-" }
-  VarSym { symbol+ }
 }
