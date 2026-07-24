@@ -38,6 +38,7 @@
     "@strudel/mini": "^1.2.3",
     "@strudel/tonal": "^1.2.3",
     "@strudel/webaudio": "1.2.3",
+    "chevrotain": "^12.0.0",
     "codemirror": "^6.0.1",
     "marked": "^14.1.2",
     "preact": "^10.24.2"
